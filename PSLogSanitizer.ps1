@@ -1,4 +1,4 @@
-﻿#Be sure to test your regular expressions.  There are several online test tools available.
+#Be sure to test your regular expressions.  There are several online test tools available.
 #I used this one and it worked very well http://regexstorm.net/tester
 #Regex Reference
 #https://www.zerrouki.com/powershell-cheatsheet-regular-expressions/
@@ -8,9 +8,9 @@
 #Format is (RegexValue, ReplacementValue)
 $regex = @{}
 $regex.Add("ASD\w*-\w+","XXX-ServerName") #Replace server names following format <CompanyPrefix>*-*
-$regex.Add("(PS1)\w*","XXX") #Replace all exact matches for your CCM Site Code
+$regex.Add("(CM1)","XXX") #Replace all instances of your configmgr site prefix, mostly seein in package names
 $regex.Add("(\.\w?\w?\.|\.)asquaredozen.com",".XXXXXXX.com") #Replace all domain urls matching .*.<mydomain.com> or .<mydomain.com>
-$regex.Add("(SecretProductName)","XXXXXXXXX") #Replace any other exact match words - like internal product names and such.
+$regex.Add("(SecretProductName|SecretProductName2)","XXXXXXXXX") #Replace any other exact match words - like internal product names and such.
 ##############################################################################################################################################
 
 #Location of this script.
@@ -32,4 +32,4 @@ forEach ($log in $logfiles){
      $content | Set-Content $parsedLogName
      
      Write-Host -f green "Parsing Completed for $($log)."
-}     
+}
