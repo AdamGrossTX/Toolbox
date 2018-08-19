@@ -1,0 +1,3106 @@
+<migration urlid="http://www.microsoft.com/migration/1.0/migxmlext/BulkUpgrade">
+
+  <component type="Application">
+    <displayName>Bulk Upgrade</displayName>
+    <paths>
+      <path type="File">%windir%\BulkUpg</path>
+    </paths>
+    <role role="Settings">
+
+      <environment context="System">
+        <variable name="GOOGLE_EARTH_ROOT">
+          <script>MigXmlHelper.GetStringContent("Registry","HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3DE5E7D4-7B88-403C-A3FD-2017A8240C5B} [InstallLocation]")</script>
+        </variable>
+
+        <variable name="SYSVOL_DIR">
+          <objectSet>
+            <content filter='MigXmlHelper.ExtractDirectory (NULL, "1")'>
+              <objectSet>
+                <pattern type="Registry">HKLM\System\CurrentControlSet\Services\Netlogon\Parameters [SysVol]</pattern>
+              </objectSet>
+            </content>
+          </objectSet>
+        </variable>
+      </environment>
+
+      <rules context="system">
+          <detects>
+            <detect>
+              <condition>MigXmlHelper.IsOSEarlierThan("NT","6.2.0.0")</condition>
+            </detect>
+          </detects>
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Reliability Analysis\RAC [RacSampleNumber]</pattern>
+          </objectSet>
+        </include>
+      </rules>
+
+      <rules context="System">
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKU\.DEFAULT\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\Software\Classes\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\Software\Microsoft\Windows\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\Software\Microsoft\WindowsNT\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\Software\Microsoft\IdentityCRL\*[*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\Software\Policies\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKU\.DEFAULT\Software\* [*]</pattern>
+          </objectSet>
+        </include>
+      </rules>
+
+      <rules context="User">
+        <exclude>
+          <objectSet>
+            <condition>MigXmlHelper.IsSameStringContent("Registry","HKCU\Environment [TEMP]","Registry","HKU\.Default\Environment [TEMP]")</condition>
+            <pattern type="Registry">HKCU\Environment [TEMP]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsSameStringContent("Registry","HKCU\Environment [TMP]","Registry","HKU\.Default\Environment [TMP]")</condition>
+            <pattern type="Registry">HKCU\Environment [TMP]</pattern>
+          </objectSet>
+        </exclude>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKCU\Environment [TEMP]</pattern>
+            <pattern type="Registry">HKCU\Environment [TMP]</pattern>
+          </objectSet>
+        </merge>
+      </rules>
+
+      <rules context="User">
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Registry">HKCU\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKCU\AppEvents\Schemes [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\AppEvents\EventLabels\.Default\* [*]</pattern>
+            <pattern type="Registry">HKCU\AppEvents\Schemes\Apps\.Default\* [*]</pattern>
+            <pattern type="Registry">HKCU\AppEvents\Schemes\Names\.Default\* [*]</pattern>
+            <pattern type="Registry">HKCU\Console\* [*]</pattern>
+            <pattern type="Registry">HKCU\Control Panel\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Environment\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Environment [*]</pattern>
+          </objectSet>
+        </include>
+
+
+        <contentModify script="MigXmlHelper.MergeDelimitedContent(&apos;;&apos;)">
+          <objectSet>
+            <pattern type="Registry">HKCU\Environment [Path]</pattern>
+            <pattern type="Registry">HKCU\Environment [PATHEXT]</pattern>
+          </objectSet>
+        </contentModify>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKCU\Environment [Path]</pattern>
+            <pattern type="Registry">HKCU\Environment [PATHEXT]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Identities\* [*]</pattern>
+            <pattern type="Registry">HKCU\Keyboard Layout\* [*]</pattern>
+            <pattern type="Registry">HKCU\Network\* [*]</pattern>
+            <pattern type="Registry">HKCU\Remote\* [*]</pattern>
+            <pattern type="Registry">HKCU\RemoteAccess\* [*]</pattern>
+            <pattern type="Registry">HKCU\SessionInformation\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes\ActivatableClasses\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Extensions\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Folder\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\FolderTypes\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\ImmutableMuiCache\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\MuiCache\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Printers\Roamed\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Mappings\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\* [*]</pattern>
+
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\$\ManifestLanguagesList\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Families\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+            <objectSet>
+                <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$\PersistedStorageItemTable\* [*]</pattern>
+            </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\.NETFramework\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Active Setup\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\AD7Metrics\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\AD7Metrics [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\ADs\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Advanced INF Setup\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\ALG\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\ASF Stream Descriptor File\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Assistance\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\AudioCompressionManager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\BidInterface\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Clock\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\COM3\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Command Processor\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Connection Manager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Conferencing\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Cryptography\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\CTF\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\DataAccess\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\RegisteredApplications\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\DataFactory\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\DeviceManager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Dfrg\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Dot3svc\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Driver Signing\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\DRM\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\DrWatson\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\EAPOL\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\EnterpriseCertificates\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\ESENT\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\EventSystem\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Fax\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\File Manager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\FTP\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Fusion\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\GDIPlus\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\HTMLHelp [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\HTMLHelp\$\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IdentityCRL\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IdentityCRL\Creds\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IE Setup\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IE Setup\DependentComponents\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IE4\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IE4\DependentComponents\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IMAPI\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\IMEJP\10.0 [Mig]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\IMEJP\10.0 [Migrated]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\InputPersonalization\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Installer\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Intelligent Search\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Account Manager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Connection Wizard\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Domains\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Explorer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Explorer\Default HTML Editor\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Explorer\Default MHTML Editor\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Explorer\MenuExt\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Internet Explorer\Main\FeatureControl\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\IPSec\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Keyboard\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Magnify\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MediaCenterPeripheral\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MediaPlayer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Microsoft Agent\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MicrosoftEdge\Main\EnterpriseMode [CurrentVersion]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MicrosoftEdge\BrowserEmulation [IECompatVersionHigh]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MicrosoftEdge\BrowserEmulation [IECompatVersionLow]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Microsoft Help Workshop\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Microsoft Management Console\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MMCtlsForIE\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Mobile\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MPEG2Demultiplexer\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Mr. Enigma\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\MS Setup (ACME)\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MSDAIPP\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MSDTC\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MSHandwritingTIP\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MSLicensing\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\MSMQ\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\MSPaper$\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Multimedia\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Narrator\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\NetDDE\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\NetSh\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\NetShow\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Non-Driver Signing\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Notepad\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Ntbackup\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Ole\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Osk\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Outlook Express\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\PCHealth\* [*]</pattern>
+            <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Personalization\Settings\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Protected Storage System Provider\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\RAS\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\RAS AutoDial\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\RAS EAP\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\RegEdt32\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Remote Desktop\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Router\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Rpc\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SAPI Layer\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Schedule+\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SchedulingAgent\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SCEP\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Search Assistant\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Secure\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Security Center\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SQMClient\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SRU\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\StrongName\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\SystemCertificates\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Tcpip\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\TelnetServer\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Terminal Server Client\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\TPG\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Tracing\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Transaction Server\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\TShoot\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Tuning Spaces\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\uDRM\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Updates\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\UPnP Device Host\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\WAB\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\WBEM\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Wlansvc\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Web Service Providers\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\AppCompatFlags\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\$\ManifestLanguagesList\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\AppSync\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\DeviceCapabilities\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Paint\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\StickyNotes\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\EventHandlersDefaultSelection\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\UserChosenExecuteHandlers\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Deployment\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Passport\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Media Center\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\PushNotifications [AppDB]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100 [DisplayName]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100 [URL]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\UnreadMail\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Run [ctfmon.exe]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\Run [WindowsWelcomeCenter]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows\Shell\AttachmentExecute\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Advanced Threat Protection\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows CE Services\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Defender\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Help\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Mail\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Media\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Media Device Manager\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Media Foundation\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Media Player NSS\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Messaging Subsystem\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\WindowsSelfHost\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon [ExcludeProfileDirs]</pattern>
+          </objectSet>
+
+          <objectSet>
+            <conditions>
+              <condition negation="Yes">MigXmlHelper.DoesStringContentContain("Registry", "HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon [Shell]", "explorer.exe")</condition>
+            </conditions>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon [Shell]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Photo Gallery\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Script Host\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Windows Scripting Host\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\WindowsErrorReporting\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Microsoft\Wisp\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Policies\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Policies\Microsoft\SystemCertificates\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Policies\Microsoft\Windows\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Policies\Microsoft\Windows NT\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\RegisteredApplications [AppX*]</pattern>
+
+            <pattern type="Registry">HKCU\System\Setup\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Unicode Program Groups\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Volatile Environment\* [*]</pattern>
+
+            <pattern type="Registry">HKCU\Windows 3.1 Migration Status\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <conditions><condition negation="Yes">MigXmlHelper.IsDefaultUser()</condition></conditions>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\%USERSID%\Preference [UserPreference]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%SystemDrive%\* [desktop.ini]</pattern>
+          </objectSet>
+        </merge>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\* [*]</pattern>
+            <pattern type="File">%CSIDL_NETHOOD%\* [*]</pattern>
+            <pattern type="File">%CSIDL_PRINTHOOD%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_HISTORY%")</condition>
+            <pattern type="File">%CSIDL_HISTORY%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_COOKIES%")</condition>
+            <pattern type="File">%CSIDL_COOKIES%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_INTERNET_CACHE%")</condition>
+            <pattern type="File">%CSIDL_INTERNET_CACHE%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%FOLDERID_SavedSearches%")</condition>
+            <pattern type="File">%FOLDERID_SavedSearches%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <pattern type="File">%CSIDL_VIRTUALSTORE%\* [*]</pattern>
+            <pattern type="File">%FOLDERID_LocalAppDataLow%\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%CSIDL_LOCAL_APPDATA%\Application Data')</condition></conditions>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Application Data\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%CSIDL_LOCAL_APPDATA%\History')</condition></conditions>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\History\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%CSIDL_LOCAL_APPDATA%\Temporary Internet Files')</condition></conditions>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Temporary Internet Files\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <locationModify script="MigXmlHelper.RelativeMove('%CSIDL_LOCAL_APPDATA%\..\Apps','%CSIDL_LOCAL_APPDATA%\Apps')">
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\..\Apps\* [*]</pattern>
+          </objectSet>
+        </locationModify>
+
+        <include>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_PROGRAMS%")</condition>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_QUICKLAUNCH%")</condition>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_RECENT%")</condition>
+            <pattern type="File">%CSIDL_RECENT%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_SENDTO%")</condition>
+            <pattern type="File">%CSIDL_SENDTO%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_STARTMENU%")</condition>
+            <pattern type="File">%CSIDL_STARTMENU%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_STARTUP%")</condition>
+            <pattern type="File">%CSIDL_STARTUP%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_FAVORITES%")</condition>
+            <pattern type="File">%CSIDL_FAVORITES%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%FOLDERID_Links%")</condition>
+            <pattern type="File">%FOLDERID_Links%\* [*]</pattern>
+          </objectSet>
+        </include>
+        <exclude filter="MigXmlHelper.IgnoreIrrelevantLinks()">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\* [*]</pattern>
+            <pattern type="File">%CSIDL_RECENT%\* [*]</pattern>
+            <pattern type="File">%CSIDL_SENDTO%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTUP%\* [*]</pattern>
+            <pattern type="File">%CSIDL_FAVORITES%\* [*]</pattern>
+            <pattern type="File">%FOLDERID_Links%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <exclude filter="MigXmlHelper.ExcludeSystemShortcuts('*\accwiz.exe;*\audioconverter.exe;*\bckgzm.exe;*\calc.exe;*\cdlm.exe;*\charmap.exe;*\chkrzm.exe;*\cleanmgr.exe;*\explorer.exe;*\freecell.exe;*\fxsclnt.exe;*\fxscover.exe;*\fxssend.exe;*\hh.exe;*\hrtzzm.exe;*\hypertrm.exe;*\iexplore.exe;*\inetcfg.exe;*\magnify.exe;*\migwiz.exe;*\mmc.exe;*\mobsync.exe;*\moviemk.exe;*\mshearts.exe;*\msimn.exe;*\msnsusii.exe;*\msoobe.exe;*\mspaint.exe;*\mstsc.exe;*\narrator.exe;*\notepad.exe;*\ntbackup.exe;*\osk.exe;*\partymode.exe;*\pinball.exe;*\powershell.exe;*\rcimlby.exe;*\rstrui.exe;*\rvsezm.exe;*\shvlzm.exe;*\sndrec32.exe;*\sndvol32.exe;*\sol.exe;*\spider.exe;*\tourstart.exe;*\utilman.exe;*\winmine.exe;*\wmplayer.exe;*\wupdmgr.exe;*\dvdmaker.exe;*\netproj.exe;*\chess.exe;*\mahjong.exe;*\purbleplace.exe;*\hearts.exe;*\solitaire.exe;*\spidersolitaire.exe;*\minesweeper.exe;*\wordpad.exe;*\ehshell.exe;*\control.exe;*\OneDrive.exe;*\cmd.exe;*\MSASCui.exe')">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <exclude filter="MigXmlHelper.ExcludeSystemShortcuts('*\SkyDrive.exe;*\SkyDriveSetup.exe','FALSE')">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\* [*]</pattern>
+            <pattern type="File">%CSIDL_RECENT%\* [*]</pattern>
+            <pattern type="File">%CSIDL_SENDTO%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTUP%\* [*]</pattern>
+            <pattern type="File">%CSIDL_FAVORITES%\* [*]</pattern>
+            <pattern type="File">%FOLDERID_Links%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <merge script="MigXmlHelper.SourcePriorityFolderSpecial()">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%</pattern>
+            <pattern type="File">%CSIDL_RECENT%</pattern>
+            <pattern type="File">%CSIDL_SENDTO%</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%</pattern>
+            <pattern type="File">%CSIDL_STARTUP%</pattern>
+            <pattern type="File">%CSIDL_FAVORITES%</pattern>
+            <pattern type="File">%FOLDERID_Links%</pattern>
+          </objectSet>
+        </merge>
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%\*</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\*</pattern>
+            <pattern type="File">%CSIDL_RECENT%\*</pattern>
+            <pattern type="File">%CSIDL_SENDTO%\*</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\*</pattern>
+            <pattern type="File">%CSIDL_STARTUP%\*</pattern>
+            <pattern type="File">%CSIDL_FAVORITES%\*</pattern>
+            <pattern type="File">%FOLDERID_Links%\*</pattern>
+          </objectSet>
+        </merge>
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_RECENT%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_SENDTO%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_STARTUP%\* [desktop.ini]</pattern>
+            <pattern type="File">%CSIDL_FAVORITES%\* [desktop.ini]</pattern>
+            <pattern type="File">%FOLDERID_Links%\* [desktop.ini]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+
+            <pattern type="File">%UserProfile% [ntuser.*]</pattern>
+            <pattern type="File">%UserProfile% [*.cer]</pattern>
+            <pattern type="File">%UserProfile% [*.pol]</pattern>
+
+            <pattern type="File">%Temp%\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_INTERNET_CACHE%\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COOKIES%\* [*]</pattern>
+            <pattern type="File">%CSIDL_HISTORY%\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\assembly\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\PCHealth\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Deployment\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\ApplicationHistory\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\MigWiz\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\CD Burning\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Credentials\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\DRM\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Feeds\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Feeds Cache\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\HelpCtr\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Internet Explorer\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\InputPersonalization\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Media Player\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Device Metadata\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Media Player [currentdatabase*.wmdb]</pattern>
+          </objectSet>
+        </include>
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Media Player [currentdatabase*.wmdb]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Terminal Server Client\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows\History\* [*]</pattern>
+
+
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows\Notifications [appdb.dat]</pattern>
+
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows Media\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows NT\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows Messenger\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Windows Store\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Packages\$\SystemAppData\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Packages\$\$\ActivationStore [ActivationStore.dat]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$\PackageStateRoaming\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$\PSR\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$\AcquisitionInfo\* [*]</pattern>
+            <pattern type="Registry">HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$\Schemas\* [*]</pattern>
+        </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Packages\$\SystemAppData\wgs\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\Packages\$\SystemAppData\Helium [*]</pattern>
+          </objectSet>
+        </include>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Address Book\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\AntiSpyware\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\CLR Security Config\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\CryptnetUrlCache\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Crypto\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Credentials\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\DRM\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Internet Explorer\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Media Player\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Smart Tags\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\SoftwareLicensing\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\SystemCertificates\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Web Server Extensions\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Windows\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Windows\Templates\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Windows Messenger\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Internet Explorer\* [*]</pattern>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Network\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\Microsoft\Windows\upgrade\* [*]</pattern>
+          </objectSet>
+        </include>
+
+
+        <merge script="MigXmlHelper.ConflictRename('NodeSourcePriority')">
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COOKIES%\* [*]</pattern>
+            <pattern type="File">%CSIDL_HISTORY%\* [*]</pattern>
+            <pattern type="File">%CSIDL_INTERNET_CACHE%\* [*]</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\* [*]</pattern>
+            <pattern type="File">%CSIDL_NETHOOD%\* [*]</pattern>
+            <pattern type="File">%CSIDL_PRINTHOOD%\* [*]</pattern>
+            <pattern type="File">%CSIDL_PROGRAMS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_QUICKLAUNCH%\* [*]</pattern>
+            <pattern type="File">%CSIDL_RECENT%\* [*]</pattern>
+            <pattern type="File">%CSIDL_SENDTO%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_STARTUP%\* [*]</pattern>
+            <pattern type="File">%CSIDL_VIRTUALSTORE%\* [*]</pattern>
+            <pattern type="File">%FOLDERID_LocalAppDataLow%\* [*]</pattern>
+            <pattern type="File">%FOLDERID_SavedSearches%\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%CSIDL_APPDATA%\*</pattern>
+            <pattern type="File">%CSIDL_COOKIES%\*</pattern>
+            <pattern type="File">%CSIDL_HISTORY%\*</pattern>
+            <pattern type="File">%CSIDL_INTERNET_CACHE%\*</pattern>
+            <pattern type="File">%CSIDL_LOCAL_APPDATA%\*</pattern>
+            <pattern type="File">%CSIDL_NETHOOD%\*</pattern>
+            <pattern type="File">%CSIDL_PRINTHOOD%\*</pattern>
+            <pattern type="File">%CSIDL_VIRTUALSTORE%\*</pattern>
+            <pattern type="File">%FOLDERID_LocalAppDataLow%\*</pattern>
+            <pattern type="File">%FOLDERID_SavedSearches%\*</pattern>
+          </objectSet>
+        </merge>
+
+      </rules>
+
+
+      <rules context="System">
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKU\.DEFAULT\AppEvents\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKU\.DEFAULT\AppEvents\EventLabels\.Default\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\AppEvents\Schemes\Apps\.Default\* [*]</pattern>
+            <pattern type="Registry">HKU\.DEFAULT\AppEvents\Schemes\Names\.Default\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Classes</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Classes\ActivatableClasses\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\AppUserModelId\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\AudioEngine\AudioProcessingObjects\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CID\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CID.Local\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\DeviceDisplayObject\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\Extensions\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\MediaFoundation\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0A4286EA-E355-44FB-8086-AF3DF7645BD9}\Implemented Categories\* [*]</pattern>
+
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D6277990-4C6A-11CF-8D87-00AA0060F5BF}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC901}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC902}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC903}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC904}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC905}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC906}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC907}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC908}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC909}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90A}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90C}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90D}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90E}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC90F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC910}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC911}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC912}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC913}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC914}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC915}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC916}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC917}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC918}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC919}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91A}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91C}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91D}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91E}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC91F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC920}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC921}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC922}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC923}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC924}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC925}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC926}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC927}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC928}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC929}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92A}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92C}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92D}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92E}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC92F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC930}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC931}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC932}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC933}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC934}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC935}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC936}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC937}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC938}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC939}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93A}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93C}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93D}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93E}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC93F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC940}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC941}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6FDDC324-4E03-4BFE-B185-3D77768DC942}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{381DDA3C-9CE9-4834-A23E-1F98F8FC52BE}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{389EA17B-5078-4CDE-B6EF-25C15175C751}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6B462062-7CBF-400D-9FDB-813DD10F2778}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{9456A480-E88B-43EA-9E73-0B2D9B71B1CA}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B54E85D9-FE23-499F-8B88-6ACEA713752B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{C61BFCDF-2E0F-4AAD-A8D7-E06BAFEBCDFE}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0131BE10-2001-4C5F-A9B0-CC88FAB64CE8}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{114F5598-0B22-40A0-86A1-C83EA495ADBD}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1A34F5C1-4A5A-46DC-B644-1F4567E7A676}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{27949969-876A-41D7-9447-568F6A35A4DC}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{69BE8BB4-D66D-47C8-865A-ED1589433782}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1A3F11DC-B514-4B17-8C5F-2154513852F1}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{9CB5172B-D600-46BA-AB77-77BB7E3A00D9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{C17CABB2-D4A3-47D7-A557-339B2EFBD4F1}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0010668C-0801-4DA6-A4A4-826522B6D28F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{03012959-F4F6-44D7-9D09-DAA087A9DB57}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{3697790B-223B-484E-9925-C4869218F17A}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{43324B33-A78F-480F-9111-9638AACCC832}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{4B59AFCC-B8C3-408A-B670-89E5FAB6FDA7}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{50D42F09-ECD1-4B41-B65D-DA1FDAA75663}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{699745C2-5066-4B82-A8E3-D40478DBEC8C}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{72B624DF-AE11-4948-A65C-351EB0829419}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8F914656-9D0A-4EB2-9019-0BF96D8A9EE6}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA7E3C50-864C-4604-BC04-8B0B76E637F6}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5C8B898-0074-459F-B700-860D4651EA14}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D4DCD3D7-B4C2-47D9-A6BF-B89BA396A4A3}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D9403860-297F-4A49-BF9B-77898150A442}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{DDE33513-774E-4BCD-AE79-02F4ADFE62FC}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FB012959-F4F6-44D7-9D09-DAA087A9DB57}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{00108226-EE41-44A2-9E9C-4BE4D5B1D2CD}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{122EC645-CD7E-44D8-B186-2C8C20C3B50F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1249B20C-5DD0-44FE-B0B3-8F92C8E6D080}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1765E14E-1BD4-462E-B6B1-590BF1262AC6}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{5C5C1935-0235-4434-80BC-251BC1EC39C6}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7B19A919-A9D6-49E5-BD45-02C34E4E4CD5}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8ADE5386-8E9B-4F4C-ACF2-F0008706B238}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{A09CCA86-27BA-4F39-9053-121FA4DC08FC}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B1EBFC28-C9BD-47A2-8D33-B948769777A7}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5EBAFB9-253E-4A72-A744-0762D2685683}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{C9A14CDA-C339-460B-9078-D4DEBCFABE91}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{CB8C13E4-62B5-4C96-A48B-6BA6ACE39C76}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D049B20C-5DD0-44FE-B0B3-8F92C8E6D080}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{EE366069-1832-420F-B381-0479AD066F19}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{F3C633A2-46C8-498E-8FBB-CC6F721BBCDE}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0010668C-0801-4DA6-A4A4-826522B6D28F}\Containers\{16100D66-8570-4BB9-B92D-FDA4B23ECE67}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{00108226-EE41-44A2-9E9C-4BE4D5B1D2CD}\Containers\{16100D66-8570-4BB9-B92D-FDA4B23ECE67}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{122EC645-CD7E-44D8-B186-2C8C20C3B50F}\Containers\{1C3C4F9D-B84A-467D-9493-36CFBD59EA57}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1249B20C-5DD0-44FE-B0B3-8F92C8E6D080}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1765E14E-1BD4-462E-B6B1-590BF1262AC6}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1765E14E-1BD4-462E-B6B1-590BF1262AC6}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{3697790B-223B-484E-9925-C4869218F17A}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{43324B33-A78F-480F-9111-9638AACCC832}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{50D42F09-ECD1-4B41-B65D-DA1FDAA75663}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{5C5C1935-0235-4434-80BC-251BC1EC39C6}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{72B624DF-AE11-4948-A65C-351EB0829419}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{72B624DF-AE11-4948-A65C-351EB0829419}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7B19A919-A9D6-49E5-BD45-02C34E4E4CD5}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8ADE5386-8E9B-4F4C-ACF2-F0008706B238}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8F914656-9D0A-4EB2-9019-0BF96D8A9EE6}\Containers\{163BCC30-E2E9-4F0B-1D96-A3E9FDB788A3}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA7E3C50-864C-4604-BC04-8B0B76E637F6}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B1EBFC28-C9BD-47A2-8D33-B948769777A7}\Containers\{163BCC30-E2E9-4F0B-1D96-A3E9FDB788A3}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5C8B898-0074-459F-B700-860D4651EA14}\Containers\{1C3C4F9D-B84A-467D-9493-36CFBD59EA57}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5EBAFB9-253E-4A72-A744-0762D2685683}\Containers\{1B7CFAF4-713F-473C-BBCD-6137425FAEAF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{C9A14CDA-C339-460B-9078-D4DEBCFABE91}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{CB8C13E4-62B5-4C96-A48B-6BA6ACE39C76}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D049B20C-5DD0-44FE-B0B3-8F92C8E6D080}\Containers\{8FD3DFC3-F951-492B-817F-69C2E6D9A5B0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D4DCD3D7-B4C2-47D9-A6BF-B89BA396A4A3}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D9403860-297F-4A49-BF9B-77898150A442}\Containers\{537396C6-2D8A-4BB6-9BF8-2F0A8E2A3ADF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{DDE33513-774E-4BCD-AE79-02F4ADFE62FC}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\{63E8DF02-EB6C-456C-A224-B25E794FD648}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\{7B08A675-91AA-481B-A798-4DA94908613B}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\{833CCA5F-DCB7-4516-806F-6596AB26DCE4}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{EE366069-1832-420F-B381-0479AD066F19}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{F3C633A2-46C8-498E-8FBB-CC6F721BBCDE}\Containers\{19E4A5AA-5662-4FC5-A0C0-1758028E1057}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FB012959-F4F6-44D7-9D09-DAA087A9DB57}\Containers\{8FD3DFC3-F951-492B-817F-69C2E6D9A5B0}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FAE3D380-FEA4-4623-8C75-C6B61110B681}\Schemas\{22383CF1-ED17-4E2E-AF17-D85B8F6B30D0} [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FAE3D380-FEA4-4623-8C75-C6B61110B681}\Schemas\{BB5ACC38-F216-4CEC-A6C5-5F6E739763A9} [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FAE3D380-FEA4-4623-8C75-C6B61110B681}\Namespaces [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{F133FDA6-7FA7-4913-AA52-ABD3B2E55AD9}\Implemented Categories\{23C58E7E-F6CE-4d24-A863-93C9E66FB69D}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FFB10065-C96A-4c38-BFA3-E7E813F70CAD}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0AEA9D89-A450-4315-88E2-858DBAA6B9DF}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{220BD138-84DF-4c81-8F75-8F1BF3E1A515}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{44CA6D95-B0B6-4750-87A6-D0B6AA025E97}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{4F7892AA-BAF7-4928-BE23-023B6405B739}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\CLSID\{9C2C8FBD-9F1B-4316-9846-1D63658C3D01}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{47629D4B-2AD3-4e50-B716-A66C15C63153}\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FEE45DE2-A467-4bf9-BF2D-1411304BCD84}\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{0010668C-0801-4DA6-A4A4-826522B6D28F}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{00108226-EE41-44A2-9E9C-4BE4D5B1D2CD}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{01B90D9A-8209-47F7-9C52-E1244BF50CED}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{03012959-F4F6-44D7-9D09-DAA087A9DB57}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{076C2A6C-F78F-4C46-A723-3583E70876EA}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{122EC645-CD7E-44D8-B186-2C8C20C3B50F}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1249B20C-5DD0-44FE-B0B3-8F92C8E6D080}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{1765E14E-1BD4-462E-B6B1-590BF1262AC6}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{22C21F93-7DDB-411C-9B17-C5B7BD064ABC}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{3697790B-223B-484E-9925-C4869218F17A}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{43324B33-A78F-480F-9111-9638AACCC832}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{4B59AFCC-B8C3-408A-B670-89E5FAB6FDA7}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{50D42F09-ECD1-4B41-B65D-DA1FDAA75663}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{5C5C1935-0235-4434-80BC-251BC1EC39C6}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{699745C2-5066-4B82-A8E3-D40478DBEC8C}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{6D68D1DE-D432-4B0F-923A-091183A9BDA7}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{72B624DF-AE11-4948-A65C-351EB0829419}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7B19A919-A9D6-49E5-BD45-02C34E4E4CD5}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{7F12E753-FC71-43D7-A51D-92F35977ABB5}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8ADE5386-8E9B-4F4C-ACF2-F0008706B238}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{8F914656-9D0A-4EB2-9019-0BF96D8A9EE6}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{A09CCA86-27BA-4F39-9053-121FA4DC08FC}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA7E3C50-864C-4604-BC04-8B0B76E637F6}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{AA94DCC2-B8B0-4898-B835-000AABD74393}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B1EBFC28-C9BD-47A2-8D33-B948769777A7}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5C8B898-0074-459F-B700-860D4651EA14}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{B5EBAFB9-253E-4A72-A744-0762D2685683}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{C9A14CDA-C339-460B-9078-D4DEBCFABE91}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{CB8C13E4-62B5-4C96-A48B-6BA6ACE39C76}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D049B20C-5DD0-44FE-B0B3-8F92C8E6D080}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D4DCD3D7-B4C2-47D9-A6BF-B89BA396A4A3}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{D9403860-297F-4A49-BF9B-77898150A442}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{DDE33513-774E-4BCD-AE79-02F4ADFE62FC}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{E7E79A30-4F2C-4FAB-8D00-394F2D6BBEBE}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{ED822C8C-D6BE-4301-A631-0E1416BAD28F}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{EE366069-1832-420F-B381-0479AD066F19}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{F3C633A2-46C8-498E-8FBB-CC6F721BBCDE}\Containers\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\CLSID\{FB012959-F4F6-44D7-9D09-DAA087A9DB57}\Containers\* [*]</pattern>
+
+          </objectSet>
+
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\Folder\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\FolderTypes\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Classes\Installer\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Mappings\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Deployment\Package\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\SVCID\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Classes\SystemFileAssociations\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\Windows Media Foundation\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Classes\.xps\PersistentHandler []</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\.TiVo [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\TivoRecording [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\TivoRecording\DefaultIcon\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Classes\TivoRecording\Shell\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Clients\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Address Book\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Hotmail\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Outlook Express\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Windows Media Player\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Windows Messenger\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Outlook Express\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\IEXPLORE.EXE\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center DVD\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center Music\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center Radio\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center TV\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center Videos\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Media Center Website\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Clients\$\Windows Mail\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Description\Microsoft\Rpc\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\.NETFramework\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Active Setup\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\ActiveMovie\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\AD7Metrics [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\AD7Metrics\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\ADFS\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\ADFS2.0\*[*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\PowerShell\1\PowerShellSnapIns\Microsoft.Adfs.PowerShell\*[*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Security\AD FS 2.0 Auditing\*[*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\ADs\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Advanced INF Setup\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\ALG\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\ASF Stream Descriptor File\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Assistance\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\AudioCompressionManager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\BidInterface\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Clock\* [*]</pattern>
+
+
+            <pattern type="Registry">HKLM\Software\Microsoft\COM3\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Command Processor\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Connection Manager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Conferencing\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Cryptography\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\CTF\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\DataAccess\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\DiskSnapshot\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Device Association Framework\InboxProviders\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\IME\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Input\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\InputMethod\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Immersive Browser\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\IME\PlugInDict\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\RegisteredApplications\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\DataFactory\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\DeviceManager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Dfrg\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Dot3svc\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Driver Signing\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\DRM\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\DrWatson\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\EAPOL\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Enrollments\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\EnterpriseCertificates\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\EnterpriseResourceManager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\ESENT\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\EventSystem\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Fax\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\File Manager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\FTP\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Function Discovery\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Fusion\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\GDIPlus\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\HTMLHelp\$\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\HTMLHelp [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\HTMLHelp\1.x\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Identity Management for UNIX\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\IdentityStore\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\IE Setup\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\IE Setup\DependentComponents\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\IE4\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\IMAPI\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\InetStp\Components\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\InputPersonalization\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Installer\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Intelligent Search\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Intelligent Search\Schema\1.0\XML\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Internet Connection Wizard\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Internet Domains\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Internet Explorer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Internet Explorer\Main\FeatureControl\* [*]</pattern>
+          </objectSet>
+        </include>
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{0002df01-0000-0000-c000-000000000046} [Policy]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{FAB3E735-69C7-453B-A446-B6823C6DF1C9} [*]"</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{FAF199D2-BFA7-4394-A4DE-044A08E59B32} [*]"</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{5b71395d-ff8a-4ebc-bca3-abbb32790bec}\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{afe26134-8a16-4149-b798-242574f3f4a9}\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\IPSec\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Keyboard\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MalwareProtection\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MediaCenterPeripheral\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MediaPlayer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\MediaPlayer\PREFERENCES\VideoSettings\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\MessengerService\ServiceProviders\{83D4679F-B6D7-11D2-BF36-00C04FB90A03}\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Microsoft Agent\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Microsoft Help Workshop\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Microsoft Management Console\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MMCtlsForIE\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Mobile\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MPEG2Demultiplexer\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Mr. Enigma\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MS Setup (ACME)\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSDAIPP\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSDRM\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSDTC\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\MSFTPSVC\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\MSHandwritingTIP\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSLicensing\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSMQ\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\MSPaper$\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\MSSQLServer\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\MSSQLServer\Client\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\MSSQLServer\MSSQLSERVER\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Multivariant\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\My_Products\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\NapServer\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\NetDDE\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\NetSh\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\NetShow\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\NET Framework Setup\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Non-Driver Signing\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Notepad\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Ntbackup\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\ODBC\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Ole\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Outlook Express\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\PCHealth\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Personalization\Settings\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\PolicyManager\Default\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Provisioning\NodeCache\CSP\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Provisioning\OMADM\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Protected Storage System Provider\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\PswdSync\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RADAR\HeapLeakDetection\DiagnosedApplications\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RAS\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RAS AutoDial\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RAS EAP\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RegEdt32\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Reliability Analysis\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Remote Desktop\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\RFC1156Agent\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Router\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Rpc\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\SAPI Layer\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Schedule+\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Schedule+\Application\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\PolicyManager\default\Knobs\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\SchedulingAgent\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Search Assistant\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Secure\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Security Center\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\ServerManager\ServicingStorage\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Server For Nis\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Settings\FindMyDevice\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Shared Tools [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Shared Tools [SharedFilesDir]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Shared Tools [SharedFilesDir]</pattern>
+          </objectSet>
+        </merge>
+
+        <include>
+          <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Shared Tools\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\SmartCard\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Speech\Voices\Tokens\MS-Lili-2052-20-DSK\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Speech\Voices\Tokens\MS-Anna-1033-20-DSK\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Speech_OneCore\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\SQMClient\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\SRU\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\StrongName\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\SUA\*  [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\SystemCertificates\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\TableTextService\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Tcpip\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\TelnetServer\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Terminal Server Client\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Tpm [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Tpm\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Tracing\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Transaction Server\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\TShoot\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Tuning Spaces\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\uDRM\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Updates\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\UPnP Device Host\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WIMMount\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Search\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WindowsSelfHost\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WindowsUpdate\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\WAB\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WBEM\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Web Service Providers\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\WebSSO\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Wlansvc\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\SystemCertificates\WHSKeys\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Applets\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\AppCompatFlags\* [*]</pattern>
+           </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\AppX\ByteCodeQueue\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\AppX\AppxAllUserStore\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Controls Folder\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\Premium\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\* [*]</pattern>
+
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{008ca0b1-55b4-4c56-b8a8-4de4b299d3be}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{00BCFC5A-ED94-4e48-96A1-3F6217F21990}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0139D44E-6AFE-49F2-8690-3DAFCAE6FFB8}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0482af6c-08f1-4c34-8c90-e17ec98b1e17}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{054FAE61-4DD8-4787-80B6-090220C4B700}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0762D272-C50A-4BB0-A382-697DCD729B80}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0AC0837C-BBF8-452A-850D-79D08E667CA7}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0D4C3DB6-03A3-462F-A0E6-08924C41B5D4}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0F214138-B1D3-4a90-BBA9-27CBC0C5389A}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{15CA69B3-30EE-49C1-ACE1-6B5EC372AFB5}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{1777F761-68AD-4D8A-87BD-30B759FA33DD}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{18989B1D-99B5-455B-841C-AB7C74E4DDFC}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{190337d1-b8ca-4121-a639-6d472d16972a}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{1A6FDBA2-F42D-4358-A798-B74D745926C5}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{1B3EA5DC-B587-4786-B4EF-BD1DC332AEAE}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{1e87508d-89c2-42f0-8a7e-645a0f50ca58}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{2112AB0A-C86A-4ffe-A368-0DE96E47012E}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{2400183A-6185-49FB-A2D8-4A392A602BA3}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{24D89E24-2F19-4534-9DDE-6A6671FBB8FE}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{289a9a43-be44-4057-a41b-587a76d7e7f9}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{2A00375E-224C-49DE-B8D1-440DF7EF3DDC}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{2B0F765D-C0E9-4171-908E-08A611B84FF6}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{2C36C0AA-5812-4b87-BFD0-4CD0DFB19B39}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{3214FAB5-9757-4298-BB61-92A9DEAA44FF}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{339719B5-8C47-4894-94C2-D8F77ADD44A6}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{33E28130-4E1E-4676-835A-98395C3BC3BB}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{352481E8-33BE-4251-BA85-6007CAEDCF9D}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{374DE290-123F-4565-9164-39C4925E467B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{3D644C9B-1FB8-4f30-9B45-F670235F79C0}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{3EB685DB-65F9-4CF6-A03A-E3EF65729F3D}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{43668BF8-C14E-49B2-97C9-747784D784B7}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{48daf80b-e6cf-4f4e-b800-0e69d84ee384}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{491E922F-5643-4af4-A7EB-4E7A138D8174}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{4BD8D571-6D19-48D3-BE97-422220080E43}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{4bfefb45-347d-4006-a5be-ac0cb0567192}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{4D9F7874-4E0C-4904-967B-40B0D20C3E4B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{52528A6B-B9E3-4add-B60D-588C2DBA842D}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{52a4f021-7b75-48a9-9f6b-4b87a210bc8f}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{56784854-C6CB-462b-8169-88E350ACB882}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{5cd7aee2-2219-4a67-b85d-6c9ce15660cb}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{5CE4A5E9-E4EB-479D-B89F-130C02886155}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{5E6C858F-0E22-4760-9AFE-EA3317B67173}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{625B53C3-AB48-4EC1-BA1F-A1EF4146FC19}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{62AB5D82-FDC1-4DC3-A9DD-070D1D495D97}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{6365D5A7-0F0D-45e5-87F6-0DA56B6A4F7D}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{69D2CF90-FC33-4FB7-9A0C-EBB0F0FCB43C}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{6D809377-6AF0-444b-8957-A3773F02200E}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{6F0CD92B-2E97-45D1-88FF-B0D186B8DEDD}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{724EF170-A42D-4FEF-9F26-B60E846FBA4F}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{767E6811-49CB-4273-87C2-20F355E1085B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{76FC4E2D-D6AD-4519-A663-37BD56068185}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7b0db17d-9cd2-4a93-9733-46cc89022e7c}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7B396E54-9EC5-4300-BE0A-2482EBAE1A26}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7d1d3a04-debb-4115-95cf-2f29da2920da}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7E636BFE-DFA9-4D5E-B456-D7B39851D8A9}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{82A5EA35-D9CD-47C5-9629-E15D2F714E6E}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{82A74AEB-AEB4-465C-A014-D097EE346D63}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{859EAD94-2E85-48AD-A71A-0969CB56A6CD}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{8983036C-27C0-404B-8F08-102D10DCFD74}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{8AD10C31-2ADB-4296-A8F7-E4701232C972}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{905e63b6-c1bf-494e-b29c-65b732d3d21a}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{9274BD8D-CFD1-41C3-B35E-B13F55A758F4}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{98ec0e18-2098-4d44-8644-66979315a281}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{9B74B6A3-0DFD-4f11-9E78-5F7800F2E772}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{9e3995ab-1f9c-4f13-b827-48b24b6c7174}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{9E52AB10-F80D-49DF-ACB8-4330F5687855}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A302545D-DEFF-464b-ABE8-61C8648D939B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{a305ce99-f527-492b-8b1a-7e76fa98d6e4}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A3918781-E5F2-4890-B3D9-A7E54332328C}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A4115719-D62E-491D-AA7C-E74B8BE3B067}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A520A1A4-1780-4FF6-BD18-167343C5AF16}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A52BBA46-E9E1-435f-B3D9-28DAA648C0F6}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A63293E8-664E-48DB-A079-DF759E0509F7}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A75D362E-50FC-4fb7-AC2C-A8BEAA314493}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{A990AE9F-A03B-4e80-94BC-9912D7504104}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{AAA8D5A5-F1D6-4259-BAA8-78E7EF60835E}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{AB5FB87B-7CE2-4F83-915D-550846C9537B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{AE50C081-EBD2-438A-8655-8A092E34987A}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B250C668-F57D-4EE1-A63C-290EE7D1AA1F}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B6EBFB86-6907-413C-9AF7-4FC2ABF07CC5}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B7534046-3ECB-4C18-BE4E-64CD4CB7D6AC}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{b7bede81-df94-4682-a7d8-57a52620b86f}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B94237E7-57AC-4347-9151-B08C6C32D1F7}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B97D20BB-F46A-4C97-BA10-5E3608430854}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{bcb5256f-79f6-4cee-b725-dc34e402fd46}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{bcbd3057-ca5c-4622-b42d-bc56db0ae516}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{bfb9d5e0-c6a9-404c-b2b2-ae6db6af4968}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C1BAE2D0-10DF-4334-BEDD-7AA20B227A9D}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C3F2459E-80D6-45DC-BFEF-1F769F2BE730}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C4900540-2379-4C75-844B-64E6FAF8716B}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C4AA340D-F20F-4863-AFEF-F87EF2E6BA25}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C5ABBF53-E17F-4121-8900-86626FC2C973}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{C870044B-F49E-4126-A9C3-B52A1FF411E8}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{CAC52C1A-B53D-4edc-92D7-6B2E8AC19434}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{D0384E7D-BAC3-4797-8F14-CBA229B392B5}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{D20BEEC4-5CA8-4905-AE3B-BF251EA09B53}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{D9DC8A3B-B784-432E-A781-5A1130A75963}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{de61d971-5ebc-4f02-a3a9-6c82895e5c04}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{DE92C1C7-837F-4F69-A3BB-86E631204A23}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{DE974D24-D9C6-4D3E-BF91-F4455120B917}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{DEBF2536-E1A8-4c59-B6A2-414586476AEA}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{df7266ac-9274-4867-8d55-3bd661de872d}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{DFDF76A2-C82A-4D63-906A-5644AC457385}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{E555AB60-153B-4D17-9F04-A5FE99FC15EC}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{ED4824AF-DCE4-45A8-81E2-FC7965083634}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{ee32e446-31ca-4aba-814f-a5ebd2fd6d5e}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{F1B32785-6FBA-4FCF-9D55-7B8E7F157091}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{F38BF404-1D43-42F2-9305-67DE0B28FC23}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{f3ce0f7c-4901-4acc-8648-d5d44b04ef8f}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{F7F1ED05-9F6D-47A2-AAAE-29D317C6F066}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{FD228CB7-AE11-4AE3-864C-16F3910AB8FE}\*[*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{FDD39AD0-238F-46AF-ADB4-6C85480369C7}\*[*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\Microsoft Office Temp Files\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <contentModify script="MigXmlHelper.ProcessInstallPaths()">
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\* [*]</pattern>
+          </objectSet>
+        </contentModify>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Media Center\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\ModuleUsage\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\OOBE [SkipMachineOOBE]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Run [ehTray]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Run [TabletTip]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Run [Windows Defender]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Run [WPCUMI]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Run [HvConfig]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100 [DisplayName]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Themes\DownloadSites\100 [URL]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\Upgrade\Dummy\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\OC Manager\Subcomponents [wmaccess]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDlls\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\StillImage\Registered Applications\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall\AwayMode160\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\winevt\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <condition>MigXmlHelper.DoesOSMatch("NT", "5.2.*")</condition>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall\Windows Internal Database\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\Upgrade\*  [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Advanced Threat Protection\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Defender\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Help\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Mail\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Connect 2\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Foundation\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Player NSS\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows CE Services [EulaRequired]</pattern>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows Messaging Subsystem\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDeviceClasses\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDevices\* [*]</pattern>
+
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDeviceClasses\Portable Audio Players\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDeviceClasses\Windows CE\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDeviceClasses\Windows CE RNDIS\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDevices\WinCEDevice\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Media Device Manager\KnownDevices\WinCEDeviceRNDIS\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [RegisteredOrganization]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [RegisteredOwner]</pattern>
+          </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <conditions operation="AND">
+              <condition negation="Yes">MigXmlHelper.DoesStringContentEqual("Registry", "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug [Debugger]", "drwtsn32 -p %ld -e %ld -g")</condition>
+            </conditions>
+
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug [Debugger]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug [Auto]</pattern>
+          </objectSet>
+
+          <objectSet>
+            <conditions>
+              <condition negation="Yes">MigXmlHelper.DoesStringContentContain("Registry", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon [Shell]", "explorer.exe")</condition>
+            </conditions>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon [Shell]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug [Debugger]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug [Auto]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Photo Gallery\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Script Host\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows Scripting Host\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WindowsRuntime\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WindowsErrorReporting\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Wisp\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\WZCSVC\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\*[*]</pattern>
+          </objectSet>
+        </include>
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\control.ini\*[*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\KeyboardLayout.ini\*[*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\regedt32.ini\*[*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\*[*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\win.ini\*[*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Policies\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Policies\Microsoft\Windows\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Policies\Microsoft\Windows NT\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Program Groups\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\RegisteredApplications [AppX*]</pattern>
+
+            <pattern type="Registry">HKLM\Software\Secure\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Windows 3.1 Migration Status\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows Activation Technologies\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows Genuine Advantage\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\MozillaPlugins\@microsoft.com/GENUINE\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Genuine Advantage\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Ports\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Print\Connections\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Print\PrinterExtensionAssociations\* [*]</pattern>
+            <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Print\V4 Connections\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\System\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\BackupRestore\FilesNotToSnapshot\* [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\SafeBoot\Network\wttsvc [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\DeviceOverrides\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server [fDenyChildConnections]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\InternalDeviceModification\* [*]</pattern>
+
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Print\Environments\Windows NT x86\Drivers\Version-3\Microsoft enhanced Point and Print compatibility driver\*[*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Print\Environments\Windows x64\Drivers\Version-3\Microsoft enhanced Point and Print compatibility driver\*[*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [ComSpec]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [NUMBER_OF_PROCESSORS]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [OS]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PROCESSOR_ARCHITECTURE]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PROCESSOR_IDENTIFIER]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PROCESSOR_LEVEL]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PROCESSOR_REVISION]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [TEMP]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [TMP]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [windir]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\WSRM\Parameters [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\EventLog\System\MSFTPSVC\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Application\WGA Scanner\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\Maps\* [*]</pattern>
+
+        </objectSet>
+        </exclude>
+
+
+        <contentModify script="MigXmlHelper.MergeDelimitedContent(&apos;;&apos;)">
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [Path]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PATHEXT]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PSModulePath]</pattern>
+          </objectSet>
+        </contentModify>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [Path]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PATHEXT]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment [PSModulePath]</pattern>
+          </objectSet>
+        </merge>
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\Outlook\* [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\i8042prt\Parameters\* [*]</pattern>
+
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\MpsSvc\Parameters\ACService\* [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\MpsSvc\Parameters\AppCs\* [*]</pattern>
+
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\i8042prt\Parameters\* [*]</pattern>
+
+          </objectSet>
+        </merge>
+
+        <unconditionalExclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Enum\Root\LEGACY_$\*[*]</pattern>
+          </objectSet>
+        </unconditionalExclude>
+
+
+
+        <include>
+          <objectSet>
+            <pattern type="File">%windir%\*.ini</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="File">%windir% [vb.ini]</pattern>
+            <pattern type="File">%windir% [win.ini]</pattern>
+            <pattern type="File">%windir% [system.ini]</pattern>
+            <pattern type="File">%windir% [control.ini]</pattern>
+            <pattern type="File">%windir% [ODBCINST.INI]</pattern>
+          </objectSet>
+        </merge>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%windir%\Assembly [pubpol*.dat]</pattern>
+          </objectSet>
+        </include>
+
+
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [*]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <unconditionalExclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [First Counter]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [First Help]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [Last Counter]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\$\Performance [Last Help]</pattern>
+          </objectSet>
+        </unconditionalExclude>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\EmdCache\Performance [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\PNRPsvc\Performance [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\PSched\Performance [*]</pattern>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\services\PolicyAgent\Performance [*]</pattern>
+          </objectSet>
+        </exclude>
+
+      </rules>
+
+      <rules context="System">
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="Ini">*|*[*]</pattern>
+          </objectSet>
+        </merge>
+      </rules>
+
+
+      <rules context="System">
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%SystemDrive%\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+      </rules>
+
+      <rules context="System">
+
+        <include>
+          <objectSet>
+            <pattern type="File">%ProgramData%\* [*]</pattern>
+            <pattern type="File">%Public%\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%FOLDERID_PublicDownloads%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_TEMPLATES%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_MUSIC%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_PICTURES%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_VIDEO%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_DOCUMENTS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_DESKTOPDIRECTORY%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_FAVORITES%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Application Data')</condition></conditions>
+            <pattern type="File">%ProgramData%\Application Data\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Desktop')</condition></conditions>
+            <pattern type="File">%ProgramData%\Desktop\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Documents')</condition></conditions>
+            <pattern type="File">%ProgramData%\Documents\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Favorites')</condition></conditions>
+            <pattern type="File">%ProgramData%\Favorites\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Start Menu')</condition></conditions>
+            <pattern type="File">%ProgramData%\Start Menu\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%ProgramData%\Templates')</condition></conditions>
+            <pattern type="File">%ProgramData%\Templates\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%ProgramData%\Microsoft\HVSI\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\MapData\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\Diagnosis\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\Provisioning\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\Sense\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\SmsRouter\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\Spectrum\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\speech_onecore\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\Storage Health\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\Vault\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\WDF\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\Windows Live\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\Windows Multipoint Server\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\Windows Security Health\* [*]</pattern>
+
+            <pattern type="File">%ProgramData%\Microsoft\WinMSIPC\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\WlanSvc\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\WwanSvc\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft\XboxLive\* [*]</pattern>
+            <pattern type="File">%ProgramData%\Microsoft OneDrive\* [*]</pattern>
+            <pattern type="File">%ProgramData%\SoftwareDistribution\* [*]</pattern>
+            <pattern type="File">%ProgramData%\USOPrivate\* [*]</pattern>
+            <pattern type="File">%ProgramData%\USOShared\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%ProgramData%\*</pattern>
+            <pattern type="File">%Public%\*</pattern>
+          </objectSet>
+        </merge>
+
+      </rules>
+
+
+      <rules context="System">
+
+        <exclude>
+          <objectSet>
+
+            <pattern type="File">%ALLUSERSPROFILE% [ntuser.*]</pattern>
+            <pattern type="File">%ALLUSERSPROFILE% [*.cer]</pattern>
+            <pattern type="File">%ALLUSERSPROFILE% [*.pol]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\AddIns\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Address Book\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Credentials\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\CryptnetUrlCache\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Crypto\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\dot3svc\Profiles\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\DRM\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Internet Explorer\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Media Player\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\MMC\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Search\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\Connections\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\Connections\cm\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\Connections\cm_old\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\Connections\pbk\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Network\Connections\pbk_old\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\RAC\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Smart Tags\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\SystemCertificates\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\User Account Pictures\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Web Server Extensions\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows\Templates\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows[OFFICEICON.*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows Defender\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows Defender Advanced Threat Protection\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows NT\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Windows Messenger$\* [*]</pattern>
+
+            <pattern type="File">%CSIDL_COMMON_APPDATA%\Microsoft\Wlansvc\Profiles\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_COMMON_PROGRAMS%")</condition>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_COMMON_STARTMENU%")</condition>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <condition>MigXmlHelper.IsInWindowsNamespace("%CSIDL_COMMON_STARTUP%")</condition>
+            <pattern type="File">%CSIDL_COMMON_STARTUP%\* [*]</pattern>
+          </objectSet>
+        </include>
+        <exclude filter="MigXmlHelper.IgnoreIrrelevantLinks()">
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTUP%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <exclude filter="MigXmlHelper.ExcludeSystemShortcuts('*\MSASCui.exe')">
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTUP%\*</pattern>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\*</pattern>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\*</pattern>
+          </objectSet>
+        </merge>
+
+
+        <exclude filter="MigXmlHelper.ExcludeSystemShortcuts('*\accwiz.exe;*\audioconverter.exe;*\bckgzm.exe;*\calc.exe;*\cdlm.exe;*\charmap.exe;*\chkrzm.exe;*\cleanmgr.exe;*\explorer.exe;*\freecell.exe;*\fxsclnt.exe;*\fxscover.exe;*\fxssend.exe;*\hh.exe;*\hrtzzm.exe;*\hypertrm.exe;*\iexplore.exe;*\inetcfg.exe;*\magnify.exe;*\migwiz.exe;*\mmc.exe;*\mobsync.exe;*\moviemk.exe;*\mshearts.exe;*\msimn.exe;*\msnsusii.exe;*\msoobe.exe;*\mspaint.exe;*\mstsc.exe;*\narrator.exe;*\notepad.exe;*\ntbackup.exe;*\osk.exe;*\partymode.exe;*\pinball.exe;*\powershell.exe;*\rcimlby.exe;*\rstrui.exe;*\rvsezm.exe;*\shvlzm.exe;*\sndrec32.exe;*\sndvol32.exe;*\sol.exe;*\spider.exe;*\tourstart.exe;*\utilman.exe;*\winmine.exe;*\wmplayer.exe;*\wupdmgr.exe;*\dvdmaker.exe;*\netproj.exe;*\chess.exe;*\mahjong.exe;*\purbleplace.exe;*\hearts.exe;*\solitaire.exe;*\spidersolitaire.exe;*\minesweeper.exe','*\wordpad.exe;*\ehshell.exe')">
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%[Windows Update.lnk]</pattern>
+          </objectSet>
+        </exclude>
+        <exclude filter="MigXmlHelper.ExcludeSystemShortcuts('*\SkyDrive.exe;*\SkyDriveSetup.exe','FALSE')">
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_STARTMENU%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\* [*]</pattern>
+            <pattern type="File">%CSIDL_COMMON_STARTUP%\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%CSIDL_COMMON_PROGRAMS%\Accessories\System Tools\BitLocker\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+
+        <include>
+          <objectSet>
+             <pattern type="File">%ProgramFiles%\* [*]</pattern>
+
+             <pattern type="File">%SystemDrive%\Program Files\* [*]</pattern>
+             <pattern type="File">%SystemDrive%\inetpub\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+             <pattern type="File">%ProgramFiles%\*</pattern>
+             <pattern type="File">%SystemDrive%\Program Files\*</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%ProgramFiles%\Active Directory Federation Services 2.0\*[*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%ProgramFiles%\CMAK\*[*]</pattern>
+
+            <pattern type="File">%ProgramFiles%\Hyper-V\*[*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%COMMONPROGRAMFILES%\System [*]</pattern>
+            <pattern type="File">%COMMONPROGRAMFILES%\System\ADO\* [*]</pattern>
+            <pattern type="File">%COMMONPROGRAMFILES%\System\msadc\* [*]</pattern>
+            <pattern type="File">%COMMONPROGRAMFILES%\System\mui\* [*]</pattern>
+
+            <pattern type="File">%PROGRAMFILES%\Internet Explorer\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%GOOGLE_EARTH_ROOT% [msvcrt.dll]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%PROGRAMFILES%\Internet Explorer\PLUGINS\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%PROGRAMFILES%\Messenger\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Movie Maker\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\NetMeeting\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Outlook Express\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\SenseClient\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Windows Defender Advanced Threat Protection\*[*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Windows Identity Foundation\*[*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Windows Journal\*[*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Windows Multipoint Server\*[*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\Windows NT\* [*]</pattern>
+            <pattern type="File">%PROGRAMFILES%\WindowsUpdate\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%PROGRAMFILES%\WindowsApps\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+              <pattern type="File">%PROFILESFOLDER%\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <exclude>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%PROFILESFOLDER%\All Users')</condition></conditions>
+            <pattern type="File">%PROFILESFOLDER%\All Users\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%PROFILESFOLDER%\Default User')</condition></conditions>
+            <pattern type="File">%PROFILESFOLDER%\Default User\* [*]</pattern>
+          </objectSet>
+          <objectSet>
+            <conditions><condition>MigXmlHelper.IsReparsePoint('%systemdrive%\Documents and Settings')</condition></conditions>
+            <pattern type="File">%systemdrive%\Documents and Settings\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+              <pattern type="File">%PROFILESFOLDER%\*</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+              <script>MigXmlHelper.GenerateUserPatterns("File","%USERPROFILE%\* [*]","TRUE")</script>
+              <pattern type="File">%PROFILESFOLDER%\LocalService\* [*]</pattern>
+              <pattern type="File">%PROFILESFOLDER%\NetworkService\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%windir%\* [*]</pattern>
+          </objectSet>
+        </include>
+
+
+        <merge script="MigXmlHelper.DestinationPriority()">
+          <objectSet>
+              <pattern type="File">%windir%\*</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir% [comsetup.log]</pattern>
+            <pattern type="File">%windir% [debug.log]</pattern>
+            <pattern type="File">%windir% [diagwrn.xml]</pattern>
+            <pattern type="File">%windir% [diagerr.xml]</pattern>
+            <pattern type="File">%windir% [faxsetup.log]</pattern>
+            <pattern type="File">%windir% [iis*.log]</pattern>
+            <pattern type="File">%windir% [imsins.log]</pattern>
+            <pattern type="File">%windir% [sessmgr*.log]</pattern>
+            <pattern type="File">%windir% [setup*.log]</pattern>
+            <pattern type="File">%windir% [setupapi.ev*]</pattern>
+            <pattern type="File">%windir% [Sti_Trace.log]</pattern>
+            <pattern type="File">%windir% [tabletoc.log]</pattern>
+            <pattern type="File">%windir% [tsoc.log]</pattern>
+            <pattern type="File">%windir% [Windows*Update*.log]</pattern>
+
+            <pattern type="File">%windir%\ADAM\* [*]</pattern>
+            <pattern type="File">%windir%\ADFS\* [*]</pattern>
+            <pattern type="File">%windir%\AppCompat\* [*]</pattern>
+            <pattern type="File">%windir%\AppPatch\* [*]</pattern>
+            <pattern type="File">%windir%\AppReadiness\* [*]</pattern>
+            <pattern type="File">%windir%\assembly\* [*]</pattern>
+            <pattern type="File">%windir%\BitLockerDiscoveryVolumeContents\* [*]</pattern>
+            <pattern type="File">%windir%\Branding\* [*]</pattern>
+            <pattern type="File">%windir%\Boot\* [*]</pattern>
+            <pattern type="File">%windir%\CbsTemp\* [*]</pattern>
+            <pattern type="File">%windir%\Config\* [*]</pattern>
+
+            <pattern type="File">%windir%\Containers\* [*]</pattern>
+
+            <pattern type="File">%windir%\Connection Wizard\* [*]</pattern>
+            <pattern type="File">%windir%\CSC\* [*]</pattern>
+            <pattern type="File">%windir%\Debug\* [*]</pattern>
+            <pattern type="File">%windir%\DeliveryOptimization\* [*]</pattern>
+            <pattern type="File">%windir%\DesktopTileResources\* [*]</pattern>
+            <pattern type="File">%windir%\DigitalLocker\* [*]</pattern>
+            <pattern type="File">%windir%\DirectAccess\*[*]</pattern>
+            <pattern type="File">%windir%\dot3svc\policies\* [*]</pattern>
+
+            <pattern type="File">%windir%\Driver Cache\* [*]</pattern>
+            <pattern type="File">%windir%\ELAMBKUP\* [*]</pattern>
+            <pattern type="File">%windir%\Fonts\* [*]</pattern>
+
+            <pattern type="File">%windir%\Globalization\* [*]</pattern>
+            <pattern type="File">%windir%\Logs\* [*]</pattern>
+            <pattern type="File">%windir%\OemDir\* [*]</pattern>
+            <pattern type="File">%SYSVOL_DIR%\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%windir%\Help\* [*]</pattern>
+          </objectSet>
+        </include>
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="File">%windir%\Help\iisHelp\* [*]</pattern>
+          </objectSet>
+        </merge>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir%\Camera\* [*]</pattern>
+            <pattern type="File">%windir%\DevicesFlow\* [*]</pattern>
+            <pattern type="File">%windir%\FileManager\* [*]</pattern>
+
+            <pattern type="File">%windir%\holoshell\* [*]</pattern>
+
+            <pattern type="File">%windir%\ImmersiveControlPanel\* [*]</pattern>
+            <pattern type="File">%windir%\XtaCache\* [*]</pattern>
+            <pattern type="File">%windir%\MtcUvc\* [*]</pattern>
+            <pattern type="File">%windir%\MiracastView\* [*]</pattern>
+            <pattern type="File">%windir%\Panther\* [*]</pattern>
+            <pattern type="File">%windir%\PrintDialog\* [*]</pattern>
+            <pattern type="File">%windir%\PurchaseDialog\* [*]</pattern>
+            <pattern type="File">%windir%\SyCHPE32\* [*]</pattern>
+            <pattern type="File">%windir%\vpnplugins\checkpoint\* [*]</pattern>
+            <pattern type="File">%windir%\vpnplugins\f5\* [*]</pattern>
+            <pattern type="File">%windir%\vpnplugins\juniper\* [*]</pattern>
+            <pattern type="File">%windir%\vpnplugins\sonicwall\* [*]</pattern>
+            <pattern type="File">%windir%\WinStore\* [*]</pattern>
+            <pattern type="File">%windir%\zImmersiveControlPanel\* [*]</pattern>
+
+            <pattern type="File">%windir%\InfusedApps\* [*]</pattern>
+
+            <pattern type="File">%windir%\NTDS\* [*]</pattern>
+
+
+
+            <pattern type="File">%windir%\inf\* [oem*.inf]</pattern>
+            <pattern type="File">%windir%\inf\* [oem*.pnf]</pattern>
+            <pattern type="File">%windir%\inf\* [whql*.inf]</pattern>
+            <pattern type="File">%windir%\inf\* [whql*.pnf]</pattern>
+            <pattern type="File">%windir%\inf [setupapi*.log]</pattern>
+
+            <pattern type="File">%windir%\Microsoft.NET\assembly\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework\v1.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework\v2.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework\v3.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework\v4.0.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework64\v1.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework64\v2.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework64\v3.*\* [*]</pattern>
+            <pattern type="File">%windir%\Microsoft.NET\Framework64\v4.0.*\* [*]</pattern>
+
+            <pattern type="File">%windir%\Minidump\* [*]</pattern>
+
+            <pattern type="File">%windir%\Media\* [*]</pattern>
+
+
+            <pattern type="File">%windir%\mui\* [*]</pattern>
+            <pattern type="File">%windir%\Offline Web Pages\* [*]</pattern>
+            <pattern type="File">%windir%\PCHEALTH\* [*]</pattern>
+
+            <pattern type="File">%windir%\PeerNet\* [*]</pattern>
+
+            <pattern type="File">%windir%\Prefetch\* [*]</pattern>
+            <pattern type="File">%windir%\Provisioning\* [*]</pattern>
+
+            <pattern type="File">%windir%\Registration\* [*]</pattern>
+
+            <pattern type="File">%windir%\rdcbDb\* [*]</pattern>
+
+            <pattern type="File">%windir%\Repair\* [*]</pattern>
+
+            <pattern type="File">%windir%\rescache\* [*]</pattern>
+            <pattern type="File">%windir%\SystemResources\* [*]</pattern>
+            <pattern type="File">%windir%\system32\SystemResources\* [*]</pattern>
+
+            <pattern type="File">%windir%\SchCache\* [*]</pattern>
+            <pattern type="File">%windir%\security\* [*]</pattern>
+            <pattern type="File">%windir%\ServicePackFiles\* [*]</pattern>
+
+            <pattern type="File">%windir%\servicing\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\AppLocker\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\licensing\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\recovery\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\logfiles\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\spp\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\sru\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\migwiz\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\Sysprep\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\WinBioDatabase\*[*]</pattern>
+
+            <pattern type="File">%windir%\system32\winmetadata\*[*]</pattern>
+
+            <pattern type="File">%windir%\system32\sleepstudy\*[*]</pattern>
+
+            <pattern type="File">%windir%\systemapps\*[*]</pattern>
+
+            <pattern type="File">%windir%\systemdata\CEP\*[service.svc]</pattern>
+            <pattern type="File">%windir%\systemdata\CES\*[service.svc]</pattern>
+
+            <pattern type="File">%windir%\ServiceProfiles\LocalService [NTUSER.DAT*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\Local\* [FontCache*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\Local\Microsoft\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\Local\Temp\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\LocalLow\Microsoft\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\LocalService\AppData\Roaming\Microsoft\* [*]</pattern>
+
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService [NTUSER.DAT*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\* [FontCache*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\FontCache\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\Microsoft\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\Temp\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\LocalLow\Microsoft\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Roaming\Microsoft\* [*]</pattern>
+
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\PeerDistPub\* [*]</pattern>
+            <pattern type="File">%windir%\ServiceProfiles\NetworkService\AppData\Local\PeerDistRepub\* [*]</pattern>
+
+
+            <pattern type="File">%windir%\setup\scripts\* [*]</pattern>
+
+            <pattern type="File">%windir%\SoftwareDistribution\* [*]</pattern>
+            <pattern type="File">%windir%\srchasst\* [*]</pattern>
+
+            <pattern type="File">%windir%\SYSMSI\* [*]</pattern>
+            <pattern type="File">%windir%\SYSMSICache\* [*]</pattern>
+
+            <pattern type="File">%windir%\System32\1025\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1028\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1031\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1037\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1041\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1042\* [*]</pattern>
+            <pattern type="File">%windir%\System32\1054\* [*]</pattern>
+            <pattern type="File">%windir%\System32\2052\* [*]</pattern>
+            <pattern type="File">%windir%\System32\3076\* [*]</pattern>
+            <pattern type="File">%windir%\System32\CatRoot2\* [*]</pattern>
+            <pattern type="File">%windir%\System32\Com\* [*]</pattern>
+            <pattern type="File">%windir%\System32\config\* [*]</pattern>
+            <pattern type="File">%windir%\System32\dhcp\* [*]</pattern>
+            <pattern type="File">%windir%\System32\DirectX\* [*]</pattern>
+            <pattern type="File">%windir%\System32\dllcache\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\oobe\info [oobe.xml]</pattern>
+            <pattern type="File">%windir%\system32\oobe\info\$\$ [oobe.xml]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <exclude filter="MigXmlHelper.ExcludeWindowsCatalogs()">
+          <objectSet>
+            <pattern type="File">%windir%\System32\CatRoot\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <include>
+          <objectSet>
+            <pattern type="File">%windir%\system32\drivers\etc [hosts]</pattern>
+          </objectSet>
+        </include>
+
+
+        <merge script="MigXmlHelper.SourcePriority()">
+          <objectSet>
+            <pattern type="File">%windir%\System32\drivers\etc [hosts]</pattern>
+          </objectSet>
+        </merge>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir%\System32\DriverStore\* [*]</pattern>
+            <pattern type="File">%windir%\System32\DRM\* [*]</pattern>
+            <pattern type="File">%windir%\System32\export\* [*]</pattern>
+            <pattern type="File">%windir%\System32\inetsrv\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir%\System32\GroupPolicy\* [*]</pattern>
+            <pattern type="File">%windir%\System32\GroupPolicyUsers\* [*]</pattern>
+            <pattern type="File">%windir%\System32\Microsoft\* [*]</pattern>
+            <pattern type="File">%windir%\System32\MsDtc\* [*]</pattern>
+
+            <pattern type="File">%windir%\System32\msmq\* [*]</pattern>
+
+            <pattern type="File">%windir%\System32\npp\* [*]</pattern>
+
+            <pattern type="File">%windir%\system32\OpenSSH\* [*]</pattern>
+
+            <pattern type="File">%windir%\System32\ras\* [*]</pattern>
+            <pattern type="File">%windir%\System32\ReinstallBackups\* [*]</pattern>
+            <pattern type="File">%windir%\System32\Restore\* [*]</pattern>
+            <pattern type="File">%windir%\System32 [rsaci.rat]</pattern>
+
+            <pattern type="File">%windir%\System32\Setup\* [*]</pattern>
+            <pattern type="File">%windir%\System32\ShellExt\* [*]</pattern>
+            <pattern type="File">%windir%\System32\URTTemp\* [*]</pattern>
+            <pattern type="File">%windir%\System32\USMT\* [*]</pattern>
+            <pattern type="File">%windir%\System32\VPCache\* [*]</pattern>
+            <pattern type="File">%windir%\System32\wbem\* [*]</pattern>
+            <pattern type="File">%windir%\System32\wdi\* [*]</pattern>
+            <pattern type="File">%windir%\System32\Web Projects\* [*]</pattern>
+            <pattern type="File">%windir%\System32\winevt\* [*]</pattern>
+            <pattern type="File">%windir%\System32\xircom\* [*]</pattern>
+
+            <pattern type="File">%windir%\Tasks\* [*]</pattern>
+            <pattern type="File">%windir%\Temp\* [*]</pattern>
+
+            <pattern type="File">%windir%\web\rdweb\* [*]</pattern>
+
+            <pattern type="File">%windir%\WinSxS\* [*]</pattern>
+            <pattern type="Registry">HKLM\COMPONENTS\* [*]</pattern>
+
+            <pattern type="File">%windir%\wlansvc\policies\* [*]</pattern>
+
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="Registry">HKLM\Software\Microsoft\Sysprep\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir%\System32\Tasks\* [*]</pattern>
+            <pattern type="File">%windir%\System32\Tasks_Migrated\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+
+        <exclude>
+          <objectSet>
+            <pattern type="File">%windir%\System32\SoftwareDistribution\* [*]</pattern>
+          </objectSet>
+        </exclude>
+
+      </rules>
+
+      <rules context="System">
+        <processing when="apply-success">
+          <script>MigXmlHelper.RemoveEmptyDirectories("%windir%\Help\Tablet PC\*")</script>
+          <script>MigXmlHelper.RemoveEmptyDirectories("%CSIDL_PROGRAM_FILES_COMMON%\Microsoft Shared\ink\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%CSIDL_PROGRAM_FILES_COMMON%\Microsoft Shared\Speech\*")</script>
+          <script>MigXmlHelper.RemoveEmptyDirectories("%CSIDL_PROGRAM_FILES_COMMON%\SpeechEngines\Microsoft\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramData%\Microsoft\Windows\Start Menu\Programs\Windows Virtual PC\*")</script>
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramFiles%\Windows Virtual PC\Integration Components\*")</script>
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramFiles%\Windows Virtual PC\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramFiles%\Microsoft Games\Tinker\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramData%\Microsoft\Windows\Start Menu\Programs\Administrative Tools\Terminal Services\*")</script>
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramData%\Microsoft\Windows\Start Menu\Programs\Administrative Tools\Remote Desktop Services\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramData%\Microsoft\Windows\Start Menu\Programs\Extras and Upgrades\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%ProgramData%\Microsoft\Windows\Start Menu\Programs\Windows PowerShell 1.0\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%windir%\System32\WindowsPowerShell\v1.0\Modules\FileTransfer\*")</script>
+
+          <script>MigXmlHelper.RemoveEmptyDirectories("%windir%\MSAgent\*")</script>
+
+
+        </processing>
+      </rules>
+
+    </role>
+
+  </component>
+
+  <component type="System" context="system">
+    <displayName>Bulk Upgrade Patches</displayName>
+    <role role="Settings">
+      <rules>
+        <include>
+          <objectSet>
+            <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Control\MSIPC\* [*]</pattern>
+            <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\5.0\User Agent\Post Platform [InfoPath*]</pattern>
+           </objectSet>
+         </include>
+      </rules>
+    </role>
+  </component>
+
+  <component type="System">
+    <displayName>PrivacySettingsBackup</displayName>
+    <role role="Settings">
+
+      <rules>
+        <conditions>
+          <condition>MigXmlHelper.IsOSEarlierThan("NT","10.0.14393")</condition>
+        </conditions>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentBuild]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentBuildNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentMajorVersionNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentMinorVersionNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentVersion]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.RelativeMove('HKLM\Software\Microsoft\Windows NT\CurrentVersion','HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate')">
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentBuild]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentBuildNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentMajorVersionNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentMinorVersionNumber]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion [CurrentVersion]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44} [SensorPermissionState]</pattern>
+              <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration [Status]</pattern>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Settings\FindMyDevice [LocationSyncEnabled]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\SensorPermission [SensorPermissionState]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44} [SensorPermissionState]</pattern>
+            </objectSet>
+          </locationModify>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\LocationPlatform [Status]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration [Status]</pattern>
+            </objectSet>
+          </locationModify>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\FindMyDevice [LocationSyncEnabled]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Settings\FindMyDevice [LocationSyncEnabled]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+        <rules context="User">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Sensor\Permissions\{BFA794E4-F964-4FDB-90F6-51056BFE4B44} [SensorPermissionState]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\SensorPermission [SensorPermissionState]')">
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Sensor\Permissions\{BFA794E4-F964-4FDB-90F6-51056BFE4B44} [SensorPermissionState]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Personalization\Settings [AcceptedPrivacyPolicy]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\SpeechRecognition [AcceptedPrivacyPolicy]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Personalization\Settings [AcceptedPrivacyPolicy]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+        <rules context="User">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Personalization\Settings [AcceptedPrivacyPolicy]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\SpeechRecognition [AcceptedPrivacyPolicy]')">
+            <objectSet>
+              <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Personalization\Settings [AcceptedPrivacyPolicy]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\policies\DataCollection [AllowTelemetry]</pattern>
+              <pattern type="Registry">HKLM\Software\Microsoft\Input\TIPC [Enabled]</pattern>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\FlipAhead [FPEnabled]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\DataCollectionLevel [AllowTelemetry]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\policies\DataCollection [AllowTelemetry]</pattern>
+            </objectSet>
+          </locationModify>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\TIPC [Enabled]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Input\TIPC [Enabled]</pattern>
+            </objectSet>
+          </locationModify>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\FlipAhead [FPEnabled]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\SOFTWARE\Microsoft\Internet Explorer\FlipAhead [FPEnabled]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+        <rules context="User">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Input\TIPC [Enabled]</pattern>
+              <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Internet Explorer\FlipAhead [FPEnabled]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\TIPC [Enabled]')">
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Input\TIPC [Enabled]</pattern>
+            </objectSet>
+          </locationModify>
+          <locationModify script="MigXmlHelper.ExactMove('HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\FlipAhead [FPEnabled]')">
+            <objectSet>
+              <pattern type="Registry">HKCU\SOFTWARE\Microsoft\Internet Explorer\FlipAhead [FPEnabled]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo [Enabled]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\AdvertisingID [Enabled]')">
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo [Enabled]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+        <rules context="User">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo [Enabled]</pattern>
+            </objectSet>
+          </include>
+          <locationModify script="MigXmlHelper.ExactMove('HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\AdvertisingID [Enabled]')">
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo [Enabled]</pattern>
+            </objectSet>
+          </locationModify>
+        </rules>
+      </rules>
+
+      <rules>
+        <conditions>
+          <condition negation="Yes">MigXmlHelper.IsOSEarlierThan("NT","10.0.14393")</condition>
+        </conditions>
+
+        <rules context="System">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKLM\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\*[*]</pattern>
+            </objectSet>
+          </include>
+        </rules>
+        <rules context="User">
+          <include>
+            <objectSet>
+              <pattern type="Registry">HKCU\Software\Microsoft\Windows\PrivacySettingsBeforeCreatorsUpdate\*[*]</pattern>
+            </objectSet>
+          </include>
+        </rules>
+
+      </rules>
+    </role>
+  </component>
+
+</migration>
