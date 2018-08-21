@@ -21,6 +21,7 @@
 
         1.1 - Added logic to export XML file list. Added logic to loop through OS Version if No OSVersion or OSArch is selected
 
+        1.2 - Added logic to export .JSON files as well. You're welcome @SeguraOSD!!
 #>
 
 #####################
@@ -148,6 +149,8 @@ Function Process-Updates ($OSVersion,$OSArch)
         If($DownloadList)
         {
             $DownloadList | Export-Clixml -Path "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.XML"
+            $DownloadList | ConvertTo-Json | Out-File "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.json"
+
             $Script:MasterList += $DownloadList
         }
 
@@ -187,5 +190,7 @@ Else {
 }
 
 $Script:MasterList | Export-Clixml -Path "$($RootFolder)\All-Windows10DynamicUpdateList.XML"
+
+$Script:MasterList | ConvertTo-Json | Out-File "$($RootFolder)\All-Windows10DynamicUpdateList.json"
 
 ####################################    
