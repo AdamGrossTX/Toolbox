@@ -40,6 +40,8 @@
         1.2 - Added better folder creation logic and messaging. - (This version is being tested right now 08/21/2018 3:20 PM CST)
         
         1.3 Updated params for defaults
+        
+        1.4 Added Mandatory flags to some params
     
 #>
 
@@ -61,20 +63,16 @@ Param
     [ValidatePattern("\d{4}-\d{2}")]
     [string]$Month = "2018-08",
 
-    [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$true, Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [string]$RootFolder = "C:\ImageServicing",
 
-    [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$true, Position=5, HelpMessage="SCCM Primary Server Name.")]
     [string]$SCCMServer,
 
-    [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$true, Position=6, HelpMessage="SCCM Site Code.")]
     [string]$SiteCode,
 
-    [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$true, Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
     [string]$DISMPath = "Dism.exe",
     
     [Parameter(HelpMessage="Outputs fully serviced media.")]
