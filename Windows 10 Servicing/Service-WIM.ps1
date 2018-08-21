@@ -38,7 +38,8 @@
         1.1 - Fixed bugs
         
         1.2 - Added better folder creation logic and messaging. - (This version is being tested right now 08/21/2018 3:20 PM CST)
-             
+        
+        1.3 Updated params for defaults
     
 #>
 
@@ -66,11 +67,11 @@ Param
 
     [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
     [ValidateNotNullOrEmpty()]
-    [string]$SCCMServer = "",
+    [string]$SCCMServer,
 
     [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
     [ValidateNotNullOrEmpty()]
-    [string]$SiteCode = "",
+    [string]$SiteCode,
 
     [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
     [ValidateNotNullOrEmpty()]
