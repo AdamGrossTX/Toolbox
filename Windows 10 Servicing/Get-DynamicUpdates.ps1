@@ -22,6 +22,8 @@
         1.1 - Added logic to export XML file list. Added logic to loop through OS Version if No OSVersion or OSArch is selected
 
         1.2 - Added logic to export .JSON files as well. You're welcome @SeguraOSD!!
+
+        1.3 - Changed Property sort order for readability and added KBInfoURL. Removed Month param and collapsed folder structure to \version-arch instead of \version\month\arch\
 #>
 
 #####################
@@ -30,25 +32,22 @@
 Param
 (
     
-    [Parameter(Position=1, HelpMessage="Operating System version to service.")]
+    [Parameter(HelpMessage="Operating System version to service.")]
     [ValidateSet('1511','1607','1703','1709','1803','1809','Next',$null)]
     [string]$OSVersion,
     
-    [Parameter(Position=2, HelpMessage="Architecture version to service.")]
+    [Parameter(HelpMessage="Architecture version to service.")]
     [ValidateSet ('x64', 'x86','ARM64', $null)]
     [string]$OSArch,
 
-    [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
-    [string]$Month,
-    
-    [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
+    [Parameter(HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [ValidateNotNullOrEmpty()]
     [string]$RootFolder = "C:\ImageServicing",
     
-    [Parameter(Mandatory=$true, Position=5, HelpMessage="SCCM Primary Server Name.")]
+    [Parameter(Mandatory=$true, HelpMessage="SCCM Primary Server Name.")]
     [string]$SCCMServer,
     
-    [Parameter(Mandatory=$true, Position=6, HelpMessage="SCCM Site Code.")]
+    [Parameter(Mandatory=$true, HelpMessage="SCCM Site Code.")]
     [string]$SiteCode,
 
     #Use this to download updates. Set to false to just generate the files list(s)
@@ -73,7 +72,7 @@ Function Process-Updates ($OSVersion,$OSArch)
         
         If($DownloadUpdates)
         {
-            $UpdatesPath = "$($RootFolder)\Updates\$($OSVersion)\$($Month)\$($OSArch)"
+            $UpdatesPath = "$($RootFolder)\Updates\$($OSVersion)-$($OSArch)"
 
             $DUSUPath = "$($UpdatesPath)\SetupUpdate"
 
@@ -102,17 +101,19 @@ Function Process-Updates ($OSVersion,$OSArch)
 
                 $DownloadList  += New-Object PSObject -Property:@{
 
-                'ArticleID' = $Update.ArticleID;
+                'KB' = $Update.ArticleID;
 
-                'CI_ID' = $Update.CI_ID;
+                #'CI_ID' = $Update.CI_ID;
 
                 'DisplayName' = $Update.LocalizedDisplayName;
 
-                'ContentID' = $ContentIDs.ContentID;
+                #'ContentID' = $ContentIDs.ContentID;
 
                 'FileName' = $Content.FileName;
 
                 'URL' = $Content.SourceURL;
+
+                'KBInfoURL'= $Update.LocalizedInformativeURL;
 
                 'Type' = $Update.LocalizedDescription.Replace(":","")
 
@@ -148,8 +149,8 @@ Function Process-Updates ($OSVersion,$OSArch)
 
         If($DownloadList)
         {
-            $DownloadList | Export-Clixml -Path "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.XML"
-            $DownloadList | ConvertTo-Json | Out-File "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.json"
+            $DownloadList | Sort-Object -Property Type, KB | Select KB, DisplayName, KBInfoURL, Type, FileName, URL | Export-Clixml -Path "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.XML"
+            $DownloadList | Sort-Object -Property Type, KB | Select KB, DisplayName, KBInfoURL, Type, FileName, URL | ConvertTo-Json | Out-File "$($RootFolder)\$($OSVersion)-$($OSArch)-Windows10DynamicUpdateList.json"
 
             $Script:MasterList += $DownloadList
         }
@@ -158,6 +159,7 @@ Function Process-Updates ($OSVersion,$OSArch)
 
 
 ## MAIN ##
+#################################### 
 
 If(!($OSVersion)) {
 
@@ -189,8 +191,8 @@ Else {
     }
 }
 
-$Script:MasterList | Export-Clixml -Path "$($RootFolder)\All-Windows10DynamicUpdateList.XML"
+$Script:MasterList | Sort-Object -Property Type, KB | Select KB, DisplayName, KBInfoURL, Type, FileName, URL | Export-Clixml -Path "$($RootFolder)\All-Windows10DynamicUpdateList.XML"
 
-$Script:MasterList | ConvertTo-Json | Out-File "$($RootFolder)\All-Windows10DynamicUpdateList.json"
+$Script:MasterList | Sort-Object -Property Type, KB | Select KB, DisplayName, KBInfoURL, Type, FileName, URL | ConvertTo-Json | Out-File "$($RootFolder)\All-Windows10DynamicUpdateList.json"
 
 ####################################    
