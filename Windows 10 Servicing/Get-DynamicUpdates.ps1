@@ -24,6 +24,8 @@
         1.2 - Added logic to export .JSON files as well. You're welcome @SeguraOSD!!
 
         1.3 - Changed Property sort order for readability and added KBInfoURL. Removed Month param and collapsed folder structure to \version-arch instead of \version\month\arch\
+
+        1.4 - Fixed Typo and Parameter Validation
 #>
 
 #####################
@@ -33,11 +35,11 @@ Param
 (
     
     [Parameter(HelpMessage="Operating System version to service.")]
-    [ValidateSet('1511','1607','1703','1709','1803','1809','Next',$null)]
+    [ValidateSet('1511','1607','1703','1709','1803','1809','Next','All')]
     [string]$OSVersion,
     
     [Parameter(HelpMessage="Architecture version to service.")]
-    [ValidateSet ('x64', 'x86','ARM64', $null)]
+    [ValidateSet ('x64', 'x86','ARM64','All')]
     [string]$OSArch,
 
     [Parameter(HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
@@ -88,7 +90,7 @@ Function Process-Updates ($OSVersion,$OSArch)
 
         $DisplayNameFilter = "*$($OSVersion)*$($OSArch)*"
 
-        $FilteredUpdateList = $AllDynamicUpdates | Where {$_.LocalizedDisplayName -like $DisplayNameFilter -and $_.IsSuperseded -eq $False -and $_.IsLatest -eq $True}
+        $FilteredUpdateList = $AllDynamicUpdates | Where {$_.LocalizedDisplayName -like $DisplayNameFilter}
 
         ForEach ($Update in $FilteredUpdateList)
 
@@ -165,7 +167,7 @@ If(!($OSVersion)) {
 
     ForEach($Version in $OSVersionList) { 
 
-        If(!($OSArch))
+        If(($OSArch -eq "All"))
         {
             ForEach($Arch in $OSArchList) { 
                 Process-Updates $Version $Arch
@@ -173,13 +175,13 @@ If(!($OSVersion)) {
         }
         Else
         {
-            Process-Updates Process-Updates $Version $OSArch
+            Process-Updates $Version $OSArch
         }
     }
 }
 Else {
 
-    If(!($OSArch))
+    If(($OSArch -eq "All"))
     {
         ForEach($Arch in $OSArchList) { 
             Process-Updates $OSVersion $Arch
@@ -187,7 +189,7 @@ Else {
     }
     Else
     {
-        Process-Updates Process-Updates $OSVersion $OSArch
+        Process-Updates $OSVersion $OSArch
     }
 }
 
