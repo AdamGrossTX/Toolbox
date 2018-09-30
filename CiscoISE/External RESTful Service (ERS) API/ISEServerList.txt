@@ -1,0 +1,2 @@
+﻿"Gateway","ISEServerName"
+"0.0.0.0","servername.domain.com"
