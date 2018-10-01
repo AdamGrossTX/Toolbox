@@ -83,6 +83,8 @@ http://www.asquaredozen.com/2018/07/29/configuring-802-1x-authentication-for-win
 https://community.cisco.com/t5/security-documents/ise-ers-api-examples/ta-p/3622623
 https://www.cisco.com/c/en/us/td/docs/security/ise/1-3/api_ref_guide/api_ref_book/ise_api_ref_ers1.html
 https://blogs.technet.microsoft.com/heyscriptingguy/2015/10/08/playing-with-json-and-powershell/
+https://github.com/chrhobbs/ise-guest-accounts
+
 
 .NOTES
 Has Logic to handle Powershell 3.0 and 5.0 web requests.
