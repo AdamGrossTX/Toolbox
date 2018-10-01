@@ -1,0 +1,825 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<InjectionFiles>
+  <Architecture imgArch="i386">
+    <FileList source="WPE">
+      <File name="boot.sdi">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Media\Boot</Source>
+        <Destination>sms\boot</Destination>
+      </File>
+      <File name="bootfix.bin">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Media\Boot</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+    </FileList>
+    <FileList source="WDT">
+      <File name="bootsect.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\BCDBoot</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="bcdboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\BCDBoot</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="etfsboot.com">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Oscdimg</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="efisys.bin">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Oscdimg</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="oscdimg.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Oscdimg</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\DISM</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\DISM</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="*">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\DISM</Source>
+        <Destination>Windows\Pkgmgr</Destination>
+      </File>
+    </FileList>
+    <FileList source="SCCM">
+	  <File name="ImportComputerAuthProfile.bat">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+	  <File name="ComputerAuthProfile.xml">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+      <File name="Root.cer">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom\Certs</Source>
+        <Destination>Custom\Certs</Destination>
+      </File>
+	  <File name="ComputerAuthCert.pfx">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom\Certs</Source>
+        <Destination>Custom\Certs</Destination>
+      </File>
+	<File name="winpeshl.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows\System32</Destination>
+      </File>
+      <File name="smsts.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows</Destination>
+      </File>
+	  <File name="smsts.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows\System32</Destination>
+      </File>
+      <File name="ccmcore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="CcmUtilLib.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdApplyOs.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdCaptureCd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdCaptureSystemImage.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdDiskPart.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDDownloadContent.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDDriverClient.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdGina.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdGina.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdNetSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDOfflineBitlocker.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDPrestartCheck.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDRunPowerShellScript.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OSDSetDynamicVariables.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdSetupWindows.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdSetupHook.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdSetupHook.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdWinSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdSmpClient.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="OsdMigrateUserState.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="smsboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="SmsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="smsnetuse.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="smsswd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="SmsTftp.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="CMTrace.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsBootShell.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="CommonUtils.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsEnv.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsManager.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsmBootstrap.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsMessaging.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsProgressUI.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsProgressUI.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsPxe.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsRes.dll">
+        <LocaleNeeded>true</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsRes.dll">
+        <LocaleNeeded>true</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="tsresnlc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="tsresnlc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="smswdstc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="CcmGenCert.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="msvcp120.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="msvcr120.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>    
+    </FileList>
+  </Architecture>
+  <Architecture imgArch="x64">
+    <FileList source="WPE">
+      <File name="boot.sdi">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\Media\Boot</Source>
+        <Destination>sms\boot</Destination>
+      </File>
+      <File name="bootfix.bin">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\Media\Boot</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+    </FileList>
+    <FileList source="WDT">
+      <File name="bootsect.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\BCDBoot</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="bootsect.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\BCDBoot</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="bcdboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\BCDBoot</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="bcdboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\BCDBoot</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="etfsboot.com">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\Oscdimg</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="efisys.bin">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\Oscdimg</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="oscdimg.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\Oscdimg</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="oscdimg.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\Oscdimg</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\DISM</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>x86\DISM</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="*">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>amd64\DISM</Source>
+        <Destination>Windows\Pkgmgr</Destination>
+      </File>
+    </FileList>
+    <FileList source="SCCM">
+	  <File name="ImportComputerAuthProfile.bat">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+	  <File name="ComputerAuthProfile.xml">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+      <File name="Root.cer">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom\Certs</Source>
+        <Destination>Custom\Certs</Destination>
+      </File>
+	  <File name="ComputerAuthCert.pfx">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom\Certs</Source>
+        <Destination>Custom\Certs</Destination>
+      </File>
+	<File name="winpeshl.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows\System32</Destination>
+      </File>
+      <File name="smsts.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows</Destination>
+      </File>
+	  <File name="smsts.ini">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Windows\System32</Destination>
+      </File>
+      <File name="ccmcore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="CcmUtilLib.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdApplyOs.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdCaptureCd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdCaptureSystemImage.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdDiskPart.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDDownloadContent.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDDriverClient.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdGina.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdNetSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDOfflineBitlocker.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDPrestartCheck.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDRunPowerShellScript.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OSDSetDynamicVariables.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdSetupWindows.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdSetupHook.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdWinSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdSmpClient.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="OsdMigrateUserState.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="smsboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="SmsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="smsnetuse.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="smsswd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="SmsTftp.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="CMTrace.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsBootShell.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="CommonUtils.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsEnv.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsManager.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsmBootstrap.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsMessaging.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsProgressUI.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsPxe.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsRes.dll">
+        <LocaleNeeded>true</LocaleNeeded>
+        <Source>bin\i386</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="TsRes.dll">
+        <LocaleNeeded>true</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="tsresnlc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="smswdstc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="CcmGenCert.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="msvcp120.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="msvcr120.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+    </FileList>
+  </Architecture>
+  <Architecture imgArch="ia64">
+    <FileList source="WAIK">
+      <File name="oscdimg.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>tools\petools</Source>
+        <Destination>sms\bin\i386</Destination>
+        <Alternate name="oscdimg.exe">
+          <LocaleNeeded>false</LocaleNeeded>
+          <Source>tools\x86</Source>
+          <Destination>sms\bin\i386</Destination>
+        </Alternate>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>tools\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="wimgapi.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>tools\x86</Source>
+        <Destination>sms\bin\i386</Destination>
+      </File>
+      <File name="*">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>tools\ia64\servicing</Source>
+        <Destination>Windows\Pkgmgr</Destination>
+      </File>
+    </FileList>
+    <FileList source="SCCM">
+      <File name="ccmcore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="ccmcore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="CcmUtilLib.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdApplyOs.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdCaptureCd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdCaptureSystemImage.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdDiskPart.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OSDDriverClient.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdGina.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdNetSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdSetupWindows.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdSetupHook.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="OsdWinSettings.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="smsboot.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="SmsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="smsnetuse.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="smsswd.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="CMTrace.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsBootShell.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsCore.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="CommonUtils.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsEnv.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsManager.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsmBootstrap.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsMessaging.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\x64</Source>
+        <Destination>sms\bin\x64</Destination>
+      </File>
+      <File name="TsProgressUI.exe">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsPxe.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="TsRes.dll">
+        <LocaleNeeded>true</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+      <File name="tsresnlc.dll">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>bin\ia64</Source>
+        <Destination>sms\bin\ia64</Destination>
+      </File>
+    </FileList>
+  </Architecture>
+</InjectionFiles>
