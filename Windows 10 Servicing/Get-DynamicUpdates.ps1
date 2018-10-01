@@ -27,9 +27,9 @@
 
         1.4 - Fixed Typo and Parameter Validation
 
-        1.5 - Added fix for 2018-09 Windows10.0-KB4457190-x64.cab Setup Update not being classified correctly.
+        1.5 Added fix for 2018-09 SetupUpdates not being classified correctly.
 
-        1.6 - Corrected logic for ALL Updates
+        1.6 Corrected logic for ALL Updates
 
 #>
 
@@ -102,7 +102,7 @@ Function Process-Updates ($OSVersion,$OSArch) {
             'FileName' = $Content.FileName;
             'URL' = $Content.SourceURL;
             'KBInfoURL'= $Update.LocalizedInformativeURL;
-            'Type' = $Update.LocalizedDescription.Replace(":","")
+            'Type' = If(($Update.ArticleID -eq "4457190") -or ($Update.ArticleID -eq "4457189")) {"SetupUpdate"} Else {$Update.LocalizedDescription.Replace(":","")}
             'SuperSeded' = $Update.IsSuperseded
             }
         }
@@ -111,7 +111,7 @@ Function Process-Updates ($OSVersion,$OSArch) {
     ForEach ($File in $DownloadList) {
         $Path = $null
         #Fix for September SetupUpdate not containing the correct text to classify propery.
-        If($File.FileName -eq "Windows10.0-KB4457190-x64.cab") { 
+        If($File.FileName -like "*KB4457190*" -or $File.FileName -like "*KB4457189*") {
             $Path = "$($DUSUPath)\$($File.FileName)"
         }
         Else {
