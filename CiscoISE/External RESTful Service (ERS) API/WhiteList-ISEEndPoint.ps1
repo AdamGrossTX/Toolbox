@@ -18,7 +18,7 @@ Author
 Version Information
     1.0 - Started with a sample script
     1.1 - First Release
-
+    1.2 - Fixed issues with mandatory parameters Remove parameter
 
 .PARAMETER UserName
 
@@ -83,8 +83,6 @@ http://www.asquaredozen.com/2018/07/29/configuring-802-1x-authentication-for-win
 https://community.cisco.com/t5/security-documents/ise-ers-api-examples/ta-p/3622623
 https://www.cisco.com/c/en/us/td/docs/security/ise/1-3/api_ref_guide/api_ref_book/ise_api_ref_ers1.html
 https://blogs.technet.microsoft.com/heyscriptingguy/2015/10/08/playing-with-json-and-powershell/
-https://github.com/chrhobbs/ise-guest-accounts
-
 
 .NOTES
 Has Logic to handle Powershell 3.0 and 5.0 web requests.
@@ -122,20 +120,16 @@ Param(
     [ValidateNotNullOrEmpty()]
     [switch]$Remove,
 
-    [Parameter(Mandatory,
-        ParameterSetName='Add',
+    [Parameter(ParameterSetName='Add',
         Position=3)]
     [Parameter(ParameterSetName='Remove',
         Position=3)]
-    [ValidateNotNullOrEmpty()]
     [string]$MACAddress,
 
-    [Parameter(Mandatory,
-        ParameterSetName='Add',
+    [Parameter(ParameterSetName='Add',
         Position=4)]
     [Parameter(ParameterSetName='Remove',
         Position=4)]
-    [ValidateNotNullOrEmpty()]
     [string]$ServerName
     
 )
@@ -197,7 +191,7 @@ Function Get-ISECredential {
 [cmdletbinding()]
 Param(
     [string]$UserName,
-    [SecureString]$Password
+    [string]$Password
 )
     LogIt "Getting ISE Credentials."
     Try {
@@ -543,7 +537,7 @@ Try {
     }
 
     If($MACAddress) {
-        $Script:MACAddress = $MACAddress
+        $Script:ISEMACAddress = $MACAddress
     }
     Else {
         $Script:ISEMACAddress = [string]((Get-WmiObject Win32_networkAdapterConfiguration -Filter 'IPEnabled = True' -ErrorAction Stop | Where-Object { $_.DefaultIPGateway -ne $null -and $_.DefaultIPGateway -ne "0.0.0.0" -and $_.DHCPEnabled -eq $True} | Select-Object -First 1 -ExpandProperty MacAddress).Replace("-",":"))
@@ -554,8 +548,9 @@ Try {
     $Script:EndPointGroupHeaders = Set-ISERequestHeaders -ResourceType endpointgroup
 
     $ERSEndPoint = Search-ISEResource -ResourceType endpoint -ResourceProperty mac -FilterOperator EQ -SearchValue $ISEMACAddress -Headers $ERSEndPointHeaders -ErrorAction Stop
-    $EndPointGroup = Search-ISEResource -ResourceType endpointgroup -ResourceProperty name -FilterOperator EQ -SearchValue $ISEGroupName -Headers $EndPointGroupHeaders  -ErrorAction Stop
-
+    If(!$Remove) {
+        $EndPointGroup = Search-ISEResource -ResourceType endpointgroup -ResourceProperty name -FilterOperator EQ -SearchValue $ISEGroupName -Headers $EndPointGroupHeaders  -ErrorAction Stop
+    }
     If(!($Remove) -and ($null -eq $ERSEndPoint) -and $EndPointGroup) {
         $NewERSEndPoint = $ERSEndPointJsonTemplate | ConvertFrom-Json
         $NewERSEndPoint.ERSEndPoint.name = $ISEMACAddress
@@ -567,18 +562,17 @@ Try {
         $ERSEndPoint = New-ISEResource -ResourceType endpoint -NewResourceObject $NewERSEndPoint -Headers $ERSEndPointHeaders
     }
     
-    If($ERSEndPoint -and $EndPointGroup) {
+    If($ERSEndPoint) {
         LogIt "ERSEndPoint: $($ERSEndPoint.ERSEndPoint.name) : $($ERSEndPoint.ERSEndPoint.groupid) : $($ERSEndPoint.ERSEndPoint.link.href)"
-        LogIt "EndPointGroup: $($EndPointGroup.EndPointGroup.name) : $($EndPointGroup.EndPointGroup.id) : $($EndPointGroup.EndPointGroup.link.href)"
-        
         $ERSEndPointURI = $ERSEndPoint.ERSEndPoint.link.href
-        $EndPointGroupName = $EndPointGroup.EndPointGroup.name        
 
         If($Remove) {
             $RemoveResult = Remove-ISEResource -ResourceURI $ERSEndPointURI -ResourceType endpoint -Headers $ERSEndPointHeaders
             Logit "Remove Status: $($RemoveResult.StatusCode)"
         }
-        Else {
+        ElseIf ($EndPointGroup) {
+            LogIt "EndPointGroup: $($EndPointGroup.EndPointGroup.name) : $($EndPointGroup.EndPointGroup.id) : $($EndPointGroup.EndPointGroup.link.href)"
+            $EndPointGroupName = $EndPointGroup.EndPointGroup.name        
             $EndPointGroupId = $EndPointGroup.EndPointGroup.id
             $CurrentGroupId = $ERSEndPoint.ERSEndPoint.groupId
             If($EndPointGroupId -ne $CurrentGroupId) {
@@ -597,9 +591,12 @@ Try {
                 Logit "Resource is already in the group" -Type Warning
             }
         }
+        Else {
+            LogIt "No Group Found."
+        }
     }
     Else {
-        LogIt "No Resource or Group Found."
+        LogIt "No Resource Found."
     }
     
 }
