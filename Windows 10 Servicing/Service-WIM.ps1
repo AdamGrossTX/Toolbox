@@ -12,14 +12,15 @@
 
         You will have to pre-download you SSU, LCU and Flash Updates from the Windows Update Catalog.
 
-        The base script components were stolen from Johan Arwidmark @JohanArwidmark and bits and pieces from others along the way.
+        The base script components were stolen from Johan Arwidmark @jarwidmark and bits and pieces from others along the way. 
+        Also, thanks to Johan for mentioning this script at Microsoft Ignite 2018 in the BRK2288 and BRK4028 sessions.
 
         If you want an ultimate, hands-off seriving tool, please take a look at David Segura's (@SeguraOSD) OSBuilder tool.
         It does EVERYTHING and is way better than this!
         http://www.OSDeploy.com
 
         Special Thanks to Gary Blok and Mike Terrill for their tireless efforts to solve the Dynamic Updates issue!
-
+        
     .NOTES
 
         Author: Adam Gross
@@ -42,6 +43,8 @@
         1.3 Updated params for defaults
         
         1.4 Added Mandatory flags to some params
+
+        1.5 Added fix for 2018-09 Windows10.0-KB4457190-x64.cab Setup Update not being classified correctly.
     
 #>
 
@@ -53,7 +56,7 @@ Param
 
     [Parameter(Position=1, HelpMessage="Operating System version to service. Default is 1709.")]
     [ValidateSet('1709','1803','1809')]
-    [string]$OSVersion = "1709",
+    [string]$OSVersion = "1803",
 
     [Parameter(Position=2, HelpMessage="Architecture version to service. Default is x64.")]
     [ValidateSet ('x64', 'x86','ARM64')]
@@ -61,7 +64,7 @@ Param
 
     [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
     [ValidatePattern("\d{4}-\d{2}")]
-    [string]$Month = "2018-08",
+    [string]$Month = "2018-09",
 
     [Parameter(Mandatory=$true, Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [string]$RootFolder = "C:\ImageServicing",
@@ -229,12 +232,18 @@ Function Get-DynamicUpdates {
 
         ForEach ($File in $DownloadList)
         {
-            $Path = $null
-            switch ($File.Type)
-            {
-                SetupUpdate {$Path = "$($DUSUPath)\$($File.FileName)"; break;}
-                ComponentUpdate {$Path = "$($DUCUPath)\$($File.FileName)"; break;}
-                Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
+            $Path = $Null
+            #Fix for September SetupUpdate not containing the correct text to classify propery.
+            If($File.FileName -eq "Windows10.0-KB4457190-x64.cab") { 
+                $Path = "$($DUSUPath)\$($File.FileName)"
+            }
+            Else {
+                switch ($File.Type)
+                {
+                    SetupUpdate {$Path = "$($DUSUPath)\$($File.FileName)"; break;}
+                    ComponentUpdate {$Path = "$($DUCUPath)\$($File.FileName)"; break;}
+                    Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
+                }
             }
             Invoke-WebRequest -Uri $File.URL -OutFile $Path -ErrorAction Continue
         }
