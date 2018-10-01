@@ -44,7 +44,7 @@
         
         1.4 Added Mandatory flags to some params
 
-        1.5 Added fix for 2018-09 Windows10.0-KB4457190-x64.cab Setup Update not being classified correctly.
+        1.5 Added fix for 2018-09 SetupUpdates not being classified correctly.
     
 #>
 
@@ -224,8 +224,7 @@ Function Get-DynamicUpdates {
                 'ContentID' = $ContentIDs.ContentID;
                 'FileName' = $Content.FileName;
                 'URL' = $Content.SourceURL;
-                'Type' = $Update.LocalizedDescription.Replace(":","")
-
+                'Type' = If(($Update.ArticleID -eq "4457190") -or ($Update.ArticleID -eq "4457189")) {"SetupUpdate"} Else {$Update.LocalizedDescription.Replace(":","")}
                 }
             }
         }
@@ -234,7 +233,7 @@ Function Get-DynamicUpdates {
         {
             $Path = $Null
             #Fix for September SetupUpdate not containing the correct text to classify propery.
-            If($File.FileName -eq "Windows10.0-KB4457190-x64.cab") { 
+            If($File.FileName -like "*KB4457190*" -or $File.FileName -like "*KB4457189*") {
                 $Path = "$($DUSUPath)\$($File.FileName)"
             }
             Else {
