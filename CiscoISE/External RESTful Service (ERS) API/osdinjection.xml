@@ -66,7 +66,12 @@
         <Source>Custom</Source>
         <Destination>Custom</Destination>
       </File>
-	    <File name="winpeshl.ini">
+      <File name="root.cer">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+      <File name="winpeshl.ini">
         <LocaleNeeded>false</LocaleNeeded>
         <Source>Custom</Source>
         <Destination>Windows\System32</Destination>
@@ -389,7 +394,12 @@
         <Source>Custom</Source>
         <Destination>Custom</Destination>
       </File>
-	    <File name="winpeshl.ini">
+      <File name="root.cer">
+        <LocaleNeeded>false</LocaleNeeded>
+        <Source>Custom</Source>
+        <Destination>Custom</Destination>
+      </File>
+      <File name="winpeshl.ini">
         <LocaleNeeded>false</LocaleNeeded>
         <Source>Custom</Source>
         <Destination>Windows\System32</Destination>
