@@ -4,3 +4,5 @@ http://www.asquaredozen.com/2018/07/29/configuring-802-1x-authentication-for-win
 
 
 Add your own Root Certificate to the media and name it root.cer
+
+NOTE: I found that my password contained special characters that caused winpeshl.exe to fail to pass the creds properly. I moved the creds into the PowerShell script instead of passing them in the command line inside the winpeshl.ini file.
