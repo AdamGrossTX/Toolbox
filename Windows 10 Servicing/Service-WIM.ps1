@@ -469,7 +469,7 @@ Function Patch-InstallWIM {
         }
         Else
         {
-            Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
+            Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder
         }
         
         Patch-WinREWIM
