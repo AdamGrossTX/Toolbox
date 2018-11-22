@@ -40,11 +40,13 @@
         
         1.2 - Added better folder creation logic and messaging. - (This version is being tested right now 08/21/2018 3:20 PM CST)
         
-        1.3 Updated params for defaults
+        1.3 - Updated params for defaults
         
-        1.4 Added Mandatory flags to some params
+        1.4 - Added Mandatory flags to some params
 
-        1.5 Added fix for 2018-09 SetupUpdates not being classified correctly.
+        1.5 - Added fix for 2018-09 SetupUpdates not being classified correctly.
+        
+        1.6 - Added $Optimize switch (set to false by default) to remove -Optimize switch to address issues with Windows 10 1809 (11/21/2018)
     
 #>
 
@@ -85,7 +87,11 @@ Param
     [switch]$ApplyDynamicUpdates = $True,
 
     [Parameter(HelpMessage="Delete temp folders and patches.")]
-    [switch]$Cleanup = $false
+    [switch]$Cleanup = $false,
+
+    [Parameter(HelpMessage="This is set to false by default to prevent issues with Windows 10 1809. Set to true for other OS builds.")]
+    [switch]$Optimize = $false
+
 )
 
 #Setup
@@ -458,7 +464,13 @@ Function Patch-InstallWIM {
     try{
         Write-Host "Patching Install WIM" -ForegroundColor Green
 
-        Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
+        If ($Optimize) {
+            Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
+        }
+        Else
+        {
+            Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
+        }
         
         Patch-WinREWIM
 
