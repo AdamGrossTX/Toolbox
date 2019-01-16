@@ -1,4 +1,4 @@
-<#
+﻿<#
 
     .SYNOPSIS
 
@@ -47,6 +47,8 @@
         1.5 - Added fix for 2018-09 SetupUpdates not being classified correctly.
         
         1.6 - Added $Optimize switch (set to false by default) to remove -Optimize switch to address issues with Windows 10 1809 (11/21/2018)
+
+        1.7 - Updated the Params to accept defaults without using command line args. Added Remove-InBox apps functionality using configfile.
     
 #>
 
@@ -54,43 +56,62 @@ Param
 (
     [Parameter(Position=0, HelpMessage="Operating System Name to be serviced.")]
     [ValidateSet("Windows 10 Education","Windows 10 Education N","Windows 10 Enterprise","Windows 10 Enterprise N","Windows 10 Pro","Windows 10 Pro N")]
-    [string]$OSName = "Windows 10 Enterprise",
+    [string]
+    $OSName = "Windows 10 Enterprise",
 
     [Parameter(Position=1, HelpMessage="Operating System version to service. Default is 1709.")]
     [ValidateSet('1709','1803','1809')]
-    [string]$OSVersion = "1803",
+    [string]
+    $OSVersion = "1809",
 
     [Parameter(Position=2, HelpMessage="Architecture version to service. Default is x64.")]
     [ValidateSet ('x64', 'x86','ARM64')]
-    [string]$OSArch = "x64",   
+    [string]
+    $OSArch = "x64",   
 
     [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
     [ValidatePattern("\d{4}-\d{2}")]
-    [string]$Month = "2018-09",
+    [string]
+    $Month = "2018-12",
 
-    [Parameter(Mandatory=$true, Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
-    [string]$RootFolder = "C:\ImageServicing",
+    [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $RootFolder = "C:\ImageServicing",
 
-    [Parameter(Mandatory=$true, Position=5, HelpMessage="SCCM Primary Server Name.")]
-    [string]$SCCMServer,
+    [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SCCMServer,
 
-    [Parameter(Mandatory=$true, Position=6, HelpMessage="SCCM Site Code.")]
-    [string]$SiteCode,
+    [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SiteCode,
 
-    [Parameter(Mandatory=$true, Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
-    [string]$DISMPath = "Dism.exe",
+    [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
+    [string]
+    $DISMPath = "Dism.exe",
     
     [Parameter(HelpMessage="Outputs fully serviced media.")]
-    [switch]$CreateProdMedia = $True,
+    [switch]
+    $CreateProdMedia = [switch]::Present,
 
     [Parameter(HelpMessage="Optionally apply Dynamic Updates to Install.wim and Sources for InPlace Upgrade compatibility.")]
-    [switch]$ApplyDynamicUpdates = $True,
+    [switch]
+    $ApplyDynamicUpdates = [switch]::Present,
 
     [Parameter(HelpMessage="Delete temp folders and patches.")]
-    [switch]$Cleanup = $false,
+    [switch]
+    $Cleanup = $false,
 
     [Parameter(HelpMessage="This is set to false by default to prevent issues with Windows 10 1809. Set to true for other OS builds.")]
-    [switch]$Optimize = $false
+    [switch]
+    $Optimize = $false,
+
+    [Parameter(HelpMessage="Remove InBox Apps - Update the included RemoveApps.XML to meet your needs.")]
+    [switch]
+    $RemoveInBoxApps = [switch]::Present
 
 )
 
@@ -110,7 +131,9 @@ $LCUPath = "$($UpdatesPath)\LCU"
 $SSUPath = "$($UpdatesPath)\SSU"
 $FlashPath = "$($UpdatesPath)\Flash"
 
-If(!(Test-Path -path $ISOPath)) {New-Item -path $ISOPath -ItemType Directory; Write-Warning "Please place an ISO for your selected OS into this folder: $($ISOPath) then retry. Existing script.";Break}
+$ConfigFile = "$($RootFolder)\RemoveApps.xml"
+
+If(!(Test-Path -path $ISOPath)) {New-Item -path $ISOPath -ItemType Directory; Write-Warning "Please place an ISO for your Selected OS into this folder: $($ISOPath) then retry. Existing script.";Break}
 if (!(Test-Path -path $SSUPath)) {New-Item -path $SSUPath -ItemType Directory}
 if (!(Test-Path -path $FlashPath)) {New-Item -path $FlashPath -ItemType Directory}
 If (!(Test-Path -path $LCUPath)) {New-Item -path $LCUPath -ItemType Directory}
@@ -121,11 +144,11 @@ If(!(Get-ChildItem -Path $UpdatesPath -Filter "*.MSU" -Recurse)) {Write-Warning 
 $DUSUPath = "$($UpdatesPath)\SetupUpdate"
 $DUCUPath = "$($UpdatesPath)\ComponentUpdate"
 
-$ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select -ExpandProperty FullName
+$ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName
 
-$LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" | Select -ExpandProperty FullName
-$SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" | Select -ExpandProperty FullName
-$Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" | Select -ExpandProperty FullName
+$LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
+$SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
+$Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
 
 $ImageMountFolder = "$($RootFolder)\Mount_Image"
 $BootImageMountFolder = "$($RootFolder)\Mount_BootImage"
@@ -270,6 +293,28 @@ Function Get-DynamicUpdates {
 
 }
 
+Function Remove-InBoxApps {
+    Write-Host "Reading list of apps from $configFile"
+    $list = Get-Content $configFile
+    Write-Host "Apps Select-Objected for removal: $list.Count"
+
+    $provisioned = Get-AppxProvisionedPackage -Path $ImageMountFolder
+  
+    ForEach ($AppName in $List) {
+        Write-Information "Removing provisioned package $AppName"
+        $current = $Provisioned | Where-Object { $_.DisplayName -eq $AppName }
+        
+        if ($current)
+        {
+            Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName
+        }
+        else
+        {
+            Write-Warning "Unable to find provisioned package $AppName"
+        }
+    }
+}
+
 Function Apply-Patches {
 param
 (
@@ -285,7 +330,7 @@ param
     $Error.Clear()
 
     Write-Host "Applying patches to WIM $($MountFolder)." -ForegroundColor Green
-    Write-Host "Selected Options:" -ForegroundColor Green
+    Write-Host "Select-Objected Options:" -ForegroundColor Green
     Write-Host "ApplyDotNET: $($ApplyDotNET)" -ForegroundColor Green
     Write-Host "ApplySSU: $($ApplySSU)" -ForegroundColor Green
     Write-Host "ApplyFlash: $($ApplyFlash)" -ForegroundColor Green
@@ -325,7 +370,7 @@ param
             {
                 Write-Host "Applying Dynamic Component Updates" -ForegroundColor Green
                 #Get All Dynamic Cumulative Updates
-                $DUCU = Get-ChildItem -Path "$($DUCUPath)" -Filter "*.CAB" | Select -ExpandProperty FullName
+                $DUCU = Get-ChildItem -Path "$($DUCUPath)" -Filter "*.CAB" | Select-Object -ExpandProperty FullName
 
                 $Count = 0
                 $DUCU.Count
@@ -472,6 +517,9 @@ Function Patch-InstallWIM {
             Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder
         }
         
+
+        If($RemoveInBoxApps){Remove-InBoxApps}
+
         Patch-WinREWIM
 
         Apply-Patches -MountFolder $ImageMountFolder -ApplySSU -ApplyLCU -ApplyFlash -CleanWIM
@@ -494,7 +542,7 @@ Function Create-ProductionMedia {
         Write-Host "Creating Production Media" -ForegroundColor Green
         
         Get-BaseMedia
-        
+
         Patch-InstallWIM
         Patch-BootWIM
  
