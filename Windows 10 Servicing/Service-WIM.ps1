@@ -118,6 +118,15 @@ Param
 #Setup
 ##################################################
 
+
+If([string]::IsNullOrEmpty($SCCMServer)) {
+    $SCCMServer = Read-Host -Prompt 'Input your server name'
+}
+If([string]::IsNullOrEmpty($SiteCode)) {
+    $SiteCode = Read-Host -Prompt 'Input your site code'
+}
+
+
 $VerbosePreference="Continue"
 $ErrorActionPreference="Stop"
 
