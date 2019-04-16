@@ -634,7 +634,7 @@ Function Copy-CompletedWIMs {
     try {
         Write-Host "Copying Production Media" -ForegroundColor Green
 
-        #Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
+        Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         Copy-Item -Path $BootWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         
     }
