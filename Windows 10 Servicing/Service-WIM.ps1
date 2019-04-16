@@ -1,4 +1,4 @@
-﻿<#
+<#
 
     .SYNOPSIS
 
@@ -49,6 +49,8 @@
         1.6 - Added $Optimize switch (set to false by default) to remove -Optimize switch to address issues with Windows 10 1809 (11/21/2018)
 
         1.7 - Updated the Params to accept defaults without using command line args. Added Remove-InBox apps functionality using configfile.
+
+        1.8 - Added .NET Cumulative Update function. Cleaned up folder logic to allow it to pre-create folders before exiting. Misc changes. (4/10/2019).
     
 #>
 
@@ -72,7 +74,7 @@ Param
     [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
     [ValidatePattern("\d{4}-\d{2}")]
     [string]
-    $Month = "2018-12",
+    $Month = "2019-03",
 
     [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [ValidateNotNullOrEmpty()]
@@ -82,12 +84,12 @@ Param
     [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $SCCMServer,
+    $SCCMServer = '',
 
     [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $SiteCode,
+    $SiteCode = '',
 
     [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
     [string]
@@ -115,76 +117,116 @@ Param
 
 )
 
-#Setup
+
+#Main
 ##################################################
 
+$main = {
 
-If([string]::IsNullOrEmpty($SCCMServer)) {
-    $SCCMServer = Read-Host -Prompt 'Input your server name'
+    #Setup
+    ##################################################
+
+
+    If([string]::IsNullOrEmpty($SCCMServer)) {
+        $SCCMServer = Read-Host -Prompt 'Input your server name'
+    }
+    If([string]::IsNullOrEmpty($SiteCode)) {
+        $SiteCode = Read-Host -Prompt 'Input your site code'
+    }
+
+
+    $VerbosePreference="Continue"
+    $ErrorActionPreference="Stop"
+
+    $DownloadList = @()
+
+    $DisplayNameFilter = "*$($OSVersion)*$($OSArch)*"
+
+    $ISOPath = "$($RootFolder)\ISO\$($OSVersion)"
+    $UpdatesPath = "$($RootFolder)\Updates\$($OSVersion)\$($Month)\$($OSArch)"
+    $LCUPath = "$($UpdatesPath)\LCU"
+    $SSUPath = "$($UpdatesPath)\SSU"
+    $FlashPath = "$($UpdatesPath)\Flash"
+    $DotNetPath = "$($UpdatesPath)\DotNet"
+
+    $ConfigFile = "$($PSScriptRoot)\RemoveApps.xml"
+
+    $DUSUPath = "$($UpdatesPath)\SetupUpdate"
+    $DUCUPath = "$($UpdatesPath)\ComponentUpdate"
+
+    $ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+
+    $ImageMountFolder = "$($RootFolder)\Mount_Image"
+    $BootImageMountFolder = "$($RootFolder)\Mount_BootImage"
+    $WinREImageMountFolder = "$($RootFolder)\Mount_WinREImage"
+    $WIMImageFolder = "$($RootFolder)\WIM_Output\$($OSVersion)\$($Month)\$($OSArch)"
+    $OriginalBaseMediaFolder = "$($RootFolder)\OriginalBaseMedia\$($OSVersion)\$($OSArch)"
+    $CompletedMediaFolder = "$($RootFolder)\CompletedMedia\$($OSVersion)\$($Month)\$($OSArch)"
+
+    $TmpInstallWIM = "$WIMImageFolder\tmp_install.wim"
+    $TmpWinREWIM = "$WIMImageFolder\tmp_winre.wim"
+    $TmpBootWIM = "$WIMImageFolder\tmp_boot.wim"
+
+    $InstallWIM = "$WIMImageFolder\install.wim"
+    $BootWIM = "$WIMImageFolder\boot.wim"
+    $WinREWIM = "$WIMImageFolder\winre.wim"
+
+    $exclude = @('install.wim','boot.wim')
+
+
+    ##################################################
+
+
+    try
+    {
+        Check-OSVersion
+    
+        Check-Paths
+    
+        If($ApplyDynamicUpdates) {Get-DynamicUpdates}
+
+        If($CreateProdMedia) {
+            Get-BaseMedia
+            Patch-BootWIM
+            Mount-InstallWIM
+            If($RemoveInBoxApps){
+                Remove-InBoxApps
+            }
+            Patch-WinREWIM
+            Patch-InstallWIM
+            Copy-CompletedWIMs
+        }
+
+        If($Cleanup) {Cleanup}
+        
+    }
+
+    catch 
+    {   
+        Write-Warning $Error[0].Exception
+        Write-Host Write-Error $Error[0].Exception -ForegroundColor Red
+    }
+
 }
-If([string]::IsNullOrEmpty($SiteCode)) {
-    $SiteCode = Read-Host -Prompt 'Input your site code'
-}
+####################################################
 
-
-$VerbosePreference="Continue"
-$ErrorActionPreference="Stop"
-
-$DownloadList = @()
-
-$DisplayNameFilter = "*$($OSVersion)*$($OSArch)*"
-
-$ISOPath = "$($RootFolder)\ISO\$($OSVersion)"
-$UpdatesPath = "$($RootFolder)\Updates\$($OSVersion)\$($Month)\$($OSArch)"
-$LCUPath = "$($UpdatesPath)\LCU"
-$SSUPath = "$($UpdatesPath)\SSU"
-$FlashPath = "$($UpdatesPath)\Flash"
-
-$ConfigFile = "$($RootFolder)\RemoveApps.xml"
-
-If(!(Test-Path -path $ISOPath)) {New-Item -path $ISOPath -ItemType Directory; Write-Warning "Please place an ISO for your Selected OS into this folder: $($ISOPath) then retry. Existing script.";Break}
-if (!(Test-Path -path $SSUPath)) {New-Item -path $SSUPath -ItemType Directory}
-if (!(Test-Path -path $FlashPath)) {New-Item -path $FlashPath -ItemType Directory}
-If (!(Test-Path -path $LCUPath)) {New-Item -path $LCUPath -ItemType Directory}
-If(!(Test-Path -path $UpdatesPath)) {New-Item -path $UpdatesPath -ItemType Directory; Write-Warning "Please Download your SSU, LCU, and Flash Updates to : $($UpdatesPath) then retry. Existing script.";Break}
-If(!(Get-ChildItem -Path $ISOPath -Filter "*.ISO")) {Write-Warning "No ISO Found in: $($ISOPath)";Break}
-If(!(Get-ChildItem -Path $UpdatesPath -Filter "*.MSU" -Recurse)) {Write-Warning "No Updates Found in: $($UpdatesPath)";Break}
-
-$DUSUPath = "$($UpdatesPath)\SetupUpdate"
-$DUCUPath = "$($UpdatesPath)\ComponentUpdate"
-
-$ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName
-
-$LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
-$SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
-$Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName
-
-$ImageMountFolder = "$($RootFolder)\Mount_Image"
-$BootImageMountFolder = "$($RootFolder)\Mount_BootImage"
-$WinREImageMountFolder = "$($RootFolder)\Mount_WinREImage"
-$WIMImageFolder = "$($RootFolder)\WIM_Output\$($OSVersion)\$($Month)\$($OSArch)"
-$OriginalBaseMediaFolder = "$($RootFolder)\OriginalBaseMedia\$($OSVersion)\$($OSArch)"
-$CompletedMediaFolder = "$($RootFolder)\CompletedMedia\$($OSVersion)\$($Month)\$($OSArch)"
-
-$TmpInstallWIM = "$WIMImageFolder\tmp_install.wim"
-$TmpWinREWIM = "$WIMImageFolder\tmp_winre.wim"
-$TmpBootWIM = "$WIMImageFolder\tmp_boot.wim"
-
-$InstallWIM = "$WIMImageFolder\install.wim"
-$BootWIM = "$WIMImageFolder\boot.wim"
-$WinREWIM = "$WIMImageFolder\winre.wim"
-
-$exclude = @('install.wim','boot.wim')
 
 #Functions
 ##################################################
-Function Check-Paths {
+Function Check-Paths
+{
     $Error.Clear()
     Try {
+        $ErrorMessages = @()
         Write-Host "Checking for folders and creating them if they don't exist" -ForegroundColor Green
-        if (!(Test-Path -path $ISO)) {Write-Warning "Could not find Windows 10 ISO file. Aborting...";Break}
+        if (!(Test-Path -path $ISO)) {$ErrorMessages += "Could not find Windows 10 ISO file."}
         if (!(Test-Path -path $SSUPath)) {New-Item -path $SSUPath -ItemType Directory}
         if (!(Test-Path -path $FlashPath)) {New-Item -path $FlashPath -ItemType Directory}
+        if (!(Test-Path -path $DotNetPath)) {New-Item -path $DotNetPath -ItemType Directory}
         if (!(Test-Path -path $LCUPath)) {New-Item -path $LCUPath -ItemType Directory}
         if (!(Test-Path -path $DUSUPath)) {New-Item -path $DUSUPath -ItemType Directory}
         if (!(Test-Path -path $DUCUPath)) {New-Item -path $DUCUPath -ItemType Directory}
@@ -195,9 +237,19 @@ Function Check-Paths {
         if (!(Test-Path -path $OriginalBaseMediaFolder)) {New-Item -path $OriginalBaseMediaFolder -ItemType Directory}
         if (!(Test-Path -path $CompletedMediaFolder)) {New-Item -path $CompletedMediaFolder -ItemType Directory}
   
-        if(!($SSU)) {Write-Warning "Could not find Servicing Update for Windows 10. Aborting...";Break;}
-        if(!($LCU)) {Write-Warning "Could not find Monthly Update for Windows 10. Aborting...";Break;}
-        if(!($Flash)) {Write-Warning "Could not find Adobe Flash Update for Windows 10. Aborting...";Break;}
+        if(!($SSU)) {$ErrorMessages +=  "Could not find Servicing Update for Windows 10."}
+        if(!($LCU)) {$ErrorMessages +=  "Could not find Monthly Update for Windows 10."}
+        if(!($Flash)) {$ErrorMessages +=  "Could not find Adobe Flash Update for Windows 10."}
+
+        #Only check for .NET Updates for 1809 and above.
+        If($OSVersion -ge '1809') { 
+            If(!($DotNet)) {$ErrorMessages +=  "Could not find .NET Update for Windows 10."}
+        }
+         If($ErrorMessages) {
+             $ErrorMessages | ForEach-Object {Write-Warning $_} ; break;}
+        Else {
+            Write-Host "All Updates found" -ForegroundColor Green
+        }
     }
     Catch
     {
@@ -282,6 +334,7 @@ Function Get-DynamicUpdates {
                     Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
                 }
             }
+            
             Invoke-WebRequest -Uri $File.URL -OutFile $Path -ErrorAction Continue
         }
 
@@ -297,38 +350,52 @@ Function Get-DynamicUpdates {
     Catch
     {
         Write-Warning "Get Dynamic Updates failed."
-        Throw $Error
+        Throw $Error[0]
     }
 
 }
 
 Function Remove-InBoxApps {
-    Write-Host "Reading list of apps from $configFile"
-    $list = Get-Content $configFile
-    Write-Host "Apps Select-Objected for removal: $list.Count"
+    Try {
+        If(Test-Path -Path $configFile) {
+            Write-Host "Reading list of apps from $configFile"
+            $list = Get-Content $configFile
+            Write-Host "Apps Select-Objected for removal: $list.Count"
 
-    $provisioned = Get-AppxProvisionedPackage -Path $ImageMountFolder
-  
-    ForEach ($AppName in $List) {
-        Write-Information "Removing provisioned package $AppName"
-        $current = $Provisioned | Where-Object { $_.DisplayName -eq $AppName }
+            $provisioned = Get-AppxProvisionedPackage -Path $ImageMountFolder
         
-        if ($current)
-        {
-            Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName
+            ForEach ($AppName in $List) {
+                Write-Information "Removing provisioned package $AppName"
+                $current = $Provisioned | Where-Object { $_.DisplayName -eq $AppName }
+                
+                if ($current)
+                {
+                    Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName
+                }
+                else
+                {
+                    Write-Warning "Unable to find provisioned package $AppName"
+                }
+            }
         }
-        else
-        {
-            Write-Warning "Unable to find provisioned package $AppName"
+        Else {
+            Write-Host "No RemoveApps.XML found"
         }
     }
+    Catch {
+        Error[0]
+        Write-Warning "Remove-InBoxApps failed."
+        Throw $Error[0]
+    }
 }
+
 
 Function Apply-Patches {
 param
 (
     [string]$MountFolder,
     [switch]$ApplyDotNET=$False,
+    [switch]$InstallDotNET=$False,
     [switch]$ApplySSU=$False,
     [switch]$ApplyFlash=$False,
     [switch]$ApplyLCU=$False,
@@ -341,6 +408,7 @@ param
     Write-Host "Applying patches to WIM $($MountFolder)." -ForegroundColor Green
     Write-Host "Select-Objected Options:" -ForegroundColor Green
     Write-Host "ApplyDotNET: $($ApplyDotNET)" -ForegroundColor Green
+    Write-Host "InstallDotNET: $($InstallDotNET)" -ForegroundColor Green
     Write-Host "ApplySSU: $($ApplySSU)" -ForegroundColor Green
     Write-Host "ApplyFlash: $($ApplyFlash)" -ForegroundColor Green
     Write-Host "ApplyLCU: $($ApplyLCU)" -ForegroundColor Green
@@ -349,12 +417,20 @@ param
     
     Try
     {
-        if($ApplyDotNET)
+        if($InstallDotNET) #Enabled .Net 3.5
         {
             Write-Host "Enabling .NET 3.5" -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:"$($OriginalBaseMediaFolder)\sources\sxs"
         }
-    
+
+        if($ApplyDotNET)
+        {
+            If($OSVersion -ge '1809') { 
+                Write-Host "Applying .NET Updates" -ForegroundColor Green
+                Add-WindowsPackage -PackagePath $DotNet -Path $MountFolder
+            }
+        }
+
         if($ApplySSU)
         {
             Write-Host "Applying SSU" -ForegroundColor Green
@@ -363,7 +439,7 @@ param
 
         if($ApplyFlash)
         {
-            Write-Host "Applying Flash" -ForegroundColor Green
+            Write-Host "Applying Flash Updates" -ForegroundColor Green
             Add-WindowsPackage -PackagePath $Flash -Path $MountFolder
         }
 
@@ -513,10 +589,11 @@ Function Patch-WinREWIM {
     }
 }
 
-Function Patch-InstallWIM {
+Function Mount-InstallWIM
+{
     $Error.Clear()
     try{
-        Write-Host "Patching Install WIM" -ForegroundColor Green
+        Write-Host "Mounting Install WIM" -ForegroundColor Green
 
         If ($Optimize) {
             Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
@@ -525,14 +602,21 @@ Function Patch-InstallWIM {
         {
             Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder
         }
-        
+       
+    }
+    catch
+    {
+        Write-Warning "Mounting Install WIM failed"
+        Throw $Error
+    }    
+}
 
-        If($RemoveInBoxApps){Remove-InBoxApps}
-
-        Patch-WinREWIM
+Function Patch-InstallWIM {
+    $Error.Clear()
+    try{
 
         Apply-Patches -MountFolder $ImageMountFolder -ApplySSU -ApplyLCU -ApplyFlash -CleanWIM
-        Apply-Patches -MountFolder $ImageMountFolder -ApplyDotNET -ApplyLCU -ApplyDUCU
+        Apply-Patches -MountFolder $ImageMountFolder -InstallDotNET -ApplyDotNET -ApplyLCU -ApplyDUCU
         
         DisMount-WindowsImage -Path $ImageMountFolder -Save
         Export-WindowsImage -SourceImagePath $TmpInstallWIM -SourceName $OSName -DestinationImagePath $InstallWIM
@@ -545,24 +629,20 @@ Function Patch-InstallWIM {
     }    
 }
 
-Function Create-ProductionMedia {
+Function Copy-CompletedWIMs {
     $Error.Clear()
     try {
-        Write-Host "Creating Production Media" -ForegroundColor Green
-        
-        Get-BaseMedia
+        Write-Host "Copying Production Media" -ForegroundColor Green
 
-        Patch-InstallWIM
-        Patch-BootWIM
- 
-        Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
+        #Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         Copy-Item -Path $BootWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
-        
         
     }
     catch
     {
-        Write-Warning "Creating Production Media failed"
+        $Error
+        Write-Warning "Copying Production Media failed"
+        Write-Host $Error
         Throw $Error
     }
 }
@@ -584,28 +664,7 @@ Function Cleanup {
     }
 }
 
-##################################################
-
-#Main
-##################################################
-try
-{
-    Check-Paths
-
-    Check-OSVersion
-    
-    If($ApplyDynamicUpdates) {Get-DynamicUpdates}
-
-    If($CreateProdMedia) {Create-ProductionMedia}
-
-    If($Cleanup) {Cleanup}
-    
-}
-
-catch 
-{
-    Write-Warning $Error[0].Exception
-    Write-Host Write-Error $Error[0].Exception -ForegroundColor Red
-}
-
-####################################################
+# Calling the main function
+&$main
+# ------------------------------------------------------------------------------------------------
+# END
