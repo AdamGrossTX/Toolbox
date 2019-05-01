@@ -26,6 +26,9 @@ Once you've added the files to the correct folders, you are ready to begin servi
 
 Launch the script again with the desired command lines. If all files and folders are present, it will begin working. In the end, you will end up with a CompletedMedia folder which will have the completed media with updated wims.
 
+### Note
+Beginning in Windows 10 1809, the servicing model has improved. At the moment, dynamic updates are no longer delivered from WSUS and can't be downloaded by the script. I have reached out to the product group to ask for assistance on offline servicing options. They said that this is being worked on, but there's no solution yet. The best option I've found is to run the Feature Update on a device and it will download the CAB files into the c:\$Windows.~BT folder where you can grab them and add to the script.
+
 Originally created for this blog post. https://www.asquaredozen.com/2018/08/20/adding-dynamic-updates-to-windows-10-in-place-upgrade-media-during-offline-servicing/
 
 
