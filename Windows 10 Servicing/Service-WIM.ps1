@@ -31,7 +31,41 @@
     .LINK
         https://keithga.wordpress.com/2017/05/21/new-tool-get-the-latest-windows-10-cumulative-updates/
         https://stealthpuppy.com/powershell-download-import-updates-mdt/#.W3hFn_ZFyOc
-        
+
+    .Guide
+    ## Quick Start Guide
+
+    Download the contents of this folder to a local driver such as c:\ImageServicing.
+
+    Launch the script and enter parameters as needed. At a minimum you will need to enter your servername and site code. On first launch, the script will look for all of the files and folders needed for servicing. It will create the required folder structure. You will need to add your ISO to the appropriate folder under the ISO folder.
+
+    You will also need to have Dynamic Updates enabled in your SCCM Console and be able to see Dynamic Updates in your ConfigMgr console.
+
+    Then, go to https://www.catalog.update.microsoft.com/Home.aspx and search for updates that match the os version and build you are servicing. You will need to add each update to their respective folder.
+
+    Mount_Image = The DISM mount folder for the OS Image
+    Mount_BootImage = The DISM mount folder for the Boot Image
+    Mount_WinREImage = The DISM mount folder for the WinRE Image
+    WIM_OutPut = a temp directory for WIM files
+    OriginalBaseMedia = the ISO is extracted here
+
+    ISO = Windows ISO Source Media
+    LCU = Latest Cumilative Update
+    SSU = Servicing Stack Update (check the LCU KB for the KB number of the required SSU)
+    Flash = Adobe Flash Player
+    DotNet = .NET Framework Cumulative Update (New for 1809)
+    SetupUpdate = Dynamic Update Setup Update
+    ComponentUpdate = Dynamic Update Component Update
+
+    Once you've added the files to the correct folders, you are ready to begin servicing. Close any open explorer windows or anything else that could be using the files if your servicing folder, otherwise, DISM will likely break during the dismount process.
+
+    Launch the script again with the desired command lines. If all files and folders are present, it will begin working. In the end, you will end up with a CompletedMedia folder which will have the completed media with updated wims.
+
+    ### Note
+    Beginning in Windows 10 1809, the servicing model has improved. At the moment, dynamic updates are no longer delivered from WSUS and can't be downloaded by the script. I have reached out to the product group to ask for assistance on offline servicing options. They said that this is being worked on, but there's no solution yet. The best option I've found is to run the Feature Update on a device and it will download the CAB files into the c:\$Windows.~BT folder where you can grab them and add to the script.
+
+    Originally created for this blog post. https://www.asquaredozen.com/2018/08/20/adding-dynamic-updates-to-windows-10-in-place-upgrade-media-during-offline-servicing/
+
     .History
 
         1.0 - Original
@@ -51,6 +85,8 @@
         1.7 - Updated the Params to accept defaults without using command line args. Added Remove-InBox apps functionality using configfile.
 
         1.8 - Added .NET Cumulative Update function. Cleaned up folder logic to allow it to pre-create folders before exiting. Misc changes. (4/10/2019).
+        
+        1.9 - Added quick start guide.
     
 #>
 
