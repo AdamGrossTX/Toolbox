@@ -31,6 +31,8 @@
 
         1.6 Corrected logic for ALL Updates
 
+        1.7 Updated Params to remove Mandatory
+
 #>
 
 #####################
@@ -40,29 +42,47 @@ Param
     
     [Parameter(HelpMessage="Operating System version to service.")]
     [ValidateSet('1511','1607','1703','1709','1803','1809','Next','All')]
-    [string]$OSVersion,
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $OSVersion = "All",
     
     [Parameter(HelpMessage="Architecture version to service.")]
     [ValidateSet ('x64', 'x86','ARM64','All')]
-    [string]$OSArch,
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $OSArch = "All",
 
     [Parameter(HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [ValidateNotNullOrEmpty()]
-    [string]$RootFolder = "C:\ImageServicing",
+    [string]
+    $RootFolder = "C:\ImageServicing",
     
-    [Parameter(Mandatory=$true, HelpMessage="SCCM Primary Server Name.")]
-    [string]$SCCMServer,
+    [Parameter(HelpMessage="SCCM Primary Server Name.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SCCMServer = $null,
     
-    [Parameter(Mandatory=$true, HelpMessage="SCCM Site Code.")]
-    [string]$SiteCode,
+    [Parameter(HelpMessage="SCCM Site Code.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SiteCode = $null,
 
     #Use this to download updates. Set to false to just generate the files list(s)
-    [Switch]$DownloadUpdates = $True,
+    [Switch]
+    $DownloadUpdates = [switch]::Present,
 
     #Use this to download updates. Set to false to just generate the files list(s)
-    [Switch]$ExcludeSuperseded
+    [Switch]
+    $ExcludeSuperseded = [switch]::Present
 
 )
+
+If([string]::IsNullOrEmpty($SCCMServer)) {
+    $SCCMServer = Read-Host -Prompt 'Input your server name'
+}
+If([string]::IsNullOrEmpty($SiteCode)) {
+    $SiteCode = Read-Host -Prompt 'Input your server name'
+}
 
 $Script:MasterList = @()
 $OSVersionList = @('1511','1607','1703','1709','1803','1809','Next')
