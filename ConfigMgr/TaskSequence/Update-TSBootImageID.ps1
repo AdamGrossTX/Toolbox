@@ -42,6 +42,3 @@ ForEach ($TS in $TSList)
     $TS | Set-CMTaskSequence -BootImageId $NewBootImageID
     Write-Host "Updated: $($TS.Name)"
 }
-
-#CRT00FAC
-#CRT0101E
