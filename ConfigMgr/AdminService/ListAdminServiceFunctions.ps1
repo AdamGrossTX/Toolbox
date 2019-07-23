@@ -29,19 +29,11 @@ $Result.value.Name #Returns Function Names
 
 
 $SiteServer = "YourServerName"
-[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-$ControllerUri = "https://$($SiteServer)/AdminService/v1.0/`$metadata"
+$ControllerUri = "https://$($SiteServer)/AdminService/v2.0/`$metadata"
 $WMIUri = "https://$($SiteServer)/AdminService/wmi/`$metadata"
 
-$agentsquery = New-Object System.Net.WebClient
-$agentsquery.Headers.Add('accept','application/xml') 
-$agentsquery.UseDefaultCredentials =$true
-
-[XML]$ControllerResults = $agentsquery.DownloadString($ControllerUri)
-[XML]$WMIResults = $agentsquery.DownloadString($WMIUri)
-
+$ControllerResults = Invoke-RestMethod -Method Get -Uri $ControllerUri -UseDefaultCredentials
+$WMIResults = Invoke-RestMethod -Method Get -Uri $WMIUri -UseDefaultCredentials
 
 #$ControllerClasses = ($ControllerResults | ConvertFrom-Json).value
 #$WMIClasses = ($WMIResults | ConvertFrom-Json).value
