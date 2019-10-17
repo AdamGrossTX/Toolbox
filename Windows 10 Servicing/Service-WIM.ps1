@@ -87,6 +87,8 @@
         1.8 - Added .NET Cumulative Update function. Cleaned up folder logic to allow it to pre-create folders before exiting. Misc changes. (4/10/2019).
         
         1.9 - Added quick start guide.
+
+        1.10 - Minor changes
     
 #>
 
@@ -97,20 +99,20 @@ Param
     [string]
     $OSName = "Windows 10 Enterprise",
 
-    [Parameter(Position=1, HelpMessage="Operating System version to service. Default is 1709.")]
-    [ValidateSet('1709','1803','1809')]
+    [Parameter(Position=1, HelpMessage="Operating System version to service.")]
+    [ValidateSet('1709','1803','1809','1903','1909')]
     [string]
-    $OSVersion = "1809",
+    $OSVersion = "1903",
 
     [Parameter(Position=2, HelpMessage="Architecture version to service. Default is x64.")]
     [ValidateSet ('x64', 'x86','ARM64')]
     [string]
     $OSArch = "x64",   
 
-    [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
+    [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM).")]
     [ValidatePattern("\d{4}-\d{2}")]
     [string]
-    $Month = "2019-03",
+    $Month = "2019-10",
 
     [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
     [ValidateNotNullOrEmpty()]
@@ -120,12 +122,76 @@ Param
     [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $SCCMServer = '',
+    $SCCMServer,
 
     [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
     [ValidateNotNullOrEmpty()]
     [string]
-    $SiteCode = '',
+    $SiteCode,
+
+    [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
+    [string]
+    $DISMPath = "Dism.exe",
+    
+    [Parameter(HelpMessage="Outputs fully serviced media.")]
+    [switch]
+    $CreateProdMedia = [switch]::Present,
+
+    [Parameter(HelpMessage="Optionally apply Dynamic Updates to Install.wim and Sources for InPlace Upgrade compatibility.")]
+    [switch]
+    $ApplyDynamicUpdates = [switch]::Present,
+
+    [Parameter(HelpMessage="Delete temp folders and patches.")]
+    [switch]
+    $Cleanup = $false,
+
+    [Parameter(HelpMessage="This is set to false by default to prevent issues with Windows 10 1809. Set to true for other OS builds.")]
+    [switch]
+    $Optimize = $false,
+
+    [Parameter(HelpMessage="Remove InBox Apps - Update the included RemoveApps.XML to meet your needs.")]
+    [switch]
+    $RemoveInBoxApps = [switch]::Present
+
+)
+
+
+Param
+(
+    [Parameter(Position=0, HelpMessage="Operating System Name to be serviced.")]
+    [ValidateSet("Windows 10 Education","Windows 10 Education N","Windows 10 Enterprise","Windows 10 Enterprise N","Windows 10 Pro","Windows 10 Pro N")]
+    [string]
+    $OSName = "Windows 10 Enterprise",
+
+    [Parameter(Position=1, HelpMessage="Operating System version to service. Default is 1709.")]
+    [ValidateSet('1709','1803','1809','1903','1909')]
+    [string]
+    $OSVersion = "1903",
+
+    [Parameter(Position=2, HelpMessage="Architecture version to service. Default is x64.")]
+    [ValidateSet ('x64', 'x86','ARM64')]
+    [string]
+    $OSArch = "x64",   
+
+    [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM). Default is 2018-08.")]
+    [ValidatePattern("\d{4}-\d{2}")]
+    [string]
+    $Month = "2019-10",
+
+    [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $RootFolder = "C:\ImageServicing",
+
+    [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SCCMServer,
+
+    [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $SiteCode,
 
     [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
     [string]
@@ -157,7 +223,7 @@ Param
 #Main
 ##################################################
 
-$main = {
+$Main = {
 
     #Setup
     ##################################################
@@ -191,10 +257,10 @@ $main = {
     $DUCUPath = "$($UpdatesPath)\ComponentUpdate"
 
     $ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+    $DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
 
     $ImageMountFolder = "$($RootFolder)\Mount_Image"
     $BootImageMountFolder = "$($RootFolder)\Mount_BootImage"
@@ -219,6 +285,9 @@ $main = {
 
     try
     {
+
+        #& 'C:\Program Files (x86)\Symantec\Symantec Endpoint Protection\Smc.exe' -Stop
+        
         Check-OSVersion
     
         Check-Paths
@@ -278,7 +347,7 @@ Function Check-Paths
         if(!($Flash)) {$ErrorMessages +=  "Could not find Adobe Flash Update for Windows 10."}
 
         #Only check for .NET Updates for 1809 and above.
-        If($OSVersion -ge '1809') { 
+        If($OSVersion -ge '1803') { 
             If(!($DotNet)) {$ErrorMessages +=  "Could not find .NET Update for Windows 10."}
         }
          If($ErrorMessages) {
@@ -358,19 +427,12 @@ Function Get-DynamicUpdates {
         ForEach ($File in $DownloadList)
         {
             $Path = $Null
-            #Fix for September SetupUpdate not containing the correct text to classify propery.
-            If($File.FileName -like "*KB4457190*" -or $File.FileName -like "*KB4457189*") {
-                $Path = "$($DUSUPath)\$($File.FileName)"
+            switch ($File.Type)
+            {
+                SetupUpdate {$Path = "$($DUSUPath)\$($File.FileName)"; break;}
+                ComponentUpdate {$Path = "$($DUCUPath)\$($File.FileName)"; break;}
+                Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
             }
-            Else {
-                switch ($File.Type)
-                {
-                    SetupUpdate {$Path = "$($DUSUPath)\$($File.FileName)"; break;}
-                    ComponentUpdate {$Path = "$($DUCUPath)\$($File.FileName)"; break;}
-                    Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
-                }
-            }
-            
             Invoke-WebRequest -Uri $File.URL -OutFile $Path -ErrorAction Continue
         }
 
@@ -431,7 +493,7 @@ param
 (
     [string]$MountFolder,
     [switch]$ApplyDotNET=$False,
-    [switch]$InstallDotNET=$False,
+    [switch]$InstallDotNET35=$False,
     [switch]$ApplySSU=$False,
     [switch]$ApplyFlash=$False,
     [switch]$ApplyLCU=$False,
@@ -444,7 +506,7 @@ param
     Write-Host "Applying patches to WIM $($MountFolder)." -ForegroundColor Green
     Write-Host "Select-Objected Options:" -ForegroundColor Green
     Write-Host "ApplyDotNET: $($ApplyDotNET)" -ForegroundColor Green
-    Write-Host "InstallDotNET: $($InstallDotNET)" -ForegroundColor Green
+    Write-Host "InstallDotNET35: $($InstallDotNET35)" -ForegroundColor Green
     Write-Host "ApplySSU: $($ApplySSU)" -ForegroundColor Green
     Write-Host "ApplyFlash: $($ApplyFlash)" -ForegroundColor Green
     Write-Host "ApplyLCU: $($ApplyLCU)" -ForegroundColor Green
@@ -453,7 +515,7 @@ param
     
     Try
     {
-        if($InstallDotNET) #Enabled .Net 3.5
+        if($InstallDotNET35) #Enabled .Net 3.5
         {
             Write-Host "Enabling .NET 3.5" -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:"$($OriginalBaseMediaFolder)\sources\sxs"
@@ -461,9 +523,16 @@ param
 
         if($ApplyDotNET)
         {
+            #Only needed for 1809 and higher.
             If($OSVersion -ge '1809') { 
                 Write-Host "Applying .NET Updates" -ForegroundColor Green
-                Add-WindowsPackage -PackagePath $DotNet -Path $MountFolder
+                $Count = 0
+                $DotNet.Count
+                #Recurse All .NET Patches in DotNet Path
+                ForEach($MSU in $DotNet) {
+                    Write-Host "Applying .NET Patch $($Count + 1) of $($DUCU.Count)" -ForegroundColor Green
+                    Add-WindowsPackage -PackagePath $MSU -Path $MountFolder
+                }
             }
         }
 
@@ -498,7 +567,7 @@ param
                 #Recurse All Updates in DUCUPath
                 ForEach($CAB in $DUCU) {
                     Write-Host "Applying Dynamic Component Update $($Count + 1) of $($DUCU.Count)" -ForegroundColor Green
-                    Add-WindowsPackage -PackagePath $CAB -Path $ImageMountFolder
+                    Add-WindowsPackage -PackagePath $CAB -Path $MountFolder
                 }
             }
         } 
@@ -576,13 +645,11 @@ Function Patch-BootWIM {
     try{
         Write-Host "Patching Boot WIM" -ForegroundColor Green
         #Mount current WIM and fully patch
-        
         #Uncomment to patch WinPE.wim
         #Mount-WindowsImage -ImagePath $TmpBootWIM -Index 1 -Path $BootImageMountFolder
         #Apply-Patches -MountFolder $BootImageMountFolder -ApplySSU -ApplyLCU -CleanWIM
         #Save-WindowsImage -Path $BootImageMountFolder
         #DisMount-WindowsImage -Path $BootImageMountFolder -Save
-     
         
         #Boot WIM
         Mount-WindowsImage -ImagePath $TmpBootWIM -Index 2 -Path $BootImageMountFolder
@@ -652,7 +719,7 @@ Function Patch-InstallWIM {
     try{
 
         Apply-Patches -MountFolder $ImageMountFolder -ApplySSU -ApplyLCU -ApplyFlash -CleanWIM
-        Apply-Patches -MountFolder $ImageMountFolder -InstallDotNET -ApplyDotNET -ApplyLCU -ApplyDUCU
+        Apply-Patches -MountFolder $ImageMountFolder -InstallDotNET35 -ApplyDotNET -ApplyLCU -ApplyDUCU
         
         DisMount-WindowsImage -Path $ImageMountFolder -Save
         Export-WindowsImage -SourceImagePath $TmpInstallWIM -SourceName $OSName -DestinationImagePath $InstallWIM
@@ -701,6 +768,6 @@ Function Cleanup {
 }
 
 # Calling the main function
-&$main
+& $Main
 # ------------------------------------------------------------------------------------------------
 # END

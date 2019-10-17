@@ -33,6 +33,8 @@
 
         1.7 Updated Params to remove Mandatory
 
+        1.8 Minor Updates
+
 #>
 
 #####################
@@ -41,7 +43,7 @@ Param
 (
     
     [Parameter(HelpMessage="Operating System version to service.")]
-    [ValidateSet('1511','1607','1703','1709','1803','1809','Next','All')]
+    [ValidateSet('1511','1607','1703','1709','1803','1809','1903','Next','ALL')]
     [ValidateNotNullOrEmpty()]
     [string]
     $OSVersion = "All",
@@ -85,7 +87,7 @@ If([string]::IsNullOrEmpty($SiteCode)) {
 }
 
 $Script:MasterList = @()
-$OSVersionList = @('1511','1607','1703','1709','1803','1809','Next')
+$OSVersionList = @('1511','1607','1703','1709','1803','1809','1903','1909','Next')
 $OSArchList = @('x86','x64','ARM64')
 $AllDynamicUpdatesFilter = 'LocalizedCategoryInstanceNames = "Windows 10 Dynamic Update"'
 $AllDynamicUpdates = Get-WmiObject -ComputerName $SCCMServer -Class SMS_SoftwareUpdate -Namespace "root\SMS\Site_$($SiteCode)" -Filter $AllDynamicUpdatesFilter
