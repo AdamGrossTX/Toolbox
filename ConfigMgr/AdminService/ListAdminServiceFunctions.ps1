@@ -1,5 +1,6 @@
 #This code only works for the 1810 TP adminservice
 <#
+
 $Credential = Get-Credential
 $SCCMServerName = "localhost"
 $URL = "http://$($SCCMServerName):80/AdminService/v2/"
