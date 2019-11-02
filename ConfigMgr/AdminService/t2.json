@@ -1,0 +1,34 @@
+{
+    "@odata.context": "https://cm01.asd.net/AdminService/wmi/$metadata#SMS_UserMachineRelationship",
+    "value": [
+        {
+            "@odata.etag": "25165835",
+            "__LAZYPROPERTIES": [],
+            "__GENUS": 2,
+            "__CLASS": "SMS_UserMachineRelationship",
+            "__SUPERCLASS": "SMS_BaseClass",
+            "__DYNASTY": "SMS_BaseClass",
+            "__RELPATH": "SMS_UserMachineRelationship.RelationshipResourceID=25165835",
+            "__PROPERTY_COUNT": 9,
+            "__DERIVATION": [
+                "SMS_BaseClass"
+            ],
+            "__SERVER": "CM01",
+            "__NAMESPACE": "root\\sms\\site_PS1",
+            "__PATH": "\\\\CM01\\root\\sms\\site_PS1:SMS_UserMachineRelationship.RelationshipResourceID=25165835",
+            "CreationTime": "2019-11-02T05:37:56.03Z",
+            "IsActive": true,
+            "RelationshipResourceID": 25165835,
+            "ResourceClientType": null,
+            "ResourceID": 16777308,
+            "ResourceName": "ASD-46637895",
+            "Sources": [
+                2
+            ],
+            "Types": [
+                1
+            ],
+            "UniqueUserName": "ASD\\Adam"
+        }
+    ]
+}

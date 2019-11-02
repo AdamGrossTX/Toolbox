@@ -39,38 +39,43 @@ $Result.value.Name #Returns Function Names
 #[XML]$WMIResults = $agentsquery.DownloadString($WMIUri)
 ################
 
-<#
-$SiteServer = "cm01.asd.net"
-$BaseUri = "https://$($SiteServer)/AdminService"
+#Current Code for CB 1906
+$Main = {
+    $ControllerResults = Get-AdminServiceDetails -ServerName 'CM01' -ClassType 'Controller'
+    $WMIResults = Get-AdminServiceDetails -ServerName 'CM01' -ClassType 'WMI'
 
-$ControllerUri = "https://$($SiteServer)/AdminService/v1.0/`$metadata"
-$WMIUri = "https://$($SiteServer)/AdminService/wmi/`$metadata"
+    #Controllers
+    $ContClasses = $ControllerResults.Edmx.DataServices.Schema.EntityType
+    $ContFunctions = $ControllerResults.Edmx.DataServices.Schema.Function
+    $ContActions = $ControllerResults.Edmx.DataServices.Schema.Action
+    $ContContainers = $ControllerResults.Edmx.DataServices.Schema.EntityContainer
 
-$WMIResults = Invoke-RestMethod -Method Get -Uri "$($WMIUri)" -UseDefaultCredentials
-$ControllerResults = Invoke-RestMethod -Method Get -Uri "$($ControllerUri)" -UseDefaultCredentials
+    Write-Host "Classes" -ForegroundColor Green
+    $ContClasses | Format-Table
+    Write-Host "Functions" -ForegroundColor Green
+    $ContFunctions| Format-Table
+    Write-Host "Actions" -ForegroundColor Green
+    $ContActions| Format-Table
+    Write-Host "Containers" -ForegroundColor Green
+    $ContContainers| Format-Table
 
-#Controllers
-$ContClasses = $ControllerResults.Edmx.DataServices.Schema.EntityType
-$ContFunctions = $ControllerResults.Edmx.DataServices.Schema.Function
-$ContActions = $ControllerResults.Edmx.DataServices.Schema.Action
-$ContContainers = $ControllerResults.Edmx.DataServices.Schema.EntityContainer
+    #WMI
+    $wmiSchema = $WMIResults.Edmx.DataServices.Schema | Format-List
+    $wmiClasses = $WMIResults.Edmx.DataServices.Schema.EntityType | Format-Table
+    $wmiComplexClasses = $WMIResults.Edmx.DataServices.Schema.ComplexType | Format-Table
+    $wmiContainers = $WMIResults.Edmx.DataServices.Schema.EntityContainer | Format-Table
 
-Write-Host "Classes" -ForegroundColor Green
-$ContClasses | Format-Table
-Write-Host "Functions" -ForegroundColor Green
-$ContFunctions| Format-Table
-Write-Host "Actions" -ForegroundColor Green
-$ContActions| Format-Table
-Write-Host "Containers" -ForegroundColor Green
-$ContContainers| Format-Table
+    Write-Host "Schema" -ForegroundColor Green
+    $wmiSchema | Format-Table
+    Write-Host "Classes" -ForegroundColor Green
+    $wmiClasses| Format-Table
+    Write-Host "ComplexClasses" -ForegroundColor Green
+    $wmiComplexClasses| Format-Table
+    Write-Host "Containers" -ForegroundColor Green
+    $wmiContainers| Format-Table
 
-#WMI
-$wmiSchema = $WMIResults.Edmx.DataServices.Schema | Format-List
-$wmiClasses = $WMIResults.Edmx.DataServices.Schema.EntityType | Format-Table
-$wmiComplexClasses = $WMIResults.Edmx.DataServices.Schema.ComplexType | Format-Table
-$wmiContainers = $WMIResults.Edmx.DataServices.Schema.EntityContainer | Format-Table
-#>
 
+}
 Function Get-AdminServiceDetails {
     Param(
         $ServerName,
@@ -85,14 +90,14 @@ Function Get-AdminServiceDetails {
     }
 
     If($Metadata) {
-        $BaseURI = "https://{0}/AdminService/{1}/{2}" -f $SiteServer,$ClassTypeURI,"`$metadata"
+        $BaseURI = "https://{0}/AdminService/{1}/{2}" -f $ServerName,$ClassTypeURI,"`$metadata"
     }
     Else {
-        $BaseURI = "https://{0}/AdminService/{1}/" -f $SiteServer,$ClassTypeURI
+        $BaseURI = "https://{0}/AdminService/{1}/" -f $ServerName,$ClassTypeURI
     }
 
     $Results = Invoke-RestMethod -Method Get -Uri "$($BaseURI)" -UseDefaultCredentials
-    $Results
+    Return $Results
 }
 
 #You can add a foreach loop on each object to get the properties for each entity. 

@@ -1,0 +1,128 @@
+{
+    "@odata.context": "https://cm01.asd.net/AdminService/wmi/$metadata#SMS_R_System",
+    "value": [
+        {
+            "@odata.etag": "16777306",
+            "__LAZYPROPERTIES": [],
+            "__GENUS": 2,
+            "__CLASS": "SMS_R_System",
+            "__SUPERCLASS": "SMS_Resource",
+            "__DYNASTY": "SMS_BaseClass",
+            "__RELPATH": "SMS_R_System.ResourceId=16777306",
+            "__PROPERTY_COUNT": 78,
+            "__DERIVATION": [
+                "SMS_Resource",
+                "SMS_BaseClass"
+            ],
+            "__SERVER": "CM01",
+            "__NAMESPACE": "root\\sms\\site_PS1",
+            "__PATH": "\\\\CM01\\root\\sms\\site_PS1:SMS_R_System.ResourceId=16777306",
+            "AADDeviceID": "00000000-0000-0000-0000-000000000000",
+            "AADTenantID": "00000000-0000-0000-0000-000000000000",
+            "Active": 1,
+            "ADSiteName": "Houston",
+            "AgentName": [
+                "SMS_AD_SYSTEM_DISCOVERY_AGENT",
+                "MP_ClientRegistration",
+                "Heartbeat Discovery"
+            ],
+            "AgentSite": [
+                "PS1",
+                "PS1",
+                "PS1"
+            ],
+            "AgentTime": [
+                "2019-08-11T20:20:01Z",
+                "2019-07-24T05:03:44Z",
+                "2019-07-31T05:20:48Z"
+            ],
+            "AlwaysInternet": 0,
+            "AMTFullVersion": null,
+            "AMTStatus": null,
+            "Build": "10.0.17134",
+            "BuildExt": "10.0.17134.345",
+            "Client": 0,
+            "ClientEdition": 0,
+            "ClientType": null,
+            "ClientVersion": "5.00.8790.1025",
+            "CPUType": "Intel64 Family 6 Model 58 Stepping 9",
+            "CreationDate": "2019-07-24T10:03:46Z",
+            "Decommissioned": 0,
+            "DeviceOwner": 1,
+            "DistinguishedName": "CN=ASD-CNU409C7,OU=Computers,OU=Lab,DC=asd,DC=net",
+            "DNSForestGuid": "E66F9A87-F551-44ED-9924-45437796D606",
+            "EASDeviceID": null,
+            "FullDomainName": "ASD.NET",
+            "HardwareID": "2:0182587D327FD4546C46FCEBD18AC9F753766AAE",
+            "InternetEnabled": 0,
+            "IPAddresses": [
+                "192.168.6.4",
+                "fe80::9ceb:2c30:f11c:51bb"
+            ],
+            "IPSubnets": [
+                "192.168.6.0"
+            ],
+            "IPv6Addresses": [],
+            "IPv6Prefixes": [],
+            "IsAOACCapable": false,
+            "IsAssignedToUser": false,
+            "IsClientAMT30Compatible": null,
+            "IsMachineChangesPersisted": true,
+            "IsPortableOperatingSystem": false,
+            "IsVirtualMachine": false,
+            "IsWriteFilterCapable": false,
+            "LastLogonTimestamp": "2019-08-04T10:54:47Z",
+            "LastLogonUserDomain": "ASD-CNU409C7",
+            "LastLogonUserName": "defaultuser0",
+            "MACAddresses": [
+                "FC:15:B4:EC:CB:59"
+            ],
+            "ManagementAuthority": 0,
+            "MDMComplianceStatus": null,
+            "MDMDeviceCategoryID": null,
+            "Name": "ASD-CNU409C7",
+            "NetbiosName": "ASD-CNU409C7",
+            "ObjectGUID": "anSWdEIVqEOFfyD5cw7drQ==",
+            "Obsolete": 0,
+            "OperatingSystemNameandVersion": "Microsoft Windows NT Workstation 10.0",
+            "OSBranch": "0",
+            "PreviousSMSUUID": "GUID:95f19165-6a6e-4f6f-bf88-3caa6da314fa",
+            "PrimaryGroupID": 515,
+            "PublisherDeviceID": null,
+            "ResourceDomainORWorkgroup": "ASD",
+            "ResourceId": 16777306,
+            "ResourceNames": [
+                "ASD-CNU409C7.asd.net"
+            ],
+            "ResourceType": 5,
+            "SecurityGroupName": [],
+            "SerialNumber": null,
+            "SID": "S-1-5-21-1909024835-672986419-4090565466-3116",
+            "SMBIOSGUID": "615E5B0E-5008-11E4-8EB0-C30A5D06A053",
+            "SMSAssignedSites": [
+                "PS1"
+            ],
+            "SMSInstalledSites": [],
+            "SMSResidentSites": [
+                "PS1"
+            ],
+            "SMSUniqueIdentifier": "GUID:64E27084-43DD-4DF9-A07A-14526CA6F5E8",
+            "SMSUUIDChangeDate": "2019-07-24T10:03:44Z",
+            "SNMPCommunityName": null,
+            "SuppressAutoProvision": null,
+            "SystemContainerName": [],
+            "SystemGroupName": [],
+            "SystemOUName": [
+                "ASD.NET/LAB",
+                "ASD.NET/LAB/COMPUTERS"
+            ],
+            "SystemRoles": [],
+            "Unknown": null,
+            "UserAccountControl": 4096,
+            "VirtualMachineHostName": "",
+            "VirtualMachineType": 0,
+            "WipeStatus": null,
+            "WTGUniqueKey": null
+        }
+    ]
+}

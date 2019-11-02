@@ -1,8 +1,8 @@
 Param (
     $SiteServer = "CMTP3-CM1.ASD.LAB"
 )
-[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+#[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $BaseUri = "https://$($SiteServer)/AdmiinService/v1.0/"
 
