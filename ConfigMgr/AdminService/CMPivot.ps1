@@ -1,16 +1,14 @@
 Param (
-    $SiteServer = "CMTP3-CM1.ASD.LAB"
+    [Parameter(Mandatory=$True)]
+    $SiteServer = "CM01.ASD.NET"
 )
-#[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$BaseUri = "https://$($SiteServer)/AdmiinService/v1.0/"
-
+$BaseUri = "https://$($SiteServer)/AdminService/v1.0/"
+Write-hOst $BaseUri
 $Query = "OperatingSystem"
-
 $Params = @{
     Method = "Post"
-    Uri = "$($BaseUri)/Collections('SMS00001')/AdminService.RunCmpivot"
+    Uri = "$($BaseUri)/Collections('PS100060')/AdminService.RunCmpivot"
     Body = @{"InputQuery"="$($Query)"} | ConvertTo-Json
     ContentType = "application/json"
     UseDefaultCredentials = $true
