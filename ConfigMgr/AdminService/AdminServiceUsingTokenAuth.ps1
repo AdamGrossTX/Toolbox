@@ -25,18 +25,11 @@ Param (
 
     [Parameter(Mandatory=$False, HelpMessage = "Use Token Auth or Current User Auth")]
     [switch]
-    $UseTokenAuth = $False
+    $UseTokenAuth = $True
 
 )
     . (Join-Path -Path $PSScriptRoot -ChildPath "Get-AADAuthToken.ps1")
 
-    $ClientID = "6a4e5c57-a766-43fe-acc8-ccbc479e9f9f"
-    $TenantID = "86c2857f-9fb5-4b97-bf85-87c2f8ca9ff5"
-    $ResourceAppIdURI = "https://asdclougmgmt.ConfigMgrService"
-    $RedirectURI = "ms-appx-web://Microsoft.AAD.BrokerPlugin/6a4e5c57-a766-43fe-acc8-ccbc479e9f9f"
-    $InternetBaseURL = "HTTPS://ASQUAREDOZENCLOUDSERVICE.ASQUAREDOZEN.COM/CCM_Proxy_ServerAuth/72057594037927941/AdminService"
-    $InternalBaseURL = "https://cm01.asd.net/AdminService"
-    
     # Make REST API call
     $Query = "/wmi/SMS_R_User"
 
