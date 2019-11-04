@@ -21,12 +21,6 @@ Param(
     $UserName
 )
 
-$SCCMServerName = "CMTP3-CM1.asd.lab"
-$CollectionName = "All Systems"
-$CollectionNameFilter = "All"
-$DeviceName="CMTP3-CM1"
-$UserName = "Adam"
-
 #Get Collection by Name
 $URL1 = "https://{0}/AdminService/wmi/SMS_Collection?`$filter=Name eq '{1}'" -f $SCCMServerName,$CollectionName
 Write-Host $URL1
