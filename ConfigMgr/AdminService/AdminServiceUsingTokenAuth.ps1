@@ -1,3 +1,11 @@
+#This is a modified version of a script by Sandy Tsang
+#https://www.scconfigmgr.com/2019/07/16/use-configmgr-administration-service-adminservice-over-internet/
+#Follow the instructions in her blog post for building a custom App for the AdminService.
+#You TECHNICALLY can use the Native Client App that gets created when you build your CMG, but it's 
+#Better to create a custom App instead of hijacking the built in one.
+#
+#Be sure to include Get-AADAuthToken.ps1 from this repo to generate your Auth Token.
+
 Param (
     [Parameter(Mandatory=$False, HelpMessage = "Home > App registrations > (Your Native App) - Overview. Copy the Application (client) ID")]
     [string]

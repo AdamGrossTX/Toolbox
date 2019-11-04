@@ -1,11 +1,31 @@
 #AdminService Query Samples - ConfigMgr 1906
 Param(
-    $SCCMServerName = "CM01.asd.net",
-    $CollectionName = "All Systems",
-    $CollectionNameFilter = "All",
-    $DeviceName="ASD-46637895",
-    $UserName = "Adam"
+    [Parameter(Mandatory=$false)]
+    [string]
+    $SCCMServerName,
+
+    [Parameter(Mandatory=$false)]
+    [string]
+    $CollectionName,
+
+    [Parameter(Mandatory=$false)]
+    [string]
+    $CollectionNameFilter,
+
+    [Parameter(Mandatory=$false)]
+    [string]
+    $DeviceName,
+
+    [Parameter(Mandatory=$false)]
+    [string]
+    $UserName
 )
+
+$SCCMServerName = "CMTP3-CM1.asd.lab"
+$CollectionName = "All Systems"
+$CollectionNameFilter = "All"
+$DeviceName="CMTP3-CM1"
+$UserName = "Adam"
 
 #Get Collection by Name
 $URL1 = "https://{0}/AdminService/wmi/SMS_Collection?`$filter=Name eq '{1}'" -f $SCCMServerName,$CollectionName
@@ -34,6 +54,25 @@ $Result4 = Invoke-RestMethod -Method Get -Uri "$($URL4)" -UseDefaultCredentials
 $Result4 | ConvertTo-Json
 $Result4.value.ResourceId #Returns Device ResourceIDs
 
+
+$URL7 = "https://{0}/AdminService/wmi/SMS_Package" -f $SCCMServerName
+Write-Host $URL7
+$Headers = @{
+    "Content-Type" = "Application/json"
+}
+$Params = @{
+    "Name" = "Test Package"
+    "Manufacturer" = "ASD"
+    "PackageID" = "PS100062"
+}
+$RequestBody = $Params | ConvertTo-Json 
+
+Write-Host $RequestBody
+Write-Host "$($URL7)"
+$Result = Invoke-RestMethod -Method Post -Uri "$($URL7)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
+
+
+##################################################################
 ##1910 TP Only
 #Execute WMI Method
 #https://Server/AdminService/wmi/SMS_UserMachineRelationship.CreateRelationship
@@ -56,3 +95,29 @@ $RequestBody = $Params | ConvertTo-Json
 Write-Host $RequestBody
 Write-Host "$($URL5)"
 Invoke-RestMethod -Method Post -Uri "$($URL5)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
+
+#This doesn't work because the class SMS_UserApplicationRequest doesn't exit in the AdminService.
+<#
+$URL6 = "https://{0}/AdminService/wmi/SMS_UserApplicationRequest.CreateApprovedRequest" -f $SCCMServerName
+Write-Host $URL6
+$ClientGUID = $Result3.value.SMBIOSGUID
+$UserName = $Result4.value.UniqueUserName
+$Result3.value
+$Headers = @{
+    "Content-Type" = "Application/json"
+}
+$Params = @{
+    ApplicationId = "ScopeId_68DCD582-5CAE-4DC2-BFD4-4DA40B2452B5/Application_78fcd81d-3968-41cf-9433-da8559784d98"
+    AutoInstall = 1
+    ClientGUID = $ClientGUID
+    Comments = "This is a test from the AdminService"
+    Username = $UserName
+}
+
+$RequestBody = $Params | ConvertTo-Json 
+
+Write-Host $RequestBody
+Write-Host "$($URL6)"
+Invoke-RestMethod -Method Post -Uri "$($URL6)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
+
+#>
