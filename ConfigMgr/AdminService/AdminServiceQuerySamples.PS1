@@ -21,6 +21,12 @@ Param(
     $UserName
 )
 
+$SCCMServerName = "CMTP3-CM1.asd.lab"
+$CollectionName = "All Systems"
+$CollectionNameFilter = "All"
+$DeviceName="CMTP3-CM1"
+$UserName = "Adam"
+
 #Get Collection by Name
 $URL1 = "https://{0}/AdminService/wmi/SMS_Collection?`$filter=Name eq '{1}'" -f $SCCMServerName,$CollectionName
 Write-Host $URL1
@@ -90,11 +96,9 @@ Write-Host $RequestBody
 Write-Host "$($URL5)"
 Invoke-RestMethod -Method Post -Uri "$($URL5)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
 
-#This doesn't work because the class SMS_UserApplicationRequest doesn't exit in the AdminService.
-<#
-$URL6 = "https://{0}/AdminService/wmi/SMS_UserApplicationRequest.CreateApprovedRequest" -f $SCCMServerName
+$URL6 = "https://{0}/AdminService/wmi/SMS_ApplicationRequest.CreateApprovedRequest" -f $SCCMServerName
 Write-Host $URL6
-$ClientGUID = $Result3.value.SMBIOSGUID
+$ClientGUID = $Result3.value.SMSUniqueIdentifier
 $UserName = $Result4.value.UniqueUserName
 $Result3.value
 $Headers = @{
@@ -102,7 +106,7 @@ $Headers = @{
 }
 $Params = @{
     ApplicationId = "ScopeId_68DCD582-5CAE-4DC2-BFD4-4DA40B2452B5/Application_78fcd81d-3968-41cf-9433-da8559784d98"
-    AutoInstall = 1
+    AutoInstall = $True
     ClientGUID = $ClientGUID
     Comments = "This is a test from the AdminService"
     Username = $UserName
@@ -114,4 +118,3 @@ Write-Host $RequestBody
 Write-Host "$($URL6)"
 Invoke-RestMethod -Method Post -Uri "$($URL6)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
 
-#>
