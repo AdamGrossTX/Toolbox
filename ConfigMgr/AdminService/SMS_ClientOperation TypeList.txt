@@ -1,0 +1,22 @@
+8 = Download Computer Policy
+9 = Download User Policy
+10 = Collect Discovery Data
+11 = Collect Software Inventory
+12 = Collect Hardware Inventory
+13 = Evaluate Application Deployments
+14 = Evaluate Software Update Deployments
+15 = Switch to Next Software Update Point
+16 = Evaluate Device Health Attestation
+125 = Check Conditional Access Compliance
+150 = Wake Up
+17 = Restart
+20 = Enable Verbose Logging
+21 = Disable Verbose Logging
+
+EndPoint Protection
+1 = Full Scan
+2 = Quick Scan
+4 = Download Definition (Software Update deployment)
+3 = Download Definition (Endpoint protection client source)
+
+

@@ -80,7 +80,7 @@ $URL5 = "https://{0}/AdminService/wmi/SMS_UserMachineRelationship.CreateRelation
 Write-Host $URL5
 $ResourceId = $Result3.value.ResourceId
 $SourceID = 6 #OSD Defined
-$UserAccountName = $Result4.value.ResourceId
+$UserAccountName = $Result4.value.UniqueUserName
 $Headers = @{
     "Content-Type" = "Application/json"
 }
@@ -109,7 +109,7 @@ $Params = @{
     AutoInstall = $True
     ClientGUID = $ClientGUID
     Comments = "This is a test from the AdminService"
-    Username = $UserName
+    Username = $null
 }
 
 $RequestBody = $Params | ConvertTo-Json 
@@ -118,3 +118,5 @@ Write-Host $RequestBody
 Write-Host "$($URL6)"
 Invoke-RestMethod -Method Post -Uri "$($URL6)" -Body $RequestBody -UseDefaultCredentials -Headers $Headers
 
+
+#Get-CIMInstance -Namespace root\sms\site_tp3 -ClassName SMS_ApplicationRequest | Remove-CIMInstance
