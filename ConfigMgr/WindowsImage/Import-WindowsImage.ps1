@@ -38,16 +38,16 @@
 .EXAMPLE
     Import new or serviced Windows Media Using Splatting:
     $ImportWindowsImageSplat = @{
-    SiteCode = "PS1"
-    ServerName = "cm01.asd.net"
-    DPGroupName = "All Distribution Points"
-    ConsoleFolderPath = "\Windows 10"
-    DestinationRootPath = "\\sources\OSInstallFiles\Windows 10"
-    CompletedMediaRootPath = "C:\ImageServicing\CompletedMedia"
-    OSVersion = "1909"
-    OSArch = "x64" 
-    Month = "2019-12"
-    ImageType = "Both"
+        SiteCode = "PS1"
+        ServerName = "cm01.asd.net"
+        DPGroupName = "All Distribution Points"
+        ConsoleFolderPath = "\Windows 10"
+        DestinationRootPath = "\\sources\OSInstallFiles\Windows 10"
+        CompletedMediaRootPath = "C:\ImageServicing\CompletedMedia"
+        OSVersion = "1909"
+        OSArch = "x64" 
+        Month = "2019-12"
+        ImageType = "Both"
     }
 
     .\Import-WindowsImage.ps1 $NewWindowsImageSplat
