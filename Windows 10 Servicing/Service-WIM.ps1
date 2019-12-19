@@ -1,13 +1,10 @@
 <#
-
     .SYNOPSIS
-
         Service your Windows WIM with monthly updates.
 
     .DESCRIPTION
-        
         To use the Dynamic Updates feature, you must have Dynamic Updates enabled in SCCM, otherwise the script won't find the updates. If you have
-        an alternate method to get the updates, just modify the script to handle that. Hopefully I can get a Windows Update URL to use instead of
+        an alternate method to get the updates, just modIfy the script to handle that. Hopefully I can get a Windows Update URL to use instead of
         querying SCCM.
 
         You will have to pre-download you SSU, LCU and Flash Updates from the Windows Update Catalog.
@@ -20,51 +17,94 @@
         http://www.OSDeploy.com
 
         Special Thanks to Gary Blok and Mike Terrill for their tireless efforts to solve the Dynamic Updates issue!
-        
+
+    .PARAMETER ServerName
+        SCCM Primary Server Name.
+
+    .PARAMETER SiteCode
+        SCCM Site Code.
+
+    .PARAMETER OSName
+        Operating System Name to be serviced.Default is 'Windows 10 Enterprise'
+
+    .PARAMETER OSVersion
+        Operating System version to service. Default is 1909.
+
+    .PARAMETER OSArch
+        Architecture version to service. Default is x64.
+
+    .PARAMETER Month
+        Year-Month of updates to apply (Format YYYY-MM). Default is Current Month.
+
+    .PARAMETER RootFolder
+        Path to working directory for servicing data. Default is C:\ImageServicing.
+
+    .PARAMETER DISMPath
+        Change path here to ADK dism.exe If your OS version doesn't match ADK version. Default dism.exe.
+
+    .PARAMETER CreateProdMedia
+        Outputs fully serviced media.
+
+    .PARAMETER ApplyDynamicUpdates
+        Optionally apply Dynamic Updates to Install.wim and Sources for InPlace Upgrade compatibility.
+
+    .PARAMETER Cleanup
+        Delete temp folders and patches.
+
+    .PARAMETER Optimize
+        This is set to false by default to prevent issues with Windows 10 1809. Set to true for other OS builds.
+
+    .PARAMETER RemoveInBoxApps
+        Remove InBox Apps - Update the included RemoveApps.XML to meet your needs.
+
+    .PARAMETER IgnoreTheseUpdates
+        If there is no update for a specIfic catgory add it to this array and the script will skip validation for it. Options include 'LCU' 'SSU' 'Flash' 'DotNet'
+
+    .PARAMETER KillAV
+        Kill the AV Process on your box before servicing. You will need to update the script with the correct command for yourr specIfic AV.
+
     .NOTES
-
-        Author: Adam Gross
-
+        Author:  Adam Gross
         Twitter: @AdamGrossTX
-
+        Website: https://www.asquaredozen.com
 
     .LINK
-        https://keithga.wordpress.com/2017/05/21/new-tool-get-the-latest-windows-10-cumulative-updates/
-        https://stealthpuppy.com/powershell-download-import-updates-mdt/#.W3hFn_ZFyOc
+        https://github.com/AdamGrossTX/PowershellScripts/tree/master/Windows%2010%20Servicing
+        https://www.asquaredozen.com/2018/08/20/adding-dynamic-updates-to-windows-10-in-place-upgrade-media-during-offline-servicing/
 
-    .Guide
-    ## Quick Start Guide
+    .GUIDE
+        ## Quick Start Guide
 
-    Download the contents of this folder to a local driver such as c:\ImageServicing.
+        Download the contents of this folder to a local driver such as c:\ImageServicing.
 
-    Launch the script and enter parameters as needed. At a minimum you will need to enter your servername and site code. On first launch, the script will look for all of the files and folders needed for servicing. It will create the required folder structure. You will need to add your ISO to the appropriate folder under the ISO folder.
+        Launch the script and enter parameters as needed. At a minimum you will need to enter your servername and site code. On first launch, the script will look for all of the files and folders needed for servicing. It will create the required folder structure. You will need to add your ISO to the appropriate folder under the ISO folder.
 
-    You will also need to have Dynamic Updates enabled in your SCCM Console and be able to see Dynamic Updates in your ConfigMgr console.
+        You will also need to have Dynamic Updates enabled in your SCCM Console and be able to see Dynamic Updates in your ConfigMgr console.
 
-    Then, go to https://www.catalog.update.microsoft.com/Home.aspx and search for updates that match the os version and build you are servicing. You will need to add each update to their respective folder.
+        Then, go to https://www.catalog.update.microsoft.com/Home.aspx and search for updates that match the os version and build you are servicing. You will need to add each update to their respective folder.
 
-    Mount_Image = The DISM mount folder for the OS Image
-    Mount_BootImage = The DISM mount folder for the Boot Image
-    Mount_WinREImage = The DISM mount folder for the WinRE Image
-    WIM_OutPut = a temp directory for WIM files
-    OriginalBaseMedia = the ISO is extracted here
+        Mount_Image = The DISM mount folder for the OS Image
+        Mount_BootImage = The DISM mount folder for the Boot Image
+        Mount_WinREImage = The DISM mount folder for the WinRE Image
+        WIM_OutPut = a temp directory for WIM files
+        OriginalBaseMedia = the ISO is extracted here
 
-    ISO = Windows ISO Source Media
-    LCU = Latest Cumilative Update
-    SSU = Servicing Stack Update (check the LCU KB for the KB number of the required SSU)
-    Flash = Adobe Flash Player
-    DotNet = .NET Framework Cumulative Update (New for 1809)
-    SetupUpdate = Dynamic Update Setup Update
-    ComponentUpdate = Dynamic Update Component Update
+        ISO = Windows ISO Source Media
+        LCU = Latest Cumilative Update
+        SSU = Servicing Stack Update (check the LCU KB for the KB number of the required SSU)
+        Flash = Adobe Flash Player
+        DotNet = .NET Framework Cumulative Update (New for 1809)
+        SetupUpdate = Dynamic Update Setup Update
+        ComponentUpdate = Dynamic Update Component Update
 
-    Once you've added the files to the correct folders, you are ready to begin servicing. Close any open explorer windows or anything else that could be using the files if your servicing folder, otherwise, DISM will likely break during the dismount process.
+        Once you've added the files to the correct folders, you are ready to begin servicing. Close any open explorer windows or anything else that could be using the files If your servicing folder, otherwise, DISM will likely break during the dismount process.
 
-    Launch the script again with the desired command lines. If all files and folders are present, it will begin working. In the end, you will end up with a CompletedMedia folder which will have the completed media with updated wims.
+        Launch the script again with the desired command lines. If all files and folders are present, it will begin working. In the end, you will end up with a CompletedMedia folder which will have the completed media with updated wims.
 
-    ### Note
-    Beginning in Windows 10 1809, the servicing model has improved. At the moment, dynamic updates are no longer delivered from WSUS and can't be downloaded by the script. I have reached out to the product group to ask for assistance on offline servicing options. They said that this is being worked on, but there's no solution yet. The best option I've found is to run the Feature Update on a device and it will download the CAB files into the c:\$Windows.~BT folder where you can grab them and add to the script.
+        ### Note
+        Beginning in Windows 10 1809, the servicing model has improved. At the moment, dynamic updates are no longer delivered from WSUS and can't be downloaded by the script. I have reached out to the product group to ask for assistance on offline servicing options. They said that this is being worked on, but there's no solution yet. The best option I've found is to run the Feature Update on a device and it will download the CAB files into the c:\$Windows.~BT folder where you can grab them and add to the script.
 
-    Originally created for this blog post. https://www.asquaredozen.com/2018/08/20/adding-dynamic-updates-to-windows-10-in-place-upgrade-media-during-offline-servicing/
+        Originally created for this blog post. https://www.asquaredozen.com/2018/08/20/adding-dynamic-updates-to-windows-10-in-place-upgrade-media-during-offline-servicing/
 
     .History
 
@@ -78,7 +118,7 @@
         
         1.4 - Added Mandatory flags to some params
 
-        1.5 - Added fix for 2018-09 SetupUpdates not being classified correctly.
+        1.5 - Added fix for 2018-09 SetupUpdates not being classIfied correctly.
         
         1.6 - Added $Optimize switch (set to false by default) to remove -Optimize switch to address issues with Windows 10 1809 (11/21/2018)
 
@@ -88,72 +128,91 @@
         
         1.9 - Added quick start guide.
 
-        1.10 - Minor changes
+        1.10 - Minor Updates
+
+        1.11 - Added some params for AV and Ignoring Updates when there aren't any that month. 
+               Restructured things a bit and added some more help. 
+               Added https://github.com/aaronparker/LatestUpdate
     
+
+        #https://www.catalog.update.microsoft.com/Search.aspx?q=2019-07%201803%20Windows%2010%20x64
 #>
 
 Param
 (
-    [Parameter(Position=0, HelpMessage="Operating System Name to be serviced.")]
-    [ValidateSet("Windows 10 Education","Windows 10 Education N","Windows 10 Enterprise","Windows 10 Enterprise N","Windows 10 Pro","Windows 10 Pro N")]
-    [string]
-    $OSName = "Windows 10 Enterprise",
-
-    [Parameter(Position=1, HelpMessage="Operating System version to service.")]
-    [ValidateSet('1709','1803','1809','1903','1909')]
-    [string]
-    $OSVersion = "1903",
-
-    [Parameter(Position=2, HelpMessage="Architecture version to service. Default is x64.")]
-    [ValidateSet ('x64', 'x86','ARM64')]
-    [string]
-    $OSArch = "x64",   
-
-    [Parameter(Position=3, HelpMessage="Year-Month of updates to apply (Format YYYY-MM).")]
-    [ValidatePattern("\d{4}-\d{2}")]
-    [string]
-    $Month = "2019-10",
-
-    [Parameter(Position=4, HelpMessage="Path to working directory for servicing data. Default is C:\ImageServicing.")]
+    [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $true, Position=1)]
     [ValidateNotNullOrEmpty()]
     [string]
-    $RootFolder = "C:\ImageServicing",
+    $ServerName,
 
-    [Parameter(Position=5, HelpMessage="SCCM Primary Server Name.")]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $SCCMServer,
-
-    [Parameter(Position=6, HelpMessage="SCCM Site Code.")]
+    [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $true, Position=2)]
     [ValidateNotNullOrEmpty()]
     [string]
     $SiteCode,
 
-    [Parameter(Position=7, HelpMessage="Change path here to ADK dism.exe if your OS version doesn't match ADK version. Default dism.exe.")]
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=3)]
+    [ValidateSet("Windows 10 Education","Windows 10 Education N","Windows 10 Enterprise","Windows 10 Enterprise N","Windows 10 Pro","Windows 10 Pro N")]
     [string]
-    $DISMPath = "Dism.exe",
+    $OSName = 'Windows 10 Enterprise',
+
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=4)]
+    [ValidateSet('1709','1803','1809','1903','1909')]
+    [string]
+    $OSVersion = "1909",
+
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=5)]
+    [ValidateSet ('x64', 'x86','ARM64')]
+    [string]
+    $OSArch = "x64",   
+
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=6)]
+    [ValidatePattern("\d{4}-\d{2}")]
+    [string]
+    $Month = ("{0}-{1}" -f (Get-Date).Year, (Get-Date).Month),
+
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=7)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $RootFolder='C:\ImageServicing.',
+
+    [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=8)]
+    [string]
+    $DISMPath='dism.exe',
     
-    [Parameter(HelpMessage="Outputs fully serviced media.")]
+    [Parameter(Mandatory=$False)]
     [switch]
     $CreateProdMedia = [switch]::Present,
 
-    [Parameter(HelpMessage="Optionally apply Dynamic Updates to Install.wim and Sources for InPlace Upgrade compatibility.")]
+    [Parameter(Mandatory=$False)]
     [switch]
     $ApplyDynamicUpdates = [switch]::Present,
 
-    [Parameter(HelpMessage="Delete temp folders and patches.")]
+    [Parameter(Mandatory=$False)]
     [switch]
-    $Cleanup = $false,
+    $Cleanup=$False,
 
-    [Parameter(HelpMessage="This is set to false by default to prevent issues with Windows 10 1809. Set to true for other OS builds.")]
+    [Parameter(Mandatory=$False)]
     [switch]
-    $Optimize = $false,
+    $Optimize=[switch]::Present,
 
-    [Parameter(HelpMessage="Remove InBox Apps - Update the included RemoveApps.XML to meet your needs.")]
+    [Parameter(Mandatory=$False)]
     [switch]
-    $RemoveInBoxApps = [switch]::Present
+    $RemoveInBoxApps=[switch]::Present,
+
+    [Parameter(Mandatory=$False)]
+    [string[]]
+    $IgnoreTheseUpdates = (""),
+
+    [Parameter(Mandatory=$False)]
+    [switch]
+    $KillAV,
+    
+    [Parameter(Mandatory=$False)]
+    [switch]
+    $AutoDLUpdates = [switch]::Present
 
 )
+
 
 #Main
 ##################################################
@@ -163,14 +222,14 @@ $Main = {
     #Setup
     ##################################################
 
+    Install-Module -Name LatestUpdate -Force
 
-    If([string]::IsNullOrEmpty($SCCMServer)) {
-        $SCCMServer = Read-Host -Prompt 'Input your server name'
+    If([string]::IsNullOrEmpty($ServerName)) {
+        $ServerName = Read-Host -Prompt 'Input your server name'
     }
     If([string]::IsNullOrEmpty($SiteCode)) {
         $SiteCode = Read-Host -Prompt 'Input your site code'
     }
-
 
     $VerbosePreference="Continue"
     $ErrorActionPreference="Stop"
@@ -190,12 +249,6 @@ $Main = {
 
     $DUSUPath = "$($UpdatesPath)\SetupUpdate"
     $DUCUPath = "$($UpdatesPath)\ComponentUpdate"
-
-    $ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
-    $DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
 
     $ImageMountFolder = "$($RootFolder)\Mount_Image"
     $BootImageMountFolder = "$($RootFolder)\Mount_BootImage"
@@ -218,14 +271,16 @@ $Main = {
     ##################################################
 
 
-    try
-    {
+    Try {
 
-        #& 'C:\Program Files (x86)\Symantec\Symantec Endpoint Protection\Smc.exe' -Stop
-        
+        #Stop the AV Service on your machine
+        If($KillAV.IsPresent) {
+            & 'C:\Program Files (x86)\Symantec\Symantec Endpoint Protection\Smc.exe' -Stop
+        }
+
         Check-OSVersion
     
-        Check-Paths
+        Check-PathsAndDownloadMissingUpdates
     
         If($ApplyDynamicUpdates) {Get-DynamicUpdates}
 
@@ -233,7 +288,7 @@ $Main = {
             Get-BaseMedia
             Patch-BootWIM
             Mount-InstallWIM
-            If($RemoveInBoxApps){
+            If($RemoveInBoxApps) {
                 Remove-InBoxApps
             }
             Patch-WinREWIM
@@ -245,8 +300,7 @@ $Main = {
         
     }
 
-    catch 
-    {   
+    Catch {   
         Write-Warning $Error[0].Exception
         Write-Host Write-Error $Error[0].Exception -ForegroundColor Red
     }
@@ -257,42 +311,94 @@ $Main = {
 
 #Functions
 ##################################################
-Function Check-Paths
-{
+Function Check-PathsAndDownloadMissingUpdates {
     $Error.Clear()
     Try {
         $ErrorMessages = @()
-        Write-Host "Checking for folders and creating them if they don't exist" -ForegroundColor Green
-        if (!(Test-Path -path $ISO)) {$ErrorMessages += "Could not find Windows 10 ISO file."}
-        if (!(Test-Path -path $SSUPath)) {New-Item -path $SSUPath -ItemType Directory}
-        if (!(Test-Path -path $FlashPath)) {New-Item -path $FlashPath -ItemType Directory}
-        if (!(Test-Path -path $DotNetPath)) {New-Item -path $DotNetPath -ItemType Directory}
-        if (!(Test-Path -path $LCUPath)) {New-Item -path $LCUPath -ItemType Directory}
-        if (!(Test-Path -path $DUSUPath)) {New-Item -path $DUSUPath -ItemType Directory}
-        if (!(Test-Path -path $DUCUPath)) {New-Item -path $DUCUPath -ItemType Directory}
-        if (!(Test-Path -path $ImageMountFolder)) {New-Item -path $ImageMountFolder -ItemType Directory}
-        if (!(Test-Path -path $BootImageMountFolder)) {New-Item -path $BootImageMountFolder -ItemType Directory}
-        if (!(Test-Path -path $WinREImageMountFolder)) {New-Item -path $WinREImageMountFolder -ItemType Directory}
-        if (!(Test-Path -path $WIMImageFolder)) {New-Item -path $WIMImageFolder -ItemType Directory}
-        if (!(Test-Path -path $OriginalBaseMediaFolder)) {New-Item -path $OriginalBaseMediaFolder -ItemType Directory}
-        if (!(Test-Path -path $CompletedMediaFolder)) {New-Item -path $CompletedMediaFolder -ItemType Directory}
-  
-        if(!($SSU)) {$ErrorMessages +=  "Could not find Servicing Update for Windows 10."}
-        if(!($LCU)) {$ErrorMessages +=  "Could not find Monthly Update for Windows 10."}
-        if(!($Flash)) {$ErrorMessages +=  "Could not find Adobe Flash Update for Windows 10."}
+        Write-Host "Checking for folders and creating them If they don't exist" -ForegroundColor Green
 
-        #Only check for .NET Updates for 1809 and above.
-        If($OSVersion -ge '1803') { 
-            If(!($DotNet)) {$ErrorMessages +=  "Could not find .NET Update for Windows 10."}
+
+        Write-Host "Checking for ISO." -ForegroundColor Green
+        $Script:ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+        If (!$Script:ISO) {$ErrorMessages += "Could not find Windows 10 ISO file."}
+
+        Write-Host "Checking for SSU" -ForegroundColor Green
+        If(!$IgnoreTheseUpdates.Contains('SSU')) {
+            New-Item -path $SSUPath -ItemType Directory -ErrorAction SilentlyContinue
+
+            $Script:SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:SSU -and $AutoDLUpdates) {
+                Get-LatestServicingStackUpdate -OperatingSystem Windows10 -Version $OSVersion | Where-Object { $_.Architecture -eq $OSArch } | Save-LatestUpdate -Path $SSUPath
+            }
+
+            $Script:SSU = Get-ChildItem -Path "$($SSUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:SSU) {
+                $ErrorMessages +=  "Could not find Servicing Stack Update for Windows 10."
+            }
         }
-         If($ErrorMessages) {
+
+        Write-Host "Checking for Flash" -ForegroundColor Green
+        If(!$IgnoreTheseUpdates.Contains('Flash')) {
+            New-Item -path $FlashPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+
+            $Script:Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:Flash -and $AutoDLUpdates) {
+                Get-LatestAdobeFlashUpdate -OperatingSystem Windows10 -Version $OSVersion | Where-Object { $_.Architecture -eq $OSArch } | Save-LatestUpdate -Path $FlashPath
+            }
+
+            $Script:Flash = Get-ChildItem -Path "$($FlashPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:Flash) {
+                $ErrorMessages +=  "Could not find Adobe Flash Update for Windows 10."
+            }
+        }
+
+        Write-Host "Checking for DotNet" -ForegroundColor Green
+        If(!$IgnoreTheseUpdates.Contains('DotNet')) {
+            New-Item -path $DotNetPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+            
+            $Script:DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:DotNet -and $AutoDLUpdates) {
+                Get-LatestNetFrameworkUpdate -OperatingSystem Windows10 | Where-Object { $_.Architecture -eq $OSArch -and $_.Version -eq $OSVersion } | Save-LatestUpdate -Path $DotNetPath
+            }
+
+            $Script:DotNet = Get-ChildItem -Path "$($DotNetPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:DotNet) {
+                If($OSVersion -ge '1803') { 
+                    If(!($DotNet)) {$ErrorMessages +=  "Could not find .NET Update for Windows 10."}
+                }
+            }
+        }
+
+        Write-Host "Checking for LCU" -ForegroundColor Green
+        If(!$IgnoreTheseUpdates.Contains('LCU')) {
+            New-Item -path $LCUPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+
+            $Script:LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:LCU -and $AutoDLUpdates) {
+                Get-LatestCumulativeUpdate -OperatingSystem Windows10 -Version $OSVersion | Where-Object { $_.Architecture -eq $OSArch } | Save-LatestUpdate -Path $LCUPath
+            }
+
+            $Script:LCU = Get-ChildItem -Path "$($LCUPath)" -Filter "*.MSU" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
+            If(!$Script:LCU) {
+                $ErrorMessages +=  $ErrorMessages +=  "Could not find Monthly Update for Windows 10."
+            }
+        }
+        If (!(Test-Path -path $DUSUPath)) {New-Item -path $DUSUPath -ItemType Directory -Force}
+        If (!(Test-Path -path $DUCUPath)) {New-Item -path $DUCUPath -ItemType Directory -Force}
+        If (!(Test-Path -path $ImageMountFolder)) {New-Item -path $ImageMountFolder -ItemType Directory -Force}
+        If (!(Test-Path -path $BootImageMountFolder)) {New-Item -path $BootImageMountFolder -ItemType Directory -Force}
+        If (!(Test-Path -path $WinREImageMountFolder)) {New-Item -path $WinREImageMountFolder -ItemType Directory -Force}
+        If (!(Test-Path -path $WIMImageFolder)) {New-Item -path $WIMImageFolder -ItemType Directory -Force}
+        If (!(Test-Path -path $OriginalBaseMediaFolder)) {New-Item -path $OriginalBaseMediaFolder -ItemType Directory -Force}
+        If (!(Test-Path -path $CompletedMediaFolder)) {New-Item -path $CompletedMediaFolder -ItemType Directory -Force}
+  
+        If($ErrorMessages) {
              $ErrorMessages | ForEach-Object {Write-Warning $_} ; break;}
         Else {
             Write-Host "All Updates found" -ForegroundColor Green
         }
     }
-    Catch
-    {
+    Catch {
         Write-Host "Check Paths failed."
         Throw $Error
     }
@@ -304,15 +410,13 @@ Function Check-OSVersion {
         Write-Host "Checking OS Version" -ForegroundColor Green
         $OSCaption = (Get-WmiObject win32_operatingsystem).caption
 
-        If (!($OSCaption -like "Microsoft Windows 10*") -and !($OSCaption -like "Microsoft Windows Server 2016*"))
-        {
+        If (!($OSCaption -like "Microsoft Windows 10*") -and !($OSCaption -like "Microsoft Windows Server 2016*")) {
             Write-Warning "$Env:Computername Oops, you really should use Windows 10 or Windows Server 2016 when servicing Windows 10 offline"
             Write-Warning "$Env:Computername Aborting script..."
             Break;
         } 
     }
-    Catch
-    {
+    Catch {
         Write-Warning "Check OS Version failed."
         Throw $Error
     }
@@ -334,18 +438,17 @@ Function Get-DynamicUpdates {
 
         $DisplayNameFilter = "*$($OSVersion)*$($OSArch)*"
 
-        $AllDynamicUpdates = Get-WmiObject -ComputerName $SCCMServer -Class SMS_SoftwareUpdate -Namespace "root\SMS\Site_$($SiteCode)" -Filter $AllDynamicUpdatesFilter
+        $AllDynamicUpdates = Get-WmiObject -ComputerName $ServerName -Class SMS_SoftwareUpdate -Namespace "root\SMS\Site_$($SiteCode)" -Filter $AllDynamicUpdatesFilter
 
         $FilteredUpdateList = $AllDynamicUpdates | Where {$_.LocalizedDisplayName -like $DisplayNameFilter -and $_.IsSuperseded -eq $False -and $_.IsLatest -eq $True}
 
-        ForEach ($Update in $FilteredUpdateList)
-        {
+        ForEach ($Update in $FilteredUpdateList) {
 
-            $ContentIDs = Get-WmiObject -ComputerName $SCCMServer -Class SMS_CIToContent -Namespace "root\SMS\Site_$($SiteCode)" -Filter "CI_ID = $($Update.CI_ID)"
+            $ContentIDs = Get-WmiObject -ComputerName $ServerName -Class SMS_CIToContent -Namespace "root\SMS\Site_$($SiteCode)" -Filter "CI_ID = $($Update.CI_ID)"
 
             ForEach ($ContentID in $ContentIDs) {
 
-                $Content = Get-WmiObject -ComputerName $SCCMServer -Class SMS_CIContentFiles -Namespace "root\SMS\Site_$($SiteCode)" -Filter "ContentID = $($ContentID.ContentID)"
+                $Content = Get-WmiObject -ComputerName $ServerName -Class SMS_CIContentFiles -Namespace "root\SMS\Site_$($SiteCode)" -Filter "ContentID = $($ContentID.ContentID)"
             
                 $DownloadList  += New-Object PSObject -Property:@{
                 'ArticleID' = $Update.ArticleID;
@@ -359,11 +462,9 @@ Function Get-DynamicUpdates {
             }
         }
 
-        ForEach ($File in $DownloadList)
-        {
+        ForEach ($File in $DownloadList) {
             $Path = $Null
-            switch ($File.Type)
-            {
+            Switch ($File.Type) {
                 SetupUpdate {$Path = "$($DUSUPath)\$($File.FileName)"; break;}
                 ComponentUpdate {$Path = "$($DUCUPath)\$($File.FileName)"; break;}
                 Default {$Path = "$($UpdatesPath)\$($File.FileName)"; break;}
@@ -373,15 +474,13 @@ Function Get-DynamicUpdates {
 
         $SUFiles = Get-ChildItem -Path $DUSUPath
 
-        ForEach ($File in $SUFiles)
-        {
+        ForEach ($File in $SUFiles) {
             $ExtractFolder = "$($DUSUPath)\$($File.Name.Replace('.cab',''))\"
             New-Item -path $ExtractFolder -ItemType Directory
             & Expand "$($File.FullName)" -F:* $ExtractFolder
         }
     }
-    Catch
-    {
+    Catch {
         Write-Warning "Get Dynamic Updates failed."
         Throw $Error[0]
     }
@@ -401,12 +500,10 @@ Function Remove-InBoxApps {
                 Write-Information "Removing provisioned package $AppName"
                 $current = $Provisioned | Where-Object { $_.DisplayName -eq $AppName }
                 
-                if ($current)
-                {
+                If ($current) {
                     Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName
                 }
-                else
-                {
+                Else {
                     Write-Warning "Unable to find provisioned package $AppName"
                 }
             }
@@ -448,16 +545,14 @@ param
     Write-Host "ApplyDUCU: $($ApplyDUCU)" -ForegroundColor Green
     Write-Host "CleanWIM: $($CleanWIM)" -ForegroundColor Green
     
-    Try
-    {
-        if($InstallDotNET35) #Enabled .Net 3.5
-        {
+    Try {
+        #Enabled .Net 3.5
+        If($InstallDotNET35) {
             Write-Host "Enabling .NET 3.5" -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:"$($OriginalBaseMediaFolder)\sources\sxs"
         }
 
-        if($ApplyDotNET)
-        {
+        If($ApplyDotNET -and !$IgnoreTheseUpdates.Contains('DotNet')) {
             #Only needed for 1809 and higher.
             If($OSVersion -ge '1809') { 
                 Write-Host "Applying .NET Updates" -ForegroundColor Green
@@ -471,28 +566,29 @@ param
             }
         }
 
-        if($ApplySSU)
-        {
+        If($ApplySSU -and !$IgnoreTheseUpdates.Contains('SSU')) {
             Write-Host "Applying SSU" -ForegroundColor Green
             Add-WindowsPackage -PackagePath $SSU -Path $MountFolder        
         }
 
-        if($ApplyFlash)
-        {
+        If($ApplyFlash -and !$IgnoreTheseUpdates.Contains('Flash')) {
             Write-Host "Applying Flash Updates" -ForegroundColor Green
-            Add-WindowsPackage -PackagePath $Flash -Path $MountFolder
+            If(!($Flash)) {
+                Write-Host "Flash Not Found. Skipping Flash."    
+            }
+            {
+                Add-WindowsPackage -PackagePath $Flash -Path $MountFolder
+            }
         }
 
-        if($ApplyLCU)
-        {
+        If($ApplyLCU -and !$IgnoreTheseUpdates.Contains('LCU')) {
             Write-Host "Applying LCU" -ForegroundColor Green
             Add-WindowsPackage -PackagePath $LCU -Path $MountFolder
         }
 
-        if($ApplyDUCU)
-        {
-            If($ApplyDynamicUpdates) #Only apply DU is specified in the script params. Default is True.
-            {
+        If($ApplyDUCU) {
+            #Only apply DU is specIfied in the script params. Default is True.
+            If($ApplyDynamicUpdates) {
                 Write-Host "Applying Dynamic Component Updates" -ForegroundColor Green
                 #Get All Dynamic Cumulative Updates
                 $DUCU = Get-ChildItem -Path "$($DUCUPath)" -Filter "*.CAB" | Select-Object -ExpandProperty FullName
@@ -507,14 +603,12 @@ param
             }
         } 
 
-        if($CleanWIM)
-        {
+        If($CleanWIM) {
             Write-Host "Running Cleanup and ResetBase" -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /cleanup-image /startcomponentcleanup /resetbase
         }
     }
-    Catch
-    {
+    Catch {
         Write-Warning "Apply Patches failed."
         Throw $Error
     }
@@ -523,8 +617,7 @@ param
 
 Function Get-BaseMedia {
     $Error.Clear()
-    try
-    {
+    Try {
         #Mount Windows ISO and extract media into the OriginalBaseMediaFolder
         If(!(Get-ChildItem $OriginalBaseMediaFolder)) {
             Write-Host "Extracting ISO Media" -ForegroundColor Green
@@ -537,8 +630,7 @@ Function Get-BaseMedia {
 
 
         #Remove Any tmp files before starting
-        If($Cleanup) 
-        {
+        If($Cleanup) {
             Get-Item $InstallWIM | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
             Get-Item $BootWIM | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
             Get-Item $TmpInstallWIM | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
@@ -556,20 +648,17 @@ Function Get-BaseMedia {
         Copy-Item "$OriginalBaseMediaFolder\Sources\boot.wim" $TmpBootWIM -Force
         & Attrib -r $TmpBootWIM
 
-        If($ApplyDynamicUpdates)
-        {
+        If($ApplyDynamicUpdates) {
             #Get all SetupUpdate Dynamic Update contents and apply them to the Completed Sources folder
             $DUSUContents = Get-ChildItem -Path $DUSUPath -Directory
-            ForEach ($Folder in $DUSUContents)
-            {
+            ForEach ($Folder in $DUSUContents) {
                 Copy-Item -Path "$($Folder.FullName)\*" -Destination "$($CompletedMediaFolder)\Sources" -Container -Force -Recurse
            
             }
         }
                 
     }
-    Catch
-    {
+    Catch {
         Write-Warning "Extract ISO Media failed."
         Throw $Error
     }
@@ -577,7 +666,7 @@ Function Get-BaseMedia {
 
 Function Patch-BootWIM {
     $Error.Clear()
-    try{
+    Try {
         Write-Host "Patching Boot WIM" -ForegroundColor Green
         #Mount current WIM and fully patch
         #Uncomment to patch WinPE.wim
@@ -593,8 +682,7 @@ Function Patch-BootWIM {
         Copy-Item -Path $TmpBootWIM -Destination $BootWIM -Force
         ####
     }
-    catch
-    {
+    Catch {
         Write-Warning "Boot WIM patching failed"
         Throw $Error
     }
@@ -602,16 +690,14 @@ Function Patch-BootWIM {
 
 Function Patch-WinREWIM {
     $Error.Clear()
-    try{
+    Try {
         Write-Host "Patching WinRE WIM" -ForegroundColor Green
         #WinRE
-        If(!(Test-Path $ImageMountFolder)) 
-        {
+        If(!(Test-Path $ImageMountFolder)) {
             Write-Warning "No Install.WIM mounted. Please mount Install.WIM and try again."
             Break;
         }
-        Else
-        {
+        Else {
             Move-Item -Path $ImageMountFolder\Windows\System32\Recovery\winre.wim -Destination $TmpWinREWIM -Force
             Mount-WindowsImage -ImagePath $TmpWinREWIM -Index 1 -Path $WinREImageMountFolder
             Apply-Patches -MountFolder $WinREImageMountFolder -ApplySSU -ApplyLCU -CleanWIM
@@ -620,17 +706,15 @@ Function Patch-WinREWIM {
             Copy-Item -Path $WinREWIM -Destination $ImageMountFolder\Windows\System32\Recovery\winre.wim -Force
         }
     }
-    catch
-    {
+    Catch {
         Write-Warning "WinRE WIM patching failed"
         Throw $Error
     }
 }
 
-Function Mount-InstallWIM
-{
+Function Mount-InstallWIM {
     $Error.Clear()
-    try{
+    Try {
         Write-Host "Mounting Install WIM" -ForegroundColor Green
 
         If ($Optimize) {
@@ -642,8 +726,7 @@ Function Mount-InstallWIM
         }
        
     }
-    catch
-    {
+    Catch {
         Write-Warning "Mounting Install WIM failed"
         Throw $Error
     }    
@@ -651,7 +734,7 @@ Function Mount-InstallWIM
 
 Function Patch-InstallWIM {
     $Error.Clear()
-    try{
+    Try {
 
         Apply-Patches -MountFolder $ImageMountFolder -ApplySSU -ApplyLCU -ApplyFlash -CleanWIM
         Apply-Patches -MountFolder $ImageMountFolder -InstallDotNET35 -ApplyDotNET -ApplyLCU -ApplyDUCU
@@ -660,8 +743,7 @@ Function Patch-InstallWIM {
         Export-WindowsImage -SourceImagePath $TmpInstallWIM -SourceName $OSName -DestinationImagePath $InstallWIM
        
     }
-    catch
-    {
+    Catch {
         Write-Warning "Install WIM patching failed"
         Throw $Error
     }    
@@ -669,15 +751,14 @@ Function Patch-InstallWIM {
 
 Function Copy-CompletedWIMs {
     $Error.Clear()
-    try {
+    Try {
         Write-Host "Copying Production Media" -ForegroundColor Green
 
         Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         Copy-Item -Path $BootWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         
     }
-    catch
-    {
+    Catch {
         $Error
         Write-Warning "Copying Production Media failed"
         Write-Host $Error
@@ -688,11 +769,11 @@ Function Copy-CompletedWIMs {
 Function Cleanup {
     Try {
         Write-Host "Cleaning Up" -ForegroundColor Green
-        if (Test-Path -path $TmpInstallWIM) {Remove-Item -Path $TmpInstallWIM -Force -ErrorAction Continue}
-        if (Test-Path -path $TmpBootWIM) {Remove-Item -Path $TmpBootWIM -Force -ErrorAction Continue}
-        if (Test-Path -path $TmpWinREWIM) {Remove-Item -Path $TmpWinREWIM -Force -ErrorAction Continue}
-        if (Test-Path -path $DUSUPath) {Remove-Item -Path $DUSUPath -Force -Recurse -ErrorAction Continue}
-        if (Test-Path -path $DUCUPath) {Remove-Item -Path $DUCUPath -Force -Recurse -ErrorAction Continue}
+        If (Test-Path -path $TmpInstallWIM) {Remove-Item -Path $TmpInstallWIM -Force -ErrorAction Continue}
+        If (Test-Path -path $TmpBootWIM) {Remove-Item -Path $TmpBootWIM -Force -ErrorAction Continue}
+        If (Test-Path -path $TmpWinREWIM) {Remove-Item -Path $TmpWinREWIM -Force -ErrorAction Continue}
+        If (Test-Path -path $DUSUPath) {Remove-Item -Path $DUSUPath -Force -Recurse -ErrorAction Continue}
+        If (Test-Path -path $DUCUPath) {Remove-Item -Path $DUCUPath -Force -Recurse -ErrorAction Continue}
         & DISM /Cleanup-WIM
     }
     Catch 
