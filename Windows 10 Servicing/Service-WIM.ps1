@@ -63,6 +63,9 @@
     .PARAMETER KillAV
         Kill the AV Process on your box before servicing. You will need to update the script with the correct command for yourr specIfic AV.
 
+    .PARAMETER AutoDLUpdates
+        Option to enable updates to be auto downloaded using the LatestUpdate module.
+
     .NOTES
         Author:  Adam Gross
         Twitter: @AdamGrossTX
