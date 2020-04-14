@@ -16,7 +16,7 @@ $ActionType = [uint32]4 #RebootCountdonwStart
 $UserSID = $null
 $SessionID = $SessionID = [uint32]::MaxValue
 $MessageLevel = [uint32]0
-$Value = "{0}`t{1}`t{2}" -f $EpochTimeSeconds, $RestartEpochDateTimeSeconds, $GraceSeconds,$FinalSeconds
+$Value = "{0}`t{1}`t{2}" -f $EpochTimeSeconds, $GraceSeconds,$FinalSeconds
 $Verbosity = [uint32]30
 
 #region CIM
