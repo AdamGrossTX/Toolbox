@@ -63,17 +63,17 @@ Param (
 
 $PathToBADMIFS = 
 
-$DeviceList = @()
+
 $FileList = Get-ChildItem -Path $ServerMIFPath -Include *.MIF -Recurse -Force
 
 If($FileList) {
 
-    ForEach($File in $FileList) {
+    $DeviceList = ForEach($File in $FileList) {
         Try {
             $Folder = Split-Path -Path $File.Directory -Leaf
             $DeviceName = ($File | Get-Content -ReadCount 1 -TotalCount 6 -ErrorAction Stop  | Select-String -Pattern "//KeyAttribute<NetBIOS\sName><(?<ComputerName>.*)>" -ErrorAction Stop).Matches.Groups[-1].Value
             
-            $DeviceList += [PSCustomObject]@{
+            [PSCustomObject]@{
                 Name = $DeviceName
                 Type = $Folder
                 Path = $File.FullName
