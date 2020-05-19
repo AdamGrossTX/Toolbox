@@ -37,7 +37,7 @@ Param (
     $ServerShare = "e$",
         
     [string]    
-    $ExportPath = $PSScriptRoot,
+    $ExportPath = ".\",
     
     [switch]
     $ShowGrid
