@@ -3,16 +3,12 @@
     Parses files in the BADMIFs folder and sub folders on the ConfigMgr site server to extract computer names and the type of bad MIF
 .DESCRIPTION
     See SYNOPSIS
-.PARAMETER ServerName
+.PARAMETER PathToMIFS
     Mandatory
-    The path to the server where your MIFs are stored
-    
-.PARAMETER ServerShare
-    The share name on the server where the MIFs are stored. 
-    Default is e$ because you didn't actually install ConfigMgr on your C drive did you??
-    
-.PARAMETER ExportPath
-    Defaults to the script path '.\'
+    The path where your MIFs are stored. 
+    Don't point to your production Inbox folders. 
+    Make a copy to work from so you don't impact production processes.
+    The BADMIFS folder is located here <InstallDir>\Program Files\Microsoft Configuration Manager\inboxes\auth\dataldr.box\BADMIFS
     
 .PARAMETER ShowGrid
     Displays the gridview of results. Disabled by default
@@ -52,13 +48,11 @@
 
 
 Param (
-    [parameter(Mandatory)]
-    [string]    
-    $ServerName,
 
-    [string]    
-    $ServerShare = "e$",
-        
+    [parameter(Mandatory, HelpMessage = "<InstallDir>\Program Files\Microsoft Configuration Manager\inboxes\auth\dataldr.box\BADMIFS")]
+    [string]
+    $PathToBADMIFS,
+
     [string]    
     $ExportPath = ".\",
     
@@ -67,7 +61,7 @@ Param (
       
 )
 
-$ServerMIFPath = "\\$($ServerName)\$($ServerShare)\Program Files\Microsoft Configuration Manager\inboxes\auth\dataldr.box\BADMIFS"
+$PathToBADMIFS = 
 
 $DeviceList = @()
 $FileList = Get-ChildItem -Path $ServerMIFPath -Include *.MIF -Recurse -Force
