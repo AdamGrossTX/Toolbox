@@ -14,12 +14,11 @@
     Displays the gridview of results. Disabled by default
 
 .NOTES
-  Version:          1.0
+  Version:          1.1
   Author:           Adam Gross - @AdamGrossTX
   GitHub:           https://www.github.com/AdamGrossTX
   WebSite:          https://www.asquaredozen.com
-  Creation Date:    05/19/2020
-  Purpose/Change:   Initial script development
+  Creation Date:    05/19/2020  
 
   More info on MIFS from Umair Kahn
   https://techcommunity.microsoft.com/t5/configuration-manager-archive/configmgr-2012-hardware-inventory-resync-and-badmif-internals/ba-p/339939
@@ -61,19 +60,16 @@ Param (
       
 )
 
-$PathToBADMIFS = 
-
-
-$FileList = Get-ChildItem -Path $ServerMIFPath -Include *.MIF -Recurse -Force
+$DeviceList = @()
+$FileList = Get-ChildItem -Path $PathToBADMIFS -Include *.MIF -Recurse -Force
 
 If($FileList) {
-
-    $DeviceList = ForEach($File in $FileList) {
+    ForEach($File in $FileList) {
         Try {
             $Folder = Split-Path -Path $File.Directory -Leaf
             $DeviceName = ($File | Get-Content -ReadCount 1 -TotalCount 6 -ErrorAction Stop  | Select-String -Pattern "//KeyAttribute<NetBIOS\sName><(?<ComputerName>.*)>" -ErrorAction Stop).Matches.Groups[-1].Value
             
-            [PSCustomObject]@{
+            $DeviceList += [PSCustomObject]@{
                 Name = $DeviceName
                 Type = $Folder
                 Path = $File.FullName
@@ -88,7 +84,7 @@ If($FileList) {
         $DeviceList | Out-GridView -Title "Devices with Bad MIFs"
     }
 
-    $DeviceList | Export-Csv -Path (Join-Path -Path $ExportPath -ChildPath "BadMIFDeviceList_$(Get-Date -Format yyyymmdd_hhmmss).csv)") -NoTypeInformation -Force
+    $DeviceList | Export-Csv -Path (Join-Path -Path $ExportPath -ChildPath "BadMIFDeviceList_$(Get-Date -Format yyyymmdd_hhmmss).csv") -NoTypeInformation -Force
 }
 
 Else {
