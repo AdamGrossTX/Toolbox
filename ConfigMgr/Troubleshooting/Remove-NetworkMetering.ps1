@@ -25,9 +25,21 @@
 
   http://franckrichard.blogspot.com/2018/11/sccm-client-certificate-value-set-to.html
   http://franckrichard.blogspot.com/2018/11/set-onoff-metered-ethernet-connection.html
-  
-#>
 
+.EXAMPLE
+    Finds and removes Metering from connected adapters.
+    Remove-NetworkMetering.ps1
+
+.EXAMPLE
+    Finds and outputs to the console any metered adapters
+    Remove-NetworkMetering.ps1 -CheckOnly
+
+.EXAMPLE
+    Finds and removes Metering from connected adapters but resets ConfigMgr client policies if any metered adapters are found or if ConfigMgr policies are set to block metered connections.
+    Remove-NetworkMetering.ps1 -TakeTheSlowBoat
+
+#>
+[cmdletbinding()]
 param(
     [switch]
     $CheckOnly,
