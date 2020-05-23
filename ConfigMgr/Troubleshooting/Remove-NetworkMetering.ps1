@@ -114,9 +114,9 @@ param(
                 Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName RequestMachinePolicy -Arguments @{uFlags = [uint32]1 }
                 Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName EvaluateMachinePolicy
             }
-            ElseIf ($TakeTheSlowBoat.IsPresent) {
+            ElseIf (!($checkOnly.IsPresent) -and $TakeTheSlowBoat.IsPresent) {
                 Write-Host "Reseting ConfigMgr Client Polices"
-                Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName ResetClientPolicy -Arguments @{uFlags = [uint32]1 }
+                Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName ResetPolicy -Arguments @{uFlags = [uint32]1 }
             }
             Else {
                 Write-Host "No Changes were made."
