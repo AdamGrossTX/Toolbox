@@ -98,7 +98,10 @@ param(
         $NwClassName = "CCM_NetworkSettings"
         $obj = Get-CIMInstance -Namespace $PolicyNameSpace -ClassName $NwClassName
         If($obj.MeteredNetworkUsage -ne 1) {
+            Write-Host "ConfigMgr MeteredNetworkUsage is set to $($obj.MeteredNetworkUsage)"
+
             If(!($checkOnly.IsPresent) -and !($TakeTheSlowBoat.IsPresent)) {
+                Write-Host "Reseting ConfigMgr CCM_NetworkSettings Policy"
                 #Set usage to 1 in the policy first. This allows the client to go get policies. 
                 #We will delete the entry at the end to ensure that the setting gets re-applied after a policy refresh.
                 #In testing, policies didn't reapply without removing the entry.
@@ -112,10 +115,11 @@ param(
                 Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName EvaluateMachinePolicy
             }
             ElseIf ($TakeTheSlowBoat.IsPresent) {
+                Write-Host "Reseting ConfigMgr Client Polices"
                 Invoke-CimMethod -Namespace "root\ccm" -ClassName "SMS_Client" -MethodName ResetClientPolicy -Arguments @{uFlags = [uint32]1 }
             }
             Else {
-                Write-Host "ConfigMgr MeteredNetworkUsage is set to $($obj.MeteredNetworkUsage). No Changes were made."
+                Write-Host "No Changes were made."
             }
             $MeteredAdapterCount++
         }
