@@ -32,6 +32,12 @@ Get-CimInstance -Namespace $NameSpace -ClassName $ClassName | Format-Table
 $GetURL = "https://{0}/AdminService/wmi/{1}" -f $ServerName,$ClassName
 (Invoke-RestMethod -Method Get -Uri "$($GetURL)" -UseDefaultCredentials).Value | Format-Table
 
+$GetURL = "https://{0}/AdminService/wmi/`$metadata" -f $ServerName
+$Result = Invoke-RestMethod -Method Get -Uri "$($GetURL)" -UseDefaultCredentials
+
+$Result.InnerXml | select * | format-List
+[xml]$Result.InnerXml | Out-File .\wmi.XML -Force
+
 #ConfigMgr PS CmdLets
 #This approach is most limited. 
 $initParams = @{}

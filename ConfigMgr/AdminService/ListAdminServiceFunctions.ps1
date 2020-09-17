@@ -1,48 +1,18 @@
-#This code only works for the 1810 TP adminservice
-<#
-
-$Credential = Get-Credential
-$SCCMServerName = "localhost"
-$URL = "http://$($SCCMServerName):80/AdminService/v2/"
-$Result = Invoke-RestMethod -Method Get -Uri "$($URL)" -Credential $Credential
-$Result
-$Result.value.Name #Returns Function Names
-#>
-
-#Use this code for the 1906 TP AdminService
-#This code only works for the 1810 TP adminservice
-<#
-$Credential = Get-Credential
-$SCCMServerName = "localhost"
-$URL = "http://$($SCCMServerName):80/AdminService/v2/"
-$Result = Invoke-RestMethod -Method Get -Uri "$($URL)" -Credential $Credential
-$Result
-$Result.value.Name #Returns Function Names
-#>
-
-#Use this code for the 1902/1902  AdminService
 ###############
 #Sample script for returning AdminService classes
 # By: Adam Gross
 # @AdamGrossTX
 # https://www.asquaredozen.com
+# https://github.com/AdamGrossTX
 ###############
-
-####Use this don't use these if you are using the Invoke-RestMethod cmdlets
-#[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-#$agentsquery = New-Object System.Net.WebClient
-#$agentsquery.Headers.Add('accept','application/xml') 
-#$agentsquery.UseDefaultCredentials =$true
-
-#[XML]$ControllerResults = $agentsquery.DownloadString($ControllerUri)
-#[XML]$WMIResults = $agentsquery.DownloadString($WMIUri)
-################
-
-#Current Code for CB 1906
+[cmdletbinding()]
+param(
+    [parameter(Mandatory=$true)]
+    [String]$SiteServer
+)
 $Main = {
-    $ControllerResults = Get-AdminServiceDetails -ServerName 'CM01' -ClassType 'Controller'
-    $WMIResults = Get-AdminServiceDetails -ServerName 'CM01' -ClassType 'WMI'
+    $ControllerResults = Get-AdminServiceDetails -ServerName $SiteServer -ClassType 'Controller'
+    $WMIResults = Get-AdminServiceDetails -ServerName $SiteServer -ClassType 'WMI'
 
     #Controllers
     $ContClasses = $ControllerResults.Edmx.DataServices.Schema.EntityType
@@ -60,44 +30,45 @@ $Main = {
     $ContContainers| Format-Table
 
     #WMI
-    $wmiSchema = $WMIResults.Edmx.DataServices.Schema | Format-List
-    $wmiClasses = $WMIResults.Edmx.DataServices.Schema.EntityType | Format-Table
-    $wmiComplexClasses = $WMIResults.Edmx.DataServices.Schema.ComplexType | Format-Table
-    $wmiContainers = $WMIResults.Edmx.DataServices.Schema.EntityContainer | Format-Table
+    $wmiSchema = $WMIResults.Edmx.DataServices.Schema
+    $wmiClasses = $WMIResults.Edmx.DataServices.Schema.EntityType
+    $wmiComplexClasses = $WMIResults.Edmx.DataServices.Schema.ComplexType
+    $wmiContainers = $WMIResults.Edmx.DataServices.Schema.EntityContainer
+    $wmiActionImport = $WMIResults.Edmx.DataServices.Schema.EntityContainer.ActionImport
 
     Write-Host "Schema" -ForegroundColor Green
     $wmiSchema | Format-Table
     Write-Host "Classes" -ForegroundColor Green
-    $wmiClasses| Format-Table
+    $wmiClasses | Format-Table
     Write-Host "ComplexClasses" -ForegroundColor Green
-    $wmiComplexClasses| Format-Table
+    $wmiComplexClasses | Format-Table
     Write-Host "Containers" -ForegroundColor Green
-    $wmiContainers| Format-Table
-
+    $wmiContainers | Format-Table
+    Write-Host "ActionImport" -ForegroundColor Green
+    $wmiActionImport.Name | Format-Table
 
 }
 Function Get-AdminServiceDetails {
-    Param(
+    param(
         $ServerName,
         $ClassType,
         [switch]$Metadata=$true
     )
 
-    $ClassTypeURI = Switch($ClassType)
+    $ClassTypeURI = switch($ClassType)
     {
-        "WMI" {"wmi"; Break;}
-        "Controller" {"v1.0"; Break;}
+        "WMI" {"wmi"; break;}
+        "Controller" {"v1.0"; break;}
     }
 
-    If($Metadata) {
+    if ($Metadata) {
         $BaseURI = "https://{0}/AdminService/{1}/{2}" -f $ServerName,$ClassTypeURI,"`$metadata"
     }
-    Else {
+    else {
         $BaseURI = "https://{0}/AdminService/{1}/" -f $ServerName,$ClassTypeURI
     }
-
     $Results = Invoke-RestMethod -Method Get -Uri "$($BaseURI)" -UseDefaultCredentials
-    Return $Results
+    return $Results
 }
 
 #You can add a foreach loop on each object to get the properties for each entity. 

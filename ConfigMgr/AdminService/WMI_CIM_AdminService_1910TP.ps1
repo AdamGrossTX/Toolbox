@@ -1,11 +1,11 @@
 #This code shows 4 ways to Query and Update SCCM/WMI with PowerShell
 
-$ServerName = "CMTP3-CM1.asd.lab"
-$SiteCode = "TP3"
+$ServerName = "CM01.asd.net"
+$SiteCode = "ps1"
 $NameSpace = "root\SMS\Site_{0}" -f $SiteCode
 $ClassName = "SMS_UserMachineRelationship"
 $MethodName = "CreateRelationship"
-[uint32]$ResourceId = 16777219
+[uint32]$ResourceId = 16777316
 [uint32]$WMISourceId = 2
 [uint32]$CIMSourceId = 4
 [uint32]$AdminSvcSourceId = 6
@@ -62,3 +62,4 @@ Get-CMUserDeviceAffinity -UserName $UserAccountName | Format-Table
 Add-CMDeviceAffinityToUser -UserName $UserAccountName -DeviceId $ResourceId
 
 #endregion
+(Get-COmmand Add-CMDeviceCollectionDirectMembershipRule).dll

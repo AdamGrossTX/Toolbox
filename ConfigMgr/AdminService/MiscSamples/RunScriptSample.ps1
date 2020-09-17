@@ -16,9 +16,9 @@ Param (
     $ScriptName
 )
 
-#$SiteServer = "CM01.ASD.NET"
-#$DeviceName ="CM01"
-#$ScriptName = "WinRM"
+$SiteServer = "CM01.ASD.NET"
+$DeviceName ="CM01"
+$ScriptName = "WinRM"
 
 $BaseUri = "https://$($SiteServer)/AdminService/v1.0/"
 Write-Host $BaseUri

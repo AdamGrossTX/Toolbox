@@ -1,17 +1,22 @@
-#region Change to your info###
-$ServerName = "CMTP3-CM1.asd.lab"
-$SiteCode = "TP3"
-$NameSpace = "root\SMS\Site_{0}" -f $SiteCode
-$ClassName = "SMS_ClientOperation"
-$MethodName = "InitiateClientOperation"
+<#
+    www.github.com/AdamGrossTX
+    twitter.com/AdamGrossTX
+    asquaredozen.com
+    note: this script could be optimized but is broken up to make it easy to read and step through for learning how AdminService works.
+#>
+[cmdletbinding()]
+Param (
+    [Parameter(Mandatory=$true,HelpMessage="Enter your server name where AdminService is runnning (SMS Provider Role")]
+    [string]$ServerName,
 
-[string]$TargetCollectionID = "TP300018"
-[uint32]$Type = 8
-[uint32]$RandomizationWindow = 1
-[uint32[]]$TargetResourceIDs = 16777223
-###Endregion###
+    [Parameter(Mandatory=$true,HelpMessage="Enter the ResourceID of the target device")]
+    [uint32[]]$TargetResourceIDs,
 
-$Types = @{
+    [Parameter(Mandatory=$false,HelpMessage="Enter a Collection ID that the target device is in")]
+    [string]$TargetCollectionID = "SMS00001"
+)
+   
+$Types = [Ordered]@{
     "DownloadComputerPolicy" = 8
     "DownloadUserPolicy" = 9
     "CollectDiscoveryData" = 10
@@ -26,25 +31,21 @@ $Types = @{
     "Restart" = 17
     "EnableVerboseLogging" = 20
     "DisableVerboseLogging" = 21
+    "CollectClientLogs" = 22
 }
 
-$Type = $Types.Keys | ForEach-Object {Write-Host $Types[$_] : $_}
-$Type = Read-Host -Prompt "Which client action?"
+[uint32]$RandomizationWindow = 1
+[string]$MethodClass = "SMS_ClientOperation"
+[string]$MethodName = "InitiateClientOperation"
+[string]$ResultClass = "SMS_ClientOperationStatus"
 
-#region CIM
-$Args = @{
-    TargetCollectionID = $TargetCollectionID
-    Type = $Type
-    RandomizationWindow = $RandomizationWindow
-    TargetResourceIDs = $TargetResourceIDs
-}
-Invoke-CimMethod -Namespace $NameSpace -ClassName $ClassName -MethodName $MethodName -Arguments $Args | Select-Object ReturnValue
-Get-CimInstance -Namespace $NameSpace -ClassName $ClassName | Format-Table
-#endregion
+$Types.Keys | ForEach-Object {Write-Host $Types[$_] : $_}
+[uint32]$Type = Read-Host -Prompt "Which client action?"
 
+$BaseUri = "https://$($SiteServer)/AdminService/wmi/"
+Write-Host $BaseUri
 
-#region AdminService 1910 TP
-$PostURL = "https://{0}/AdminService/wmi/{1}.{2}" -f $ServerName,$ClassName,$MethodName
+$PostURL = "$($BaseUri)$($MethodClass).$($MethodName)"
 $Headers = @{
     "Content-Type" = "Application/json"
 }
@@ -55,9 +56,11 @@ $Body = @{
     TargetResourceIDs = $TargetResourceIDs
 } | ConvertTo-Json
     
-Invoke-RestMethod -Method Post -Uri "$($PostURL)" -Body $Body -Headers $Headers -UseDefaultCredentials | Select-Object ReturnValue
+$Result = Invoke-RestMethod -Method Post -Uri $PostURL -Body $Body -Headers $Headers -UseDefaultCredentials | Select-Object ReturnValue
 
-$GetURL = "https://{0}/AdminService/wmi/{1}" -f $ServerName,$ClassName
-(Invoke-RestMethod -Method Get -Uri "$($GetURL)" -UseDefaultCredentials).Value | Format-Table
+#Get Results
+start-sleep -Seconds 30
 
-#end region
+$GetURL = "$($BaseUri)$($ResultClass)"
+$Results = Invoke-RestMethod -Method Get -Uri $GetURL -UseDefaultCredentials
+$Results.Value | Format-Table
