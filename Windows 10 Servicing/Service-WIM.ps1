@@ -136,6 +136,13 @@
         1.11 - Added some params for AV and Ignoring Updates when there aren't any that month. 
                Restructured things a bit and added some more help. 
                Added https://github.com/aaronparker/LatestUpdate
+
+        1.12 - Bug Fixes and added timestamps to log the start of each step.
+            Known issue - the LatestUpdate module only works within the month that the updates were released. 
+            There's no way to apply an earlier set of updates from a previous month. I've filed an issue on the repo.
+            https://github.com/aaronparker/LatestUpdate/issues/62
+
+
     
 
         #https://www.catalog.update.microsoft.com/Search.aspx?q=2019-07%201803%20Windows%2010%20x64
@@ -171,12 +178,12 @@ Param
     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=6)]
     [ValidatePattern("\d{4}-\d{2}")]
     [string]
-    $Month = ("{0}-{1}" -f (Get-Date).Year, (Get-Date).Month),
+    $Month = ("{0}-{1:d2}" -f (Get-Date).Year, (Get-Date).Month),
 
     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=7)]
     [ValidateNotNullOrEmpty()]
     [string]
-    $RootFolder='C:\ImageServicing.',
+    $RootFolder='C:\ImageServicing',
 
     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $true, Position=8)]
     [string]
@@ -225,7 +232,11 @@ $Main = {
     #Setup
     ##################################################
 
+    $StartTime = Get-Date
+    Write-Host ($StartTime) -ForegroundColor Green
+
     Install-Module -Name LatestUpdate -Force
+    Import-Module LatestUpdate
 
     If([string]::IsNullOrEmpty($ServerName)) {
         $ServerName = Read-Host -Prompt 'Input your server name'
@@ -297,16 +308,22 @@ $Main = {
             Patch-WinREWIM
             Patch-InstallWIM
             Copy-CompletedWIMs
+            If($Cleanup) {Cleanup}
         }
-
-        If($Cleanup) {Cleanup}
-        
     }
 
     Catch {   
         Write-Warning $Error[0].Exception
         Write-Host Write-Error $Error[0].Exception -ForegroundColor Red
+        Write-Host (Get-Date) -ForegroundColor Green
     }
+
+    $EndTime = Get-Date
+    $TotalTime = New-TimeSpan -Start $StartTime -End $EndTime
+    Write-Host "Servicing Completed" -ForegroundColor Green
+    Write-Host ($EndTime) -ForegroundColor Green
+    Write-Host "Total Time $($TotalTime.Hours)Hrs $($TotalTime.Minutes)mins" -ForegroundColor Green
+    
 
 }
 ####################################################
@@ -319,13 +336,16 @@ Function Check-PathsAndDownloadMissingUpdates {
     Try {
         $ErrorMessages = @()
         Write-Host "Checking for folders and creating them If they don't exist" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
 
 
         Write-Host "Checking for ISO." -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         $Script:ISO = Get-ChildItem -Path $ISOPath -Filter "*.ISO" | Select-Object -ExpandProperty FullName -ErrorAction SilentlyContinue
         If (!$Script:ISO) {$ErrorMessages += "Could not find Windows 10 ISO file."}
 
         Write-Host "Checking for SSU" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         If(!$IgnoreTheseUpdates.Contains('SSU')) {
             New-Item -path $SSUPath -ItemType Directory -ErrorAction SilentlyContinue
 
@@ -341,6 +361,7 @@ Function Check-PathsAndDownloadMissingUpdates {
         }
 
         Write-Host "Checking for Flash" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         If(!$IgnoreTheseUpdates.Contains('Flash')) {
             New-Item -path $FlashPath -ItemType Directory -Force -ErrorAction SilentlyContinue
 
@@ -356,6 +377,7 @@ Function Check-PathsAndDownloadMissingUpdates {
         }
 
         Write-Host "Checking for DotNet" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         If(!$IgnoreTheseUpdates.Contains('DotNet')) {
             New-Item -path $DotNetPath -ItemType Directory -Force -ErrorAction SilentlyContinue
             
@@ -373,6 +395,7 @@ Function Check-PathsAndDownloadMissingUpdates {
         }
 
         Write-Host "Checking for LCU" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         If(!$IgnoreTheseUpdates.Contains('LCU')) {
             New-Item -path $LCUPath -ItemType Directory -Force -ErrorAction SilentlyContinue
 
@@ -399,10 +422,12 @@ Function Check-PathsAndDownloadMissingUpdates {
              $ErrorMessages | ForEach-Object {Write-Warning $_} ; break;}
         Else {
             Write-Host "All Updates found" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
         }
     }
     Catch {
         Write-Host "Check Paths failed."
+        Write-Host (Get-Date) -ForegroundColor Green
         Throw $Error
     }
 }
@@ -411,6 +436,7 @@ Function Check-OSVersion {
     $Error.Clear()
     Try {
         Write-Host "Checking OS Version" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         $OSCaption = (Get-WmiObject win32_operatingsystem).caption
 
         If (!($OSCaption -like "Microsoft Windows 10*") -and !($OSCaption -like "Microsoft Windows Server 2016*")) {
@@ -429,6 +455,7 @@ Function Get-DynamicUpdates {
     $Error.Clear()
     Try {
         Write-Host "Getting Dynamic Updates." -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
 
         #Delete Any existing updates
 
@@ -494,31 +521,45 @@ Function Remove-InBoxApps {
     Try {
         If(Test-Path -Path $configFile) {
             Write-Host "Reading list of apps from $configFile"
+            Write-Host (Get-Date) -ForegroundColor Green
             $list = Get-Content $configFile
             Write-Host "Apps Select-Objected for removal: $list.Count"
+            Write-Host (Get-Date) -ForegroundColor Green
 
             $provisioned = Get-AppxProvisionedPackage -Path $ImageMountFolder
         
             ForEach ($AppName in $List) {
-                Write-Information "Removing provisioned package $AppName"
+                Write-Host "Removing provisioned package $AppName"
+                Write-Host (Get-Date) -ForegroundColor Green
                 $current = $Provisioned | Where-Object { $_.DisplayName -eq $AppName }
                 
                 If ($current) {
-                    Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName
+                    $TmpErrPref = $ErrorActionPreference
+                    $ErrorActionPreference = 'SilentlyContinue'
+                    Try {
+                        $Error.clear()
+                        Remove-AppxProvisionedPackage -Path $ImageMountFolder -PackageName $current.PackageName -ErrorAction SilentlyContinue
+                    }
+                    Catch {
+                        Write-Warning "An error occurred removing $AppName"
+                        Write-Warning $Error[0]
+                    }
                 }
                 Else {
                     Write-Warning "Unable to find provisioned package $AppName"
                 }
+                $ErrorActionPreference = $TmpErrPref
             }
         }
         Else {
             Write-Host "No RemoveApps.XML found"
+            Write-Host (Get-Date) -ForegroundColor Green
         }
     }
     Catch {
-        Error[0]
+        $Error[0]
         Write-Warning "Remove-InBoxApps failed."
-        Throw $Error[0]
+        #Throw $Error[0]
     }
 }
 
@@ -539,19 +580,29 @@ param
     $Error.Clear()
 
     Write-Host "Applying patches to WIM $($MountFolder)." -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "Select-Objected Options:" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "ApplyDotNET: $($ApplyDotNET)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "InstallDotNET35: $($InstallDotNET35)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "ApplySSU: $($ApplySSU)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "ApplyFlash: $($ApplyFlash)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "ApplyLCU: $($ApplyLCU)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "ApplyDUCU: $($ApplyDUCU)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     Write-Host "CleanWIM: $($CleanWIM)" -ForegroundColor Green
+    Write-Host (Get-Date) -ForegroundColor Green
     
     Try {
         #Enabled .Net 3.5
         If($InstallDotNET35) {
             Write-Host "Enabling .NET 3.5" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:"$($OriginalBaseMediaFolder)\sources\sxs"
         }
 
@@ -559,11 +610,13 @@ param
             #Only needed for 1809 and higher.
             If($OSVersion -ge '1809') { 
                 Write-Host "Applying .NET Updates" -ForegroundColor Green
+                Write-Host (Get-Date) -ForegroundColor Green
                 $Count = 0
                 $DotNet.Count
                 #Recurse All .NET Patches in DotNet Path
                 ForEach($MSU in $DotNet) {
-                    Write-Host "Applying .NET Patch $($Count + 1) of $($DUCU.Count)" -ForegroundColor Green
+                    Write-Host "Applying .NET Patch $($Count + 1) of $($DotNet.Count)" -ForegroundColor Green
+                    Write-Host (Get-Date) -ForegroundColor Green
                     Add-WindowsPackage -PackagePath $MSU -Path $MountFolder
                 }
             }
@@ -571,13 +624,16 @@ param
 
         If($ApplySSU -and !$IgnoreTheseUpdates.Contains('SSU')) {
             Write-Host "Applying SSU" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             Add-WindowsPackage -PackagePath $SSU -Path $MountFolder        
         }
 
         If($ApplyFlash -and !$IgnoreTheseUpdates.Contains('Flash')) {
             Write-Host "Applying Flash Updates" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             If(!($Flash)) {
                 Write-Host "Flash Not Found. Skipping Flash."    
+                Write-Host (Get-Date) -ForegroundColor Green
             }
             {
                 Add-WindowsPackage -PackagePath $Flash -Path $MountFolder
@@ -586,6 +642,7 @@ param
 
         If($ApplyLCU -and !$IgnoreTheseUpdates.Contains('LCU')) {
             Write-Host "Applying LCU" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             Add-WindowsPackage -PackagePath $LCU -Path $MountFolder
         }
 
@@ -593,21 +650,29 @@ param
             #Only apply DU is specIfied in the script params. Default is True.
             If($ApplyDynamicUpdates) {
                 Write-Host "Applying Dynamic Component Updates" -ForegroundColor Green
+                Write-Host (Get-Date) -ForegroundColor Green
                 #Get All Dynamic Cumulative Updates
                 $DUCU = Get-ChildItem -Path "$($DUCUPath)" -Filter "*.CAB" | Select-Object -ExpandProperty FullName
-
                 $Count = 0
-                $DUCU.Count
-                #Recurse All Updates in DUCUPath
-                ForEach($CAB in $DUCU) {
-                    Write-Host "Applying Dynamic Component Update $($Count + 1) of $($DUCU.Count)" -ForegroundColor Green
-                    Add-WindowsPackage -PackagePath $CAB -Path $MountFolder
+                If($DUCU.Count -ge 1) {
+                    $DUCU.Count
+                    #Recurse All Updates in DUCUPath
+                    ForEach($CAB in $DUCU) {
+                        Write-Host "Applying Dynamic Component Update $($Count + 1) of $($DUCU.Count)" -ForegroundColor Green
+                        Write-Host (Get-Date) -ForegroundColor Green
+                        Add-WindowsPackage -PackagePath $CAB -Path $MountFolder
+                    }
+                }
+                Else {
+                    Write-Host "No Dynamic Component Updates found." -ForegroundColor Yellow
+                    Write-Host (Get-Date) -ForegroundColor Green
                 }
             }
         } 
 
         If($CleanWIM) {
             Write-Host "Running Cleanup and ResetBase" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             & $DISMPath /Image:$MountFolder /cleanup-image /startcomponentcleanup /resetbase
         }
     }
@@ -624,6 +689,7 @@ Function Get-BaseMedia {
         #Mount Windows ISO and extract media into the OriginalBaseMediaFolder
         If(!(Get-ChildItem $OriginalBaseMediaFolder)) {
             Write-Host "Extracting ISO Media" -ForegroundColor Green
+            Write-Host (Get-Date) -ForegroundColor Green
             Mount-DiskImage -ImagePath $ISO
             $ISOImage = Get-DiskImage -ImagePath $ISO | Get-Volume
             $ISODrive = [string]$ISOImage.DriveLetter+":"
@@ -671,6 +737,7 @@ Function Patch-BootWIM {
     $Error.Clear()
     Try {
         Write-Host "Patching Boot WIM" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         #Mount current WIM and fully patch
         #Uncomment to patch WinPE.wim
         #Mount-WindowsImage -ImagePath $TmpBootWIM -Index 1 -Path $BootImageMountFolder
@@ -695,6 +762,7 @@ Function Patch-WinREWIM {
     $Error.Clear()
     Try {
         Write-Host "Patching WinRE WIM" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         #WinRE
         If(!(Test-Path $ImageMountFolder)) {
             Write-Warning "No Install.WIM mounted. Please mount Install.WIM and try again."
@@ -719,6 +787,7 @@ Function Mount-InstallWIM {
     $Error.Clear()
     Try {
         Write-Host "Mounting Install WIM" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
 
         If ($Optimize) {
             Mount-WindowsImage -ImagePath $TmpInstallWIM -Index 1 -Path $ImageMountFolder -Optimize
@@ -756,6 +825,7 @@ Function Copy-CompletedWIMs {
     $Error.Clear()
     Try {
         Write-Host "Copying Production Media" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
 
         Copy-Item -Path $InstallWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
         Copy-Item -Path $BootWIM -Destination "$($CompletedMediaFolder)\Sources" -Container -Force
@@ -765,6 +835,7 @@ Function Copy-CompletedWIMs {
         $Error
         Write-Warning "Copying Production Media failed"
         Write-Host $Error
+        Write-Host (Get-Date) -ForegroundColor Green
         Throw $Error
     }
 }
@@ -772,6 +843,7 @@ Function Copy-CompletedWIMs {
 Function Cleanup {
     Try {
         Write-Host "Cleaning Up" -ForegroundColor Green
+        Write-Host (Get-Date) -ForegroundColor Green
         If (Test-Path -path $TmpInstallWIM) {Remove-Item -Path $TmpInstallWIM -Force -ErrorAction Continue}
         If (Test-Path -path $TmpBootWIM) {Remove-Item -Path $TmpBootWIM -Force -ErrorAction Continue}
         If (Test-Path -path $TmpWinREWIM) {Remove-Item -Path $TmpWinREWIM -Force -ErrorAction Continue}
