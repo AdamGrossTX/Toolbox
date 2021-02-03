@@ -15,7 +15,7 @@ $Query = "OperatingSystem"
 
 $Params = @{
     Method = "Post"
-    Uri = "$($BaseUri)/Collections('SMS00001')/AdminService.RunCmpivot"
+    Uri = "$($BaseUri)/Collections('SMS00001')/AdminService.RunCMPivot"
     Body = @{"InputQuery"="$($Query)"} | ConvertTo-Json
     ContentType = "application/json"
     UseDefaultCredentials = $true
