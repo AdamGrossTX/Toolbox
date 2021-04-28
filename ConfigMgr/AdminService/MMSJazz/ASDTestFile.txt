@@ -1,0 +1,63 @@
+#MMSJazz Demo Content - 1906 CB
+
+Demo URLs
+
+https://CM01/AdminService/wmi
+
+https://CM01/AdminService/wmi/$Metadata
+
+https://CM01/AdminService/wmi/SMS_R_System
+
+https://CM01/AdminService/wmi/SMS_R_System(16777308)
+
+https://CM01/AdminService/wmi/SMS_UserMachineRelationship?$filter=ResourceName eq 'ASD-46637895'
+
+#MMAJazz Demo Params - 1906 CB
+<#
+$SCCMServerName = "CM01.asd.net"
+$CollectionName = "All Systems"
+$CollectionNameFilter = "All"
+$DeviceName="ASD-41365722"
+$UserName = "Adam"
+#>
+
+#MMAJazz Demo Params - 1910 TP
+<#
+$SCCMServerName = "CMTP3-CM1.asd.lab"
+$CollectionName = "All Systems"
+$CollectionNameFilter = "All"
+$DeviceName="CMTP3-CM1"
+$UserName = "Adam"
+#>
+
+
+#Using ConfigMgr Native Client App
+<#
+$ClientID = "6a4e5c57-a766-43fe-acc8-ccbc479e9f9f"
+$TenantID = "86c2857f-9fb5-4b97-bf85-87c2f8ca9ff5"
+$ResourceAppIdURI = "https://asdclougmgmt.ConfigMgrService"
+$RedirectURI = "ms-appx-web://Microsoft.AAD.BrokerPlugin/6a4e5c57-a766-43fe-acc8-ccbc479e9f9f"
+$InternetBaseURL = "HTTPS://ASQUAREDOZENCLOUDSERVICE.ASQUAREDOZEN.COM/CCM_Proxy_ServerAuth/72057594037927941/AdminService"
+$InternalBaseURL = "https://cm01.asd.net/AdminService"
+#>
+
+#Using Custom App
+<#
+$ClientID = "fe25cb4f-dae4-4195-bd48-08ee51726f2e"
+$TenantID = "86c2857f-9fb5-4b97-bf85-87c2f8ca9ff5"
+$ResourceAppIdURI = "https://asdclougmgmt.ConfigMgrService"
+$RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
+$InternetBaseURL = "HTTPS://ASQUAREDOZENCLOUDSERVICE.ASQUAREDOZEN.COM/CCM_Proxy_ServerAuth/72057594037927941/AdminService"
+$InternalBaseURL = "https://cm01.asd.net/AdminService"
+#>
+
+
+$ClientID = "3e4b7f40-3c04-4eb9-8c97-1a1b56c9b745"
+$TenantID = "2d18bd28-ac48-42a9-a47f-82198ab76dc2"
+$ResourceAppIdURI = "https://1911TPCMA.ConfigMgrService"
+$RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
+$InternetBaseURL = "HTTPS://ASDCMTP1911.CLOUDAPP.NET/CCM_Proxy_ServerAuth/72057594037927941/AdminService"
+$InternalBaseURL = "https://cmtp3-cm1.asd.lab/AdminService"
+
+
+
