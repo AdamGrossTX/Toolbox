@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
     This script checks if there are any updates that have a pending reboot and clears the reboot flag and resets client policy.
@@ -18,13 +17,21 @@
     1 will delete pending reboot registry keys and reset client policy
 
 .NOTES
-  Version:          1.0
+  Version:          1.1
   Author:           Adam Gross - @AdamGrossTX
   GitHub:           https://www.github.com/AdamGrossTX
   WebSite:          https://www.asquaredozen.com
   Creation Date:    04/28/2021
 
   For info on configuring Run Scripts see the Microsoft ConfigMgr Docs - https://docs.microsoft.com/en-us/mem/configmgr/apps/deploy-use/create-deploy-scripts
+
+  #Nice Blog on this concept from Paul Wetter
+  https://www.wetterssource.com/featureupdatetroubleshooting
+
+
+ #CMPivot Query
+ #Troubleshoot Feature Update Reboot Loop - Find All Updates with CommitRequired set to 1
+ #Registry('hklm:SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\CommitRequired\*') | where Value == '1'
 
   #>
 
@@ -37,7 +44,9 @@ Param (
     [int]$Remediate #Change to 1 to remediate the issue.
 
 )
+
 #region variables
+
 $CommitRequiredPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\CommitRequired"
 $CommitRequired = 0
 
@@ -48,15 +57,17 @@ if([string]::IsNullOrEmpty($UpdateName)) {
 
 $suFilter = "Name like '{0}'" -f $UpdateName
 $usFilter = "Title like '{0}'" -f $UpdateName
-#endregion
 
-#region Main
-#Get update information from the ConfigMgr client.
-#CCM_SoftwareUpdate lists all updates that will appear in the ConfigMgr client that haven't been installed yet.
-$SoftwareUpdate = Get-CimInstance -Namespace "ROOT\ccm\ClientSDK" -ClassName "CCM_SoftwareUpdate" -Filter $suFilter
-
-#CCM_UpdateStatus lists the status of every update that has been installed by the ConfigMgr client
-$UpdateStatus = Get-CimInstance -Namespace "ROOT\ccm\SoftwareUpdates\UpdatesStore" -ClassName "CCM_UpdateStatus" -Filter $usFilter
+#https://docs.microsoft.com/en-us/windows/deployment/update/how-windows-update-works#identifies-service-ids
+#Note. Each subkey here will be a GUID that is the service that's responsible for the update/reboot.
+$ParentService = @{
+    "{00000000-0000-0000-0000-000000000000}" = "Unspecified / Default	WU, MU, or WSUS"
+    "{9482F4B4-E343-43B6-B170-9A65BC822C77}" = "Windows Update"
+    "{7971f918-a847-4430-9279-4a52d1efe18d}" = "Microsoft Update"
+    "{855E8A7C-ECB4-4CA3-B045-1DFA50104289}" = "Store"
+    "{8B24B027-1DEE-BABB-9A95-3517DFB9C552}" = "OS Flighting"
+    "{3DA21691-E39D-4da6-8A4B-B43877BCB1B7}" = "WSUS or Configuration Manager"
+}
 
 #All possible evaluation states
 $EvaluationState = @{
@@ -85,42 +96,69 @@ $EvaluationState = @{
     22 = "ciJobStateWaitPresModeOff"
     23 = "ciJobStateWaitForOrchestration"
 }
+#endregion
 
-#List the evaluation state for each update. This should match what the ConfigMgr client shows in Software Center.
-if($SoftwareUpdate) {
-    foreach($Update in $SoftwareUpdate)
-    {
-        if($Update.EvaluationState) {
-            Write-Output "$($Update.Name) : $($EvaluationState[$Update.EvaluationState])"
-        }
-        else {
-            Write-Output "No Evaluation State found for $($Update.Name)"
+#region Main
+#Get update information from the ConfigMgr client.
+#CCM_SoftwareUpdate lists all updates that will appear in the ConfigMgr client that haven't been installed yet.
+$ConfigMgrSoftwareUpdates = Get-CimInstance -Namespace "ROOT\ccm\ClientSDK" -ClassName "CCM_SoftwareUpdate" -Filter $suFilter
+
+#CCM_UpdateStatus lists the status of every update that has been installed by the ConfigMgr client
+$AllSoftwareUpdates = Get-CimInstance -Namespace "ROOT\ccm\SoftwareUpdates\UpdatesStore" -ClassName "CCM_UpdateStatus" -Filter $usFilter
+
+#List the evaluation state for each update. This should match what the ConfigMgr client shows in Software Center. This is only for informational purposes to validate that the stuck updates are in Software Center.
+if($Remediate -ne 1) {
+    if($ConfigMgrSoftwareUpdates) {
+        foreach($Update in $ConfigMgrSoftwareUpdates)
+        {
+            if($Update.EvaluationState) {
+                Write-Output "$($Update.Name) : $($EvaluationState[$Update.EvaluationState])"
+            }
+            else {
+                Write-Output "No Evaluation State found for $($Update.Name)"
+            }
         }
     }
-}
-else {
-    Write-Output "No updates found in the ConfigMgr client"
+    else {
+        Write-Output "No updates found in Software Center."
+    }
 }
 
+$UpdatesNeedingReboots = @()
 #Check the see if the machine has a pending reboot for each update in the update store.
-if($UpdateStatus) {
-    foreach($Update in $UpdateStatus) {
+if($AllSoftwareUpdates) {
+     foreach($Update in $AllSoftwareUpdates) {
         #checks if a reboot is required for each update in the CCM_UpdateStatus class
-        $Value = Get-ItemProperty -Path $CommitRequiredPath -Name "{$($Update.UniqueId)}" -ErrorAction SilentlyContinue
-        $CommitRequired = Switch($Value) {
-            1 {$value; Break;}
-            default {0; Break;}
+        $UpdateGUID = "{$($Update.UniqueId)}"
+        $ServiceKeys = Get-ChildItem -Path $CommitRequiredPath -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.Property -eq $UpdateGUID}
+        foreach($ServiceKey in $ServiceKeys) {
+            $UpdateProperty = $ServiceKey | Get-ItemProperty -Name $UpdateGUID -ErrorAction SilentlyContinue
+            if($UpdateProperty.$UpdateGUID -eq 1) {
+                $UpdatesNeedingReboots += [PSCustomObject]@{
+                    ParentService = $ParentService.($ServiceKey.PSChildName)
+                    Title = $Update.Title
+                    UniqueID = $Update.UniqueID
+                    UpdateGUID = $UpdateGUID
+                    RegistryProperty = $UpdateProperty
+                }
+            }
         }
-        Write-Output "$($Update.UniqueID) : $($Update.Status) : $($CommitRequired)"
     }
-}
-else {
-    Write-Output "No installed updates found."
 }
 
 if($Remediate -eq 1) {
     Write-Output "Resetting Updates and Client Policy"
-    Remove-Item -Path $CommitRequiredPath -Recurse -Force -ErrorAction SilentlyContinue
+    ForEach($Update in $UpdatesNeedingReboots) {
+        $Update.RegistryProperty | Remove-ItemProperty -Name $Update.UpdateGUID -Force -ErrorAction SilentlyContinue
+    }
     Invoke-WMIMethod -Namespace root\ccm -Class SMS_Client -Name ResetPolicy -ArgumentList "1"
 }
+
+if($UpdatesNeedingReboots) {
+    $UpdatesNeedingReboots | Select-Object -ExcludeProperty RegistryProperty | ConvertTo-Json
+} else {
+    Write-Output "No Updates found in Software Update Store. Perform Software Update Evaluation Cycle."
+}
+
+
 #endregion
