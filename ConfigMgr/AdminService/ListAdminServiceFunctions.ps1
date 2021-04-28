@@ -39,7 +39,8 @@ $Main = {
     Write-Host "Schema" -ForegroundColor Green
     $wmiSchema | Format-Table
     Write-Host "Classes" -ForegroundColor Green
-    $wmiClasses | Format-Table
+    $wmiClasses | Out-GridView 
+    #| Format-Table
     Write-Host "ComplexClasses" -ForegroundColor Green
     $wmiComplexClasses | Format-Table
     Write-Host "Containers" -ForegroundColor Green

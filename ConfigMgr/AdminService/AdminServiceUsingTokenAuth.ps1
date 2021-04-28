@@ -38,6 +38,13 @@ Param (
 )
     . (Join-Path -Path $PSScriptRoot -ChildPath "Get-AADAuthToken.ps1")
 
+    $ClientID = "e9c0569f-9e72-446f-bb29-0fa873dabb89"
+    $TenantID = "a63242f3-50e8-48ff-832d-b085d072866a"
+    $ResourceAppIdURI = "https://ASDCloudManagement"
+    $RedirectURI = "ms-appx-web://Microsoft.AAD.BrokerPlugin/6a4e5c57-a766-43fe-acc8-ccbc479e9f9f"
+    $InternetBaseURL = "HTTPS://ASDCMG1.ASQUAREDOZENLAB.COM/CCM_Proxy_ServerAuth/72057594037927941/AdminService"
+    $InternalBaseURL = "https://as01.asd.net/AdminService"
+
     # Make REST API call
     $Query = "/wmi/SMS_R_User"
 
