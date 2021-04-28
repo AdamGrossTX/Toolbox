@@ -9,12 +9,12 @@
     ConfigMgr Site Server Name
 .PARAMETER BootImageRoot
     Root folder where the script will create a new folder for your boot image
-.PARAMETER OSArch
+.PARAMETER Arch
     x86 or x64
 .PARAMETER BootImageFolderName
     The name for the new folder that will be created for your boot image
 .PARAMETER SourceWIM
-    OPTIONAL - The path to the source WIM file that you will use instead of the default WinPE WIM
+    OPTIONAL - the path to the source WIM file that you will use instead of the default WinPE WIM
 .PARAMETER BootImageName
     The name of the BootImage that will be displayed in the ConfigMgr Console
 .PARAMETER BootImageDescription
@@ -40,97 +40,129 @@
   Reference
   #https://docs.microsoft.com/en-us/powershell/module/configurationmanager/set-cmbootimage?view=sccm-ps
 
-
 .EXAMPLE
     Create new boot image
-    New-BootImage.ps1 -SiteCode = "PS1" -SiteServer = "CM01.asd.net" -OSArch = "x64" -BootImageRoot = "\\cm01\Media\BootImages" -BootImageFolderName = "WinPE10x64-ADK1903-$(Get-Date -Format yyyyMMdd)" -BootImageName = "Prod - Boot Image $(Get-Date -Format yyyyMMdd)" -BootImageDescription = "ADK 1903 $(Get-Date -Format yyyyMMdd)" -DPGroupName = "All Distribution Points" -DriverCategoryName = "WinPE" -PrestartCommandLine = "Custom.cmd" -ConsoleFolderPath = "\Production Boot Images" 
+    New-BootImage.ps1 -SiteCode "PS1" -SiteServer "CM01.asd.net" -BootImageRoot "\\cm01\Media\BootImages" -Arch "x64" -BootImageFolderName "WinPE10x64-ADK1903-$(Get-Date -Format yyyyMMdd)" -BootImageName "Prod - Boot Image $(Get-Date -Format yyyyMMdd)" -BootImageDescription "ADK 1903 $(Get-Date -Format yyyyMMdd)" -DPGroupName "All Distribution Points" -ConsoleFolder "Windows 10" -DriverCategoryName "WinPE" -PrestartCommandLine "Custom.cmd" -PrestartIncludeFilesDirectory "Pre-Start" -ConsoleFolderPath "\Production Boot Images" 
 
 .EXAMPLE
     Using Splatting:
-    $NewBootImageSplat = @{
+    $ParamSplat = @{
         SiteCode = "PS1"
         SiteServer = "CM01.asd.net"
-        OSArch = "x64"
         BootImageRoot = "\\cm01\Media\BootImages"
+        Arch = "x64"
         BootImageFolderName = "WinPE10x64-ADK1903-$(Get-Date -Format yyyyMMdd)"
         BootImageName = "Prod - Boot Image $(Get-Date -Format yyyyMMdd)"
         BootImageDescription = "ADK 1903 $(Get-Date -Format yyyyMMdd)"
         DPGroupName = "All Distribution Points"
+        ConsoleFolder = "Windows 10"
         DriverCategoryName = "WinPE"
         PrestartCommandLine = "Custom.cmd"
+        PrestartIncludeFilesDirectory = ".\Pre-Start"
         ConsoleFolderPath = "\Production Boot Images"
     }
 
-    .\New-BootImage @NewBootImageSplat
+    .\New-BootImage @ParamSplat
 
-#>
+ #>
  
-
 [cmdletBinding()]
 param(
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=1)]
-[string]
-$SiteServer,
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="ConfigMgr Site Code")]
+    [string]
+    $SiteCode,
+    
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="ConfigMgr Site Server Name")]
+    [string]
+    $SiteServer,
+    
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="Root folder where the script will create a new folder for your boot image")]
+    [string]
+    $BootImageRoot,
 
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=2)]
-[string]
-$SiteCode,
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="Architecture x86 or x64")]
+    [ValidateSet('x86','x64')]
+    [string]
+    $Arch,
+    
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="The name for the new folder that will be created for your boot image")]
+    [string]
+    $BootImageFolderName,
+    
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="The path to the source WIM file that you will use instead of the default WinPE WIM")]
+    [string]
+    $SourceWIM,
 
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=4)]
-[ValidateSet ('x64', 'x86')]
-[string]
-$OSArch = "x64",
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="The name of the BootImage that will be displayed in the ConfigMgr Console")]
+    [string]
+    $BootImageName,
 
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=3)]
-[string]
-$BootImageRoot,
+    [Parameter(
+        Mandatory=$True,
+        HelpMessage="The name of the Distribution Point Group to distribute the boot image to")]
+    [string]
+    $DPGroupName,
+    
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="The description of the boot image in the ConfigMgr console")]
+    [string]
+    $BootImageDescription,
+    
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="The path to the console folder to move the boot image to.")]
+    [string]
+    $ConsoleFolder,
 
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=5)]
-[string]
-$BootImageFolderName,
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="Category Name from drivers in the Driver Repository that will be included in the boot image")]
+    [string]
+    $DriverCategoryName,
 
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=6)]
-[string]
-$SourceWIM,
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="Commandline for the prestart command")]
+    [string]
+    $PrestartCommandLine,
 
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=7)]
-[string]
-$BootImageName,
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="Path to the pre-start folder to be used for pre-start command file content. Uses Pre-Start by default")]
+    [string]
+    $PrestartIncludeFilesDirectory,
 
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=8)]
-[string]
-$BootImageDescription,
-
-[Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=9)]
-[string]
-$DPGroupName,
-
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=10)]
-[string]
-$DriverCategoryName,
-
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=11)]
-[string]
-$PrestartCommandLine,
-
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=12)]
-[string]
-$PrestartIncludeFilesDirectory,
-
-[Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=13)]
-[string]
-$ConsoleFolderPath
+    [Parameter(
+        Mandatory=$False,
+        HelpMessage="The path to the console folder to move the boot image to.")]
+    [string]
+    $ConsoleFolderPath
 
 )
 
 If(!($SourceWIM)) {
     
-    $ADKArch = Switch($OSArch) {
+    $ADKArch = Switch($Arch) {
         "x64" {"amd64"; break;}
-        default {$OSArch};
+        default {$Arch};
     }
     
-    $SourceWIM = "\\{0}\c$\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Windows Preinstallation Environment\{1}\en-us\winpe.wim" -f $SiteServer, $ADKArch
+    $SourceWIM = "\\{0}\\c$\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Windows Preinstallation Environment\{1}\en-us\winpe.wim" -f $SiteServer, $ADKArch
 }
 
 $NewWIMPath = Join-Path -Path $BootImageRoot -ChildPath $BootImageFolderName
@@ -179,7 +211,7 @@ If($DriverCategoryName) {
     }
 }
 
-$OptionalComponents = Get-CMWinPEOptionalComponentInfo -Architecture $OSArch -LanguageId 1033 | Where-Object {$_.Name -in ("WinPE-PowerShell","WinPE-Dot3Svc","WinPE-DismCmdlets")}
+$OptionalComponents = Get-CMWinPEOptionalComponentInfo -Architecture x64 -LanguageId 1033 | Where-Object {$_.Name -in ("WinPE-PowerShell","WinPE-Dot3Svc","WinPE-DismCmdlets")}
 $BootImageOptions = @{
     DeployFromPxeDistributionPoint = $True
     EnableCommandSupport = $True 
@@ -197,6 +229,6 @@ If($DPGroupName) {
     $BootImage | Update-CMDistributionPoint -ReloadBootImage
 }
 
-If($ConsoleFolderPath) {
+If(ConsoleFolderPath) {
     $BootImage | Move-CMObject -FolderPath "$($SiteCode):\BootImage$($ConsoleFolderPath)"
 }
