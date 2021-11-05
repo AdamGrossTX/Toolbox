@@ -1,0 +1,27 @@
+Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TargetVersionUpgradeExperienceIndicators\\*\\')
+| where Property == 'GatedBlockId'
+| join kind=inner 
+	(
+		Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TargetVersionUpgradeExperienceIndicators\\*\\')
+		| where Property == 'GatedBlockReason'
+	)
+| where Key == Key1
+| join kind=inner 
+	(
+		Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TargetVersionUpgradeExperienceIndicators\\*\\')
+		| where Property == 'RedReason'
+	)
+| where Key == Key2
+| join kind=inner 
+	(
+		Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TargetVersionUpgradeExperienceIndicators\\*\\')
+		| where Property == 'UpgEx'
+	)
+| where Key == Key3
+| join kind=leftouter 
+	(
+		Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Appraiser\\GWX') 
+		| where Property == 'SdbEntries' 
+	)
+| project Device, TargetOSBuild = substring(Key,indexof(Key,'TargetVersionUpgradeExperienceIndicators\\')+strlen('TargetVersionUpgradeExperienceIndicators\\')), GatedBlockID = Value, GatedBlockReason = Value1, RedReason = Value2, UpgEx = Value3, SdbEntries = Value4
+//| where TargetOSBuild == 'CO21H2'

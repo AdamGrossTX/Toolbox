@@ -3,18 +3,14 @@
     Imports Windows Image into ConfigMgr
 .DESCRIPTION
     Imports Windows Image into ConfigMgr
+.PARAMETER ServerName
+    ConfigMgr Site Server Name
 .PARAMETER SiteCode
     ConfigMgr Site Code
-.PARAMETER SiteServer
-    ConfigMgr Site Server Name
-.PARAMETER DPGroupName
-    The name of the Distribution Point Group to distribute the boot image to
-.PARAMETER ConsoleFolderPath
-    OPTIONAL - The path to the console folder to move the boot image to.
-.PARAMETER DestinationRootPath
-    The path to the root folder where the new media will be copied
 .PARAMETER SourceMediaRootPath
     The path to the source media
+.PARAMETER DestinationRootPath
+    The path to the root folder where the new media will be copied
 .PARAMETER OSVersion
     Windows OS Version
 .PARAMETER OSArch
@@ -23,6 +19,10 @@
     The the month in YYYY-MM format
 .PARAMETER ImageType
     Specify if importing install Install WIM for new installs or Upgrade media for upgrades or both.
+.PARAMETER ConsoleFolderPath
+    OPTIONAL - The path to the console folder to move the boot image to.
+.PARAMETER DPGroupName
+    The name of the Distribution Point Group to distribute the boot image to
 
 .NOTES
   Version:          1.0
@@ -31,73 +31,72 @@
   WebSite:          https://www.asquaredozen.com
   Creation Date:    12/14/2019
   
+  
 .EXAMPLE
     Import new or serviced Windows Media
-    .\Import-WindowsImage.ps1 .\Import-WindowsImage $SiteCode "PS1" -ServerName "cm01.asd.net" -DPGroupName "All Distribution Points" -ConsoleFolderPath "\Windows 10" -DestinationRootPath "\\sources\OSInstallFiles\Windows 10" -CompletedMediaRootPath "C:\ImageServicing\CompletedMedia" -OSVersion "1909" -OSArch "x64"  -Month "2019-12" -ImageType "Both"
+    .\Import-WindowsImage.ps1 -ServerName = "cm01.asd.net" -SiteCode = "PS1" -SourceMediaRootPath = "C:\ImageServicing\CompletedMedia" -DestinationRootPath = "\\sources\OSInstallFiles\Windows 10" -OSVersion = "1909" -OSArch = "x64"  -Month = "2019-12" -ImageType = "Both" -ConsoleFolderPath = "\Windows 10" -DPGroupName = "All Distribution Points" 
 
 .EXAMPLE
     Import new or serviced Windows Media Using Splatting:
     $ImportWindowsImageSplat = @{
-        SiteCode = "PS1"
         ServerName = "cm01.asd.net"
-        DPGroupName = "All Distribution Points"
-        ConsoleFolderPath = "\Windows 10"
+        SiteCode = "PS1"
+        SourceMediaRootPath = "C:\ImageServicing\CompletedMedia"
         DestinationRootPath = "\\sources\OSInstallFiles\Windows 10"
-        CompletedMediaRootPath = "C:\ImageServicing\CompletedMedia"
         OSVersion = "1909"
         OSArch = "x64" 
         Month = "2019-12"
         ImageType = "Both"
+        ConsoleFolderPath = "\Windows 10"
+        DPGroupName = "All Distribution Points"
     }
 
-    .\Import-WindowsImage.ps1 $ImportWindowsImageSplat
+    .\Import-WindowsImage.ps1 @ImportWindowsImageSplat
 
  #>
  
-
-
  [cmdletBinding()]
  param(
-     [Parameter(Mandatory=$False)]
+    [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=1)]
+     [string]
+     $ServerName,
+
+     [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=2)]
      [string]
      $SiteCode,
      
-     [Parameter(Mandatory=$False)]
+     [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=3)]
      [string]
-     $ServerName,
-     
-     [Parameter(Mandatory=$False)]
+     $SourceMediaRootPath,
+
+     [Parameter(Mandatory=$True, ValueFromPipelineByPropertyName = $True, Position=4)]
      [string]
      $DestinationRootPath,
  
-     [Parameter(Mandatory=$False)]
-     [string]
-     $SourceMediaRootPath,
- 
-     [Parameter(Mandatory=$False,HelpMessage="Operating System version to service. Default is 1903.")]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=5)]
      [ValidateSet('1709','1803','1809','1903','1909')]
      [string]
-     $OSVersion,
+     $OSVersion = "1909",
  
-     [Parameter(Mandatory=$False,HelpMessage="Architecture version to service. Default is x64.")]
-     [ValidateSet ('x64','x86','ARM64')]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=6)]
+     [ValidateSet ('x64', 'x86','ARM64')]
      [string]
-     $OSArch,
+     $OSArch = "x64",   
  
-     [Parameter(Mandatory=$False,HelpMessage="Year-Month of updates to apply (Format YYYY-MM).")]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=7)]
      [ValidatePattern("\d{4}-\d{2}")]
      [string]
-     $Month,
+     $Month = ("{0}-{1}" -f (Get-Date).Year, (Get-Date).Month),
  
-     [Parameter(Mandatory=$False)]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=8)]
      [ValidateSet("Install","Upgrade", "Both")]
-     $ImageType,
+     $ImageType = "Both",
  
-     [Parameter(Mandatory=$False)]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=9)]
      [string]
      $ConsoleFolderPath,
  
-     [Parameter(Mandatory=$False)]
+     [Parameter(Mandatory=$False, ValueFromPipelineByPropertyName = $True, Position=10)]
      [string]
      $DPGroupName
  )
@@ -164,7 +163,7 @@
          Write-Host "Importing new OS Upgrade Media"
          $OSUpgrade = New-CMOperatingSystemUpgradePackage -Name "$($ImageName) - UPG" -Version $WIMInfo.Version -Path $OSMediaPath -Description "$($ImageName) Upgrade"
          Write-Host "Updating OS Upgrade Media Properties"
-         $OSUpgrade | Set-CMOperatingSystemInstaller -EnableBinaryDeltaReplication:$true -Priority High
+         $OSUpgrade | Set-CMOperatingSystemInstaller -EnableBinaryDeltaReplication:$True -Priority High
          If($ConsoleFolderPath) {
              Write-Host "Moving OS Upgrade to correct console folder"
              $OSUpgrade | Move-CMObject -FolderPath "$($SiteCode):\OperatingSystemInstaller$($ConsoleFolderPath)"
@@ -174,7 +173,7 @@
              $OSUpgrade | Start-CMContentDistribution -DistributionPointGroupName $DPGroupName
          }
      }
- 
+    Write-Host "Import Completed"
  }
  Catch {
      Write-Host "An error occurred."

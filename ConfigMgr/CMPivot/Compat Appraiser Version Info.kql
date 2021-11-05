@@ -1,0 +1,8 @@
+Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\OneSettings\\compat\\appraiser\\Settings')
+| where Property == 'ALTERNATEDATALINK'
+| join kind=inner 
+	(
+		Registry('HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\OneSettings\\compat\\appraiser\\Settings')
+		| where Property == 'ALTERNATEDATAVERSION'
+	)
+| project Device, ALTERNATEDATALINK = Value, ALTERNATEDATAVERSION = Value1
