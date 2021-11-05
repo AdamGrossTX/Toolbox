@@ -1,0 +1,1 @@
+﻿Test-ComputerSecureChannel -Server DC02 -Credential (Get-Credential) -Repair
