@@ -1,0 +1,22 @@
+  
+<DownloadStatsList>
+    <Host HostName="MICROSOFT.COM">
+        <DownloadType Type="0">
+            <StartTime StartTime="1591765200">
+                <Content BytesDownloaded="307652" ID="2df0730d-7451-414c-9634-303f31a82bfd"/>
+                <Content BytesDownloaded="341940" ID="772b1664-3e35-415d-af7a-fbaad5df7c87"/>
+                <Content BytesDownloaded="393156" ID="b7eed2c8-685b-4146-9713-b353c1a0f592"/>
+                <Content BytesDownloaded="531380" ID="b9fbc611-e9e3-44cf-82c6-e6f426c734ec"/>
+                <Content BytesDownloaded="706528855" ID="efcb3318-ed53-4ef0-9e10-e39b53d9da6e"/>
+            </StartTime>
+        </DownloadType>
+    </Host>
+    <ClientLocationInfo>
+        <BoundaryGroups BoundaryGroupListRetrieveTime="2020-06-11T04:23:12.050">
+            <BoundaryGroup GroupID="16777279" GroupGUID="" GroupFlag="9"/>
+            <DOINCServers>
+                <DOINCServer DOINCServer="CM01.ASD.NET"/>
+            </DOINCServers>
+        </BoundaryGroups>
+    </ClientLocationInfo>
+</DownloadStatsList>

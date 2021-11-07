@@ -4,7 +4,7 @@
 param (
     [switch]$Remediate = $false,
     $PlanToActivate = "Balanced",
-    $PlansToChange = ("CPDesk 3 - Power Plan","High performance","Task Sequence High Performance","Power Saver","Task Sequence High Performance","Ultimate Performance")
+    $PlansToChange = ("Power Plan","High performance","Task Sequence High Performance","Power Saver","Task Sequence High Performance","Ultimate Performance")
 )
 
 $DefaultPlans = @{

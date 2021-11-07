@@ -4,7 +4,7 @@ $Main = {
 
     $Configs = @(
         @{
-            "DisplayName" = "ConfigMgr Web Server - Test"
+            "DisplayName" = "ConfigMgr Web Server"
             "Config" = [hashtable]@{
                 "flags" = "131649"
                 "pKIDefaultKeySpec" = "1"
@@ -27,7 +27,7 @@ $Main = {
             }
         },
         @{
-            "DisplayName" = "Domain Controller Authentication (KDC) - Test"
+            "DisplayName" = "Domain Controller Authentication (KDC)"
             "Config" = [hashtable]@{
                 "flags" = "131168"
                 "pKIDefaultKeySpec" = "1"
@@ -52,7 +52,7 @@ $Main = {
         },
         @{
 
-            "DisplayName" = "ConfigMgr Distribution Point Certificate - Test"
+            "DisplayName" = "ConfigMgr Distribution Point Certificate"
             "Config" = @{
                 "flags" = "131680"
                 "pKIDefaultKeySpec" = "1"
@@ -75,7 +75,7 @@ $Main = {
             }
         },
         @{
-            "DisplayName" = "ConfigMgr Cloud-Based Distribution - Test"
+            "DisplayName" = "ConfigMgr Cloud-Based Distribution"
             "Config" = @{
                 "flags" = "131680"
                 "pKIDefaultKeySpec" = "1"
@@ -98,7 +98,7 @@ $Main = {
             }
         },
         @{
-            "DisplayName" = "ConfigMgr Client Certificate - Test"
+            "DisplayName" = "ConfigMgr Client Certificate"
             "Config" = @{
                 "flags" = "131680"
                 "pKIDefaultKeySpec" = "1"
@@ -121,7 +121,7 @@ $Main = {
             }
         },
         @{
-            "DisplayName" = "ConfigMgr Cloud Services Certificate - Test"
+            "DisplayName" = "ConfigMgr Cloud Services Certificate"
             "Config" = @{
                 "flags" = "131680"
                 "pKIDefaultKeySpec" = "1"

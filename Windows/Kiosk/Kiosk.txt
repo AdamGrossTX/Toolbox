@@ -1,0 +1,83 @@
+Administrative Templates/Control Panel
+    Personalization - Enable screen saver - Disabled
+    System/Logon - Run these programs at user logon - "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" http://yoursite.-Command
+
+GPP Registry Keys
+Start Page
+    Hive	    HKEY_CURRENT_USER
+    Key path	Software\Microsoft\Internet Explorer\Main
+    Value name	Start Page
+    Value type	REG_SZ
+    Value data	http://yoursite.com
+
+AutoLogon
+    Hive	    HKEY_LOCAL_MACHINE
+    Key path	SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+    Value name	AutoAdminLogon
+    Value type	REG_SZ
+    Value data	1
+
+DefaultDomainName
+    Hive	    HKEY_LOCAL_MACHINE
+    Key path	SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+    Value name	DefaultDomainName
+    Value type	REG_SZ
+    Value data	YOURDOMAIN
+
+DefaultUserName
+    Hive	HKEY_LOCAL_MACHINE
+    Key path	SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+    Value name	DefaultUserName
+    Value type	REG_SZ
+    Value data	YOURUSERNAME
+
+
+AutoRunWhenLogonToWindows
+    Hive	    HKEY_CURRENT_USER
+    Key path	Software\Microsoft\Communicator
+    Value name	AutoRunWhenLogonToWindows
+    Value type	REG_DWORD
+    Value data	0x0 (0)
+
+DisableSwitchUser
+    Hive	    HKEY_LOCAL_MACHINE
+    Key path	SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+    Value name	HideFastUserSwitching
+    Value type	REG_DWORD
+    Value data	0x1 (1)
+
+
+Shortcut 
+    Target type	    File system object
+    Shortcut path	%DesktopDir%\Launch CareOnSite
+    Target path	    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+    Arguments	    http://yoursite.com
+    Icon path	    %SystemRoot%\System32\SHELL32.dll
+    Icon index	    42
+    Shortcut key	None
+    Run	            Normal window
+
+Control Panel Settings > Power Options
+    Action	                            Update
+    Make this the active Power Plan	    Enabled
+    Name	                            High performance
+    
+    When computer is:	            Plugged in	        Running on batteries
+    Require a password on wakeup	Yes	                Yes
+    Turn off hard disk after	    Never	            After 20 minutes
+    Sleep after 	                Never	            Never
+    Allow hybrid sleep          	On	                On
+    Hibernate after                 Never               Never
+    Lid close action                Sleep               Sleep
+    Power button action             Sleep               Sleep
+    Start menu power button 	    Do nothing	        Do nothing
+    Link State Power Management 	Off	                Off
+    Minimum processor state 	    After 100 minutes	After 5 minutes
+    Maximum processor state 	    After 100 minutes	After 100 minutes
+    Turn off display after	        Never	            Never
+    Adaptive display	            Off                 Off
+    Critical battery action 	    Do nothing	        Hibernate
+    Low battery level	            After 10 minutes	After 10 minutes
+    Critical battery level	        After 5 minutes	    After 5 minutes
+    Low battery notification	    Off	                Off
+    Low battery action	            Do nothing	        Do nothing

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsoleNodesRootDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <NodeDescription NamespaceGuid="6c243c24-14ff-493f-858f-e277e4730392">
+    <ChildNodes>
+      <RootNodeDescription NamespaceGuid="80d59d6f-4581-4bd6-93e4-940a36f9a160" Id="WhatsNewNodeOverview" DisplayName="OverviewNode" Description="WhatsNewDescription">
+        <SecurityConfiguration>
+          <ClassPermissions>
+            <ActionSecurityDescription ClassObject="SMS_Collection" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_AISoftwareList" RequiredPermissions="134217728" />
+            <ActionSecurityDescription ClassObject="SMS_MeteredProductRule" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_ConfigurationItem" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_StateMigration" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_Application" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_Driver" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_BootImagePackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_ImagePackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_OperatingSystemInstallPackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_TaskSequencePackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_Package" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_SoftwareUpdatesPackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_SoftwareUpdate" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_GlobalCondition" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_DriverPackage" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_AuthorizationList" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_WinRTSideLoadingKey" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_MAMPolicyTemplate" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_AutoDeployment" RequiredPermissions="1" />
+            <ActionSecurityDescription ClassObject="SMS_ConfigurationBaselineInfo" RequiredPermissions="1" />
+          </ClassPermissions>
+        </SecurityConfiguration>
+        <ResourceAssembly>
+          <Assembly>AdminUI.UIResources.dll</Assembly>
+          <Type>Microsoft.ConfigurationManagement.AdminConsole.UIResources.Properties.Resources.resources</Type>
+        </ResourceAssembly>
+        <ImagesDescription>
+          <ResourceAssembly>
+            <Assembly>AdminUI.UIResources.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.UIResources.Properties.Resources.resources</Type>
+          </ResourceAssembly>
+          <ImageResourceName>New</ImageResourceName>
+        </ImagesDescription>
+        <ViewAssemblyDescriptions>
+          <ViewAssemblyDescription>
+            <Assembly>AdminUI.HomePageView.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.HomePageView.WhatsNewViewDescription</Type>
+            <CustomData>
+              <HomePageConfigurationData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                <TileList>
+                  <TileDescription>
+                    <Title>WhatsNewPageTitle</Title>
+                    <ResourceAssembly>
+                      <Assembly>AdminUI.WhatsNew.dll</Assembly>
+                      <Type>Microsoft.ConfigurationManagement.AdminConsole.WhatsNew.Properties.Resources.resources</Type>
+                    </ResourceAssembly>
+                    <TileControlAssembly>
+                      <Assembly>AdminUI.WhatsNew.dll</Assembly>
+                      <Type>Microsoft.ConfigurationManagement.AdminConsole.WhatsNew.WhatsNewPageControl</Type>
+                    </TileControlAssembly>
+                  </TileDescription>
+                </TileList>
+              </HomePageConfigurationData>
+            </CustomData>
+          </ViewAssemblyDescription>
+        </ViewAssemblyDescriptions>
+      </RootNodeDescription>
+    </ChildNodes>
+  </NodeDescription>
+</ConsoleNodesRootDescription>

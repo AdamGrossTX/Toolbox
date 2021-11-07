@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsoleNodesRootDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <NodeDescription NamespaceGuid="3a776098-6f5a-44e7-b09f-7c853fac701d">
+    <ViewAssemblyDescriptions>
+      <ViewAssemblyDescription>
+        <Assembly>AdminUI.HomePageView.dll</Assembly>
+        <Type>Microsoft.ConfigurationManagement.AdminConsole.HomePageView.ViewDescription</Type>
+      </ViewAssemblyDescription>
+    </ViewAssemblyDescriptions>
+    <ChildNodes>
+      <RootNodeDescription NamespaceGuid="c62bfc8a-c086-489a-a110-8e75bede527f" Id="DocumentationNode" DisplayName="DocumentationName" Description="DocumentationDescription">
+        <ResourceAssembly>
+          <Assembly>AdminUI.Support.Documentation.dll</Assembly>
+          <Type>Microsoft.ConfigurationManagement.AdminConsole.Support.Documentation.Properties.Resources.resources</Type>
+        </ResourceAssembly>
+        <ImagesDescription>
+          <ResourceAssembly>
+            <Assembly>AdminUI.UIResources.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.UIResources.Properties.Resources.resources</Type>
+          </ResourceAssembly>
+          <ImageResourceName>TermsAndConditions</ImageResourceName>
+        </ImagesDescription>
+        <ViewAssemblyDescriptions>
+          <ViewAssemblyDescription>
+            <Assembly>AdminUI.HomePageView.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.HomePageView.WebDashboardBaseViewDescription</Type>
+            <CustomData>
+              <HomePageConfigurationData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                <TileList>
+                  <TileDescription>
+                    <AlternateUris />
+                    <Title>Documentation</Title>
+                    <ResourceAssembly>
+                      <Assembly>AdminUI.Support.Documentation.dll</Assembly>
+                      <Type>Microsoft.ConfigurationManagement.AdminConsole.Support.Documentation.Properties.Resources.resources</Type>
+                    </ResourceAssembly>
+                    <TileControlAssembly>
+                      <Assembly>AdminUI.Support.Documentation.dll</Assembly>
+                      <Type>Microsoft.ConfigurationManagement.AdminConsole.Support.Documentation.DocumentationHomePage</Type>
+                    </TileControlAssembly>
+                    <PrimaryUri xsi:nil="true" />
+                    <UnhandledErrorUri xsi:nil="true" />
+                  </TileDescription>
+                </TileList>
+                <RemoveTitleArea>true</RemoveTitleArea>
+                <SingleFullscreenTileMode>true</SingleFullscreenTileMode>
+              </HomePageConfigurationData>
+            </CustomData>
+          </ViewAssemblyDescription>
+        </ViewAssemblyDescriptions>
+        <MatchPattern>True</MatchPattern>
+        <MatchValueToTest>##SUB:NV:DocumentationNode-IsFeatureExposed##</MatchValueToTest>
+      </RootNodeDescription>
+      <RootNodeDescription NamespaceGuid="5a7a5f4d-20b8-408d-9c62-a4749f5aaab5" Id="Hub" DisplayName="HubName" Description="HubDescription">
+        <ResourceAssembly>
+          <Assembly>AdminUI.Community.dll</Assembly>
+          <Type>Microsoft.ConfigurationManagement.AdminConsole.Community.Properties.Resources.resources</Type>
+        </ResourceAssembly>
+        <ImagesDescription>
+          <ResourceAssembly>
+            <Assembly>AdminUI.Community.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.Community.Properties.Resources.resources</Type>
+          </ResourceAssembly>
+          <ImageResourceName>Hub</ImageResourceName>
+        </ImagesDescription>
+        <ViewAssemblyDescriptions>
+          <ViewAssemblyDescription>
+            <Assembly>AdminUI.HomePageView.dll</Assembly>
+            <Type>Microsoft.ConfigurationManagement.AdminConsole.HomePageView.WebDashboardBaseViewDescription</Type>
+            <CustomData>
+              <HomePageConfigurationData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                <TileList>
+                  <TileDescription>
+                    <Title>Store</Title>
+                    <TileControlAssembly>
+                      <Assembly>AdminUI.Community.dll</Assembly>
+                      <Type>Microsoft.ConfigurationManagement.AdminConsole.Community.StorePage</Type>
+                    </TileControlAssembly>
+                    <PrimaryUri>
+                    </PrimaryUri>
+                    <UnhandledErrorUri>CommunityHub</UnhandledErrorUri>
+                    <AlternateUris>
+                      <AlternateUri>
+                        <ErrorCode>404</ErrorCode>
+                        <Uri>CommunityHub</Uri>
+                      </AlternateUri>
+                      <AlternateUri>
+                        <ErrorCode>502</ErrorCode>
+                        <Uri>CommunityHub</Uri>
+                      </AlternateUri>
+                    </AlternateUris>
+                  </TileDescription>
+                </TileList>
+                <RemoveTitleArea>true</RemoveTitleArea>
+                <SingleFullscreenTileMode>true</SingleFullscreenTileMode>
+              </HomePageConfigurationData>
+            </CustomData>
+          </ViewAssemblyDescription>
+        </ViewAssemblyDescriptions>
+        <MatchPattern>True</MatchPattern>
+        <MatchValueToTest>##SUB:NV:CommunityHub-IsFeatureExposed##</MatchValueToTest>
+      </RootNodeDescription>
+    </ChildNodes>
+  </NodeDescription>
+</ConsoleNodesRootDescription>

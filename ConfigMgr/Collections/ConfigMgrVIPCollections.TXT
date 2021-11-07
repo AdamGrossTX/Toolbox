@@ -23,7 +23,7 @@ where
             from
                 SMS_R_User
             where
-            SMS_R_User.cpc_IsManager = 1 AND
+            SMS_R_User.IsManager = 1 AND
             (cn = "TOP_LEVEL_USER_CN" or SMS_R_User.manager = "TOP_LEVEL_USER_DistinguishedName")
         ) OR
         cn = "TOP_LEVEL_USER_CN"

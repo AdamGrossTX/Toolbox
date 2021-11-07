@@ -10,7 +10,7 @@ $NewCertReqSplat = @{
     RequestNewCert = $False
     UpdateIISCert = $True
     Export = $False
-    ExportPath = "\\cpamhq-wsm01\e$\CPDesk\DPCerts"
+    ExportPath = "c:\DPCerts"
 }
 
 Set-Location $PSScriptRoot

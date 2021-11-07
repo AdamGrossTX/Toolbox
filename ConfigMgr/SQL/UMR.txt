@@ -1,0 +1,25 @@
+select 
+    SMS_R_SYSTEM.ResourceID,
+    SMS_R_SYSTEM.ResourceType,
+    SMS_R_SYSTEM.Name,
+    SMS_R_SYSTEM.SMSUniqueIdentifier,
+    SMS_R_SYSTEM.ResourceDomainORWorkgroup,
+    SMS_R_SYSTEM.Client 
+from 
+    SMS_R_System
+where 
+    SMS_R_System.ResourceId in   
+    (  
+        SELECT        
+        s.ResourceID      
+        FROM        
+        SMS_R_User as u JOIN
+        SMS_R_System as s ON s.EmployeeID = u.cn JOIN       
+        SMS_UserMachineRelationship as umr ON umr.UniqueUserName = u.UniqueUserName AND s.ResourceID = umr.ResourceID JOIN  
+        SMS_UserMachineRelationship as umr2 ON umr2.UniqueUserName = u.UniqueUserName AND s.ResourceID = umr2.ResourceID AND umr.UniqueUserName = umr2.UniqueUserName AND umr.ResourceID = umr2.ResourceID LEFT JOIN  
+        SMS_UserMachineRelationship as umr3 ON s.ResourceID = umr3.ResourceID AND umr3.Sources = 4  WHERE       
+        umr.IsActive = 1 AND       
+        umr.Sources = 6 AND   
+        (umr2.Sources = 4 OR umr3.ResourceID IS NULL) AND  
+        u.UserGroupName = "ASD\\MyUserGroup"  
+    )

@@ -150,7 +150,7 @@ Foreach ($Source in $Sources)
 
     #$NewPackageFiltered | Set-CMPackage -NewName "$($DriverName) - Windows 10 - $($DriverVersion)"
     
-    #$NewPackage = New-CMPackage -Name $DriverName -Description "CPDesk 4 Driver Package" -Manufacturer $ManufacturerName -Language $Language -Version $DriverVersion -Path $Source.FullName
+    #$NewPackage = New-CMPackage -Name $DriverName -Description "Windows Driver Package" -Manufacturer $ManufacturerName -Language $Language -Version $DriverVersion -Path $Source.FullName
 }
 
 
