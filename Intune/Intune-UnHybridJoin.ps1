@@ -1,4 +1,42 @@
-#https://www.maximerastello.com/manually-re-enroll-a-co-managed-or-hybrid-azure-ad-join-windows-10-pc-to-microsoft-intune-without-loosing-current-configuration/
+
+<#
+.SYNOPSIS
+Simple script to format DSREGCMD /Status output
+
+.DESCRIPTION
+Simple script to format DSREGCMD /Status output
+
+.PARAMETER Remediate
+Set to 1 to delete Intune enrollment and disjoin from AAD
+Exclude or set to 0 to return information only. No changes are made.
+
+.PARAMETER ReJoin
+Set to 1 to set registry key to trigger Azure AD Join
+
+.EXAMPLE
+UnJoin and UnEnroll but don't rejoin. Great for use with Master Image prep.
+PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1
+
+.EXAMPLE
+UnJoin and UnEnroll and ReJoin. Great for devices that are already deployed that need to be fixed.
+PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1 -Rejoin 1
+
+
+.NOTES
+    Version:          1.0
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+    Creation Date:    11/13/2021
+
+    Thanks to https://www.maximerastello.com/manually-re-enroll-a-co-managed-or-hybrid-azure-ad-join-windows-10-pc-to-microsoft-intune-without-loosing-current-configuration/
+
+
+    This hasn't been tested against Co-Managed Azure AD Only devices. It may need some work there still.
+
+    Yes, I know the script name isn't accurate, but it is what it is now.
+
+#>
 
 [cmdletbinding()]
 param (
@@ -10,10 +48,13 @@ param (
     [ValidateSet(0,1)]
     [int]$ReJoin
 )
-
 function Get-DSREGCMDStatus {
     [cmdletbinding()]
-    param()
+    param(
+        [parameter(HelpMessage="Use to add /DEBUG to DSREGCMD")]
+        [switch]$bDebug #Can't use Debug since it's a reserved word
+    )
+    
     try {
         $DSREGCMDStatus = & DSREGCMD /Status
         $DSREGCMDEntries =
@@ -34,7 +75,7 @@ function Get-DSREGCMDStatus {
         return $DSREGCMDEntries
     }
     catch {
-        return $_
+        throw $_
     }
 }
 
@@ -43,6 +84,7 @@ try {
     [string[]]$ProviderGUIDs = @()
 
     #region Get MS DM Provider GUID
+    #Gets enrollment registry keys where the value is MS DM Server.  This will find the MDM/Intune enrollment GUID that we will use for all of the other steps.
     $ProviderRegistryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments"
     $ProviderPropertyName = "ProviderID"
     $ProviderPropertyValue = "MS DM Server"
@@ -73,6 +115,9 @@ try {
     }
     #endregion
 
+    #region DSREGCMD
+    #Runs DSREGCMD to get information about the Azure AD Joined state of the device. If it is joined, it will also return the device ID.
+    
     $DSRegCmdStatus = Get-DSREGCMDStatus
     if(($DSRegCmdStatus | Where-Object {$_.PropertyName -eq "AzureAdJoined"} | Select-Object -ExpandProperty PropertyValue) -eq "Yes") {
         $AzureAdJoined = $DSRegCmdStatus | Where-Object {$_.PropertyName -eq "AzureAdJoined"} | Select-Object -ExpandProperty PropertyValue
@@ -82,6 +127,7 @@ try {
 
     Write-Output "Azure Device ID:  $($DeviceId)"
 
+    #If the device is hybird joined and is remediate = 1 then run Disjoin from AAD.
     if($AzureAdJoined -eq "Yes" -and $DomainJoined -eq "Yes") {
         Write-Output "Device is Hybrid Joined"
         if($Remediate -eq 1) {
@@ -89,8 +135,10 @@ try {
             Write-Output $LeaveResult
         }
     }
+    #endregion
 
     #region Tasks
+    #Finds all scheduled tasks using the Enrollment GUID and deletes them
     $TaskPath = "\Microsoft\Windows\EnterpriseMgmt\"
     $TaskRegistryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\Microsoft\Windows\EnterpriseMgmt"
     $EnderpriseMgmtTasks = (Get-ChildItem -Path Registry::$TaskRegistryPath -ErrorAction SilentlyContinue).PSChildName
@@ -193,6 +241,7 @@ try {
     }
     #endregion
 
+    #Region Outputs
     Write-Output "AzureDeviceID:    $($AzureDeviceID)"
     Write-Output "IntuneDeviceID:   $($IntuneDeviceID)"
 
@@ -202,6 +251,8 @@ try {
     $EntDMID = $null
     $EntDeviceName = $null
 
+    #region Rejoin
+    #If Rejoin = 1 then add registry key to enable Azure AD Join then trigger the Workplace Join scheduled tasks for good measure.
     if($ReJoin -eq 1) {
         Write-Output "Enabling AutoJoin Task"
         $AADKey = New-Item -Path registry::"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WorkplaceJoin" -Force -ErrorAction SilentlyContinue
@@ -220,6 +271,7 @@ try {
         $Status = Get-DSREGCMDStatus
         $Status | Select-Object *
     }
+    #endregion
 }
 catch {
     throw $_
