@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 [cmdletbinding()]
 param(
     [string]$UserUPN        = "adam@asquaredozenlab.com",

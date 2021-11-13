@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 Param (
     [Parameter(Mandatory=$true,HelpMessage="Enter your server name where AdminService is runnning (SMS Provider Role")]
     [string]$ServerName,

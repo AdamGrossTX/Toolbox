@@ -1,4 +1,11 @@
-﻿#http://www.checkyourlogs.net/?p=56283
+﻿<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
+#http://www.checkyourlogs.net/?p=56283
 
 Import-Module ActiveDirectory
 

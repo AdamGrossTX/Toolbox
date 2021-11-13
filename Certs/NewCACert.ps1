@@ -1,4 +1,11 @@
-﻿#https://powershell.org/forums/topic/certificate-templates-add-catemplate-problems/
+﻿<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
+#https://powershell.org/forums/topic/certificate-templates-add-catemplate-problems/
 
 $ConfigContext = ([ADSI]"LDAP://RootDSE").ConfigurationNamingContext 
 $ADSI = [ADSI]"LDAP://CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigContext" 

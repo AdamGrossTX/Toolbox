@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 Try {
     $Value = Get-CIMInstance -Namespace ROOT\Lenovo\Drivers -ClassName Win32_PnPSignedDriverEx -ErrorAction Stop
 }

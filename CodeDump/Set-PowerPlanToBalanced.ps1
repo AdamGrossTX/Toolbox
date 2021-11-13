@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 #https://docs.microsoft.com/en-us/windows/win32/power/power-policy-settings
 
 [cmdletbinding()]

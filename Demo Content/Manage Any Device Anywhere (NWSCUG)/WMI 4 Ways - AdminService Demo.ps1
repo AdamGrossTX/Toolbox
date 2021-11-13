@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 #This code shows 4 ways to Query and Update SCCM/WMI with PowerShell
 
 $ServerName = "cm01.asd.net"
