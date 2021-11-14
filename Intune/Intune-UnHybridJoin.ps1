@@ -43,7 +43,7 @@ PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1 -Rejoin 1
 param (
     [Parameter()]
     [ValidateSet(0,1)]
-    [int]$Remediate = 1,
+    [int]$Remediate,
 
     [Parameter()]
     [ValidateSet(0,1)]
