@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
 Simple script to format DSREGCMD /Status output
@@ -42,7 +41,7 @@ PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1 -Rejoin 1
 param (
     [Parameter()]
     [ValidateSet(0,1)]
-    [int]$Remediate,
+    [int]$Remediate = 1,
 
     [Parameter()]
     [ValidateSet(0,1)]
@@ -54,25 +53,66 @@ function Get-DSREGCMDStatus {
         [parameter(HelpMessage="Use to add /DEBUG to DSREGCMD")]
         [switch]$bDebug #Can't use Debug since it's a reserved word
     )
-    
     try {
-        $DSREGCMDStatus = & DSREGCMD /Status
-        $DSREGCMDEntries =
-        for($i = 0; $i -le $DSREGCMDStatus.Count ; $i++) {
-            if($DSREGCMDStatus[$i] -like "*|*") {
-                $GroupName = $DSREGCMDStatus[$i].Replace("|","").Trim()
-            }
-            elseif($DSREGCMDStatus[$i] -like "*:*") {
-                $EntryParts = $DSREGCMDStatus[$i].split(":")
-                [PSCustomObject] @{
-                    GroupName = $GroupName
-                    PropertyName = $EntryParts[0].Trim()
-                    PropertyValue = $EntryParts[1].Trim()
+        $cmdArgs = if($bDebug) {"/STATUS","/DEBUG"} else {"/STATUS"}
+        $DSREGCMDStatus = & DSREGCMD $cmdArgs
+    
+        $DSREGCMDEntries = [PSCustomObject]@{}
+    
+        if($DSREGCMDStatus) {
+            for($i = 0; $i -le $DSREGCMDStatus.Count ; $i++) {
+                if($DSREGCMDStatus[$i] -like "| *") {
+                    $GroupName = $DSREGCMDStatus[$i].Replace("|","").Trim().Replace(" ","")
+                    $Member = @{
+                        MemberType = "NoteProperty"
+                        Name = $GroupName
+                        Value = $null
+                    }
+                    $DSREGCMDEntries | Add-Member @Member
+                    $i++ #Increment to skip next line with +----
+                    $GroupEntries = [PSCustomObject]@{}
+    
+                    do {
+                    $i++
+                        if($DSREGCMDStatus[$i] -like "*::*") {
+                            $DiagnosticEntries = $DSREGCMDStatus[$i] -split "(^DsrCmd.+(?=DsrCmd)|DsrCmd.+(?=\n))" | Where-Object {$_ -ne ''}
+                            foreach($Entry in $DiagnosticEntries) {
+                                $EntryParts = $Entry -split "(^.+?::.+?: )" | Where-Object {$_ -ne ''}
+                                $EntryParts[0] = $EntryParts[0].Replace("::","").Replace(": ","")
+                                if($EntryParts) {
+                                    $Member = @{
+                                        MemberType = "NoteProperty"
+                                        Name = $EntryParts[0].Trim().Replace(" ","")
+                                        Value = $EntryParts[1].Trim()
+                                    }
+                                    $GroupEntries | Add-Member @Member
+                                    $Member = $null
+                                }
+                            }
+                        }
+                        elseif($DSREGCMDStatus[$i] -like "* : *") {
+                            $EntryParts = $DSREGCMDStatus[$i] -split ':'
+                            if($EntryParts) {
+                                $Member = @{
+                                    MemberType = "NoteProperty"
+                                    Name = $EntryParts[0].Trim().Replace(" ","")
+                                    Value = $EntryParts[1].Trim()
+                                }
+                                $GroupEntries | Add-Member @Member
+                                $Member = $null
+                            }
+                        }
+                        
+                    } until($DSREGCMDStatus[$i] -like "+-*" -or $i -eq $DSREGCMDStatus.Count)
+        
+                    $DSREGCMDEntries.$GroupName = $GroupEntries
                 }
             }
+            return $DSREGCMDEntries
         }
-
-        return $DSREGCMDEntries
+        else {
+            return "No Status Found"
+        }
     }
     catch {
         throw $_
@@ -119,22 +159,33 @@ try {
     #Runs DSREGCMD to get information about the Azure AD Joined state of the device. If it is joined, it will also return the device ID.
     
     $DSRegCmdStatus = Get-DSREGCMDStatus
-    if(($DSRegCmdStatus | Where-Object {$_.PropertyName -eq "AzureAdJoined"} | Select-Object -ExpandProperty PropertyValue) -eq "Yes") {
-        $AzureAdJoined = $DSRegCmdStatus | Where-Object {$_.PropertyName -eq "AzureAdJoined"} | Select-Object -ExpandProperty PropertyValue
-        $DomainJoined = $DSRegCmdStatus | Where-Object {$_.PropertyName -eq "DomainJoined"} | Select-Object -ExpandProperty PropertyValue
-        $DeviceId = $DSRegCmdStatus | Where-Object {$_.PropertyName -eq "DeviceId"} | Select-Object -ExpandProperty PropertyValue
+    $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
+    $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
+    $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
+    if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
+        $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
     }
-
+    
     Write-Output "Azure Device ID:  $($DeviceId)"
 
     #If the device is hybird joined and is remediate = 1 then run Disjoin from AAD.
     if($AzureAdJoined -eq "Yes" -and $DomainJoined -eq "Yes") {
         Write-Output "Device is Hybrid Joined"
-        if($Remediate -eq 1) {
-            $LeaveResult = & DSREGCMD /Leave
-            Write-Output $LeaveResult
+    }
+
+    if($Remediate -eq 1) {
+        Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\Diagnostics" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue #Reset the AAD Join Error Status
+        $LeaveResult = & DSREGCMD /LEAVE /DEBUG
+        Write-Output $LeaveResult
+        $DSRegCmdStatus = Get-DSREGCMDStatus
+        $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
+        $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
+        $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
+        if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
+            $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
         }
     }
+
     #endregion
 
     #region Tasks
@@ -206,11 +257,13 @@ try {
                     }
                 }
             }
-            if($Remediate -eq 1) {
-                Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Provisioning\OMADM" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-            }
         }
     }
+
+    if($Remediate -eq 1) {
+        Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Provisioning\OMADM" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
     #endregion
 
     #region Cleanup Intune and Azure Certs
@@ -219,6 +272,7 @@ try {
     $IntuneCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object {$_.Issuer -eq $IntuneCertIssuer}
     if($IntuneCert) {
         $IntuneDeviceID = ($IntuneCert.SubjectName.Name.Split(',') | Where-Object {$_ -like 'CN=*'}).trim().Replace('CN=','')
+        Write-Output "IntuneDeviceID:   $($IntuneDeviceID)"
         if($Remediate -eq 1) {
             Write-Output "Removing Intune Cert"
             $IntuneCert | Remove-Item -Force -ErrorAction SilentlyContinue
@@ -231,6 +285,7 @@ try {
     $AzureCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object {$_.Issuer -like $AzureIssuer}
     if($AzureCert) {
         $AzureDeviceID = ($AzureCert.SubjectName.Name.Split(',') | Where-Object {$_ -like 'CN=*'}).trim().Replace('CN=','')
+        Write-Output "AzureDeviceID:    $($AzureDeviceID)"
         if($Remediate -eq 1) {
             Write-Output "Removing Azure Cert"
             $AzureCert | Remove-Item -Force -ErrorAction SilentlyContinue
@@ -241,16 +296,7 @@ try {
     }
     #endregion
 
-    #Region Outputs
-    Write-Output "AzureDeviceID:    $($AzureDeviceID)"
-    Write-Output "IntuneDeviceID:   $($IntuneDeviceID)"
-
-    $TaskGUID = $null
-    $AzureDeviceID = $null
-    $IntuneDeviceID = $null
-    $EntDMID = $null
-    $EntDeviceName = $null
-
+    
     #region Rejoin
     #If Rejoin = 1 then add registry key to enable Azure AD Join then trigger the Workplace Join scheduled tasks for good measure.
     if($ReJoin -eq 1) {
