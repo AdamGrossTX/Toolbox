@@ -35,6 +35,8 @@ PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1 -Rejoin 1
 
     Yes, I know the script name isn't accurate, but it is what it is now.
 
+    If you continue to have issues with re-joining, you may need to delete the AAD, Intune and Autopilot device objects from your tentant then wait for Azure AD Connect to re-sync.
+
 #>
 
 [cmdletbinding()]
