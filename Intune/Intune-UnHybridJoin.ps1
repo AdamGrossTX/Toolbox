@@ -169,26 +169,10 @@ try {
     }
     
     Write-Output "Azure Device ID:  $($DeviceId)"
-
     #If the device is hybird joined and is remediate = 1 then run Disjoin from AAD.
     if($AzureAdJoined -eq "Yes" -and $DomainJoined -eq "Yes") {
         Write-Output "Device is Hybrid Joined"
     }
-
-    if($Remediate -eq 1) {
-        Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\Diagnostics" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue #Reset the AAD Join Error Status
-        $LeaveResult = & DSREGCMD /LEAVE /DEBUG
-        Write-Output $LeaveResult
-        $DSRegCmdStatus = Get-DSREGCMDStatus
-        $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
-        $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
-        $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
-        if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
-            $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
-        }
-    }
-
-    #endregion
 
     #region Tasks
     #Finds all scheduled tasks using the Enrollment GUID and deletes them
@@ -296,6 +280,21 @@ try {
             Write-Output "Azure Cert:       $($AzureCert.Thumbprint)"
         }
     }
+    #endregion
+
+    if($Remediate -eq 1) {
+        Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\Diagnostics" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue #Reset the AAD Join Error Status
+        $LeaveResult = & DSREGCMD /LEAVE /DEBUG
+        Write-Output $LeaveResult
+        $DSRegCmdStatus = Get-DSREGCMDStatus
+        $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
+        $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
+        $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
+        if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
+            $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
+        }
+    }
+
     #endregion
 
     
