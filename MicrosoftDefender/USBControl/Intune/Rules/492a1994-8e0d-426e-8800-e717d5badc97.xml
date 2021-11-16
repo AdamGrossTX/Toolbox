@@ -1,0 +1,45 @@
+    <PolicyRule Id="{492a1994-8e0d-426e-8800-e717d5badc97}">
+    <!--Silently Block All Mobile Phone Devices-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7b492a1994-8e0d-426e-8800-e717d5badc97%7d/RuleData -->
+        <Name>Silently Block All Mobile Phone Devices</Name>
+        <IncludedIdList>
+            <GroupId>{3551c70b-349b-4e2a-bd3e-a5687d94a22c}</GroupId><!--All Mobile Phone Devices-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId>{2a93d745-7ff4-4667-a384-a57b84344ff0}</GroupId><!--Cameras-->
+        </ExcludedIdList>
+        <Entry Id="{4073f26f-be9b-444b-b12a-1b3193ce80b3}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{c72b4edb-8cde-4317-a513-75345f0c28d1}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{cbe3d3a8-7196-47d8-8ef4-211012435386}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <Entry Id="{b9d53556-57e0-42bf-8f6b-1fb68810e100}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-00000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <Entry Id="{c94c4114-1f9e-4ce0-9f59-54337fa4d3b4}">
+            <Type>Deny</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+        <Entry Id="{ade5d7ba-f26c-412f-86fb-a39804c5a7ea}">
+            <Type>AuditDenied</Type>
+            <Options>2</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+    </PolicyRule>

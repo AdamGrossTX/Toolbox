@@ -1,0 +1,10 @@
+    <Group Id="{3551c70b-349b-4e2a-bd3e-a5687d94a22c}">
+    <!--Mobile Phone Devices-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7b3551c70b-349b-4e2a-bd3e-a5687d94a22c%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <VID_PID>05AC_</VID_PID> <!--All Apple, Inc. Devices-->
+            <VID_PID>04e8_</VID_PID> <!--All Samsung Electronics Co., Ltd Devices-->
+            <VID_PID>18d1_</VID_PID> <!--All Google Inc. Devices-->
+        </DescriptorIdList>
+    </Group>

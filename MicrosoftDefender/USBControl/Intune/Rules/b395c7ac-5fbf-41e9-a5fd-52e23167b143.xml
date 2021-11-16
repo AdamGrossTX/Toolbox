@@ -1,0 +1,21 @@
+    <PolicyRule Id="{b395c7ac-5fbf-41e9-a5fd-52e23167b143}">
+    <!--Allow Read Access for Cameras-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7bb395c7ac-5fbf-41e9-a5fd-52e23167b143%7d/RuleData -->
+        <Name>Allow Read Access for Cameras</Name>
+        <IncludedIdList>
+            <GroupId>{2a93d745-7ff4-4667-a384-a57b84344ff0}</GroupId><!--Cameras-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId></GroupId>
+        </ExcludedIdList>
+        <Entry Id="{06bf8eb9-2e8b-48e7-b53d-38f7c9ea7697}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>1</AccessMask>
+        </Entry>
+        <Entry Id="{6c8e5f88-23fe-4677-af40-b27f508f8b4d}">
+            <Type>AuditAllowed</Type>
+            <Options>2</Options>
+            <AccessMask>1</AccessMask>
+        </Entry>
+    </PolicyRule>

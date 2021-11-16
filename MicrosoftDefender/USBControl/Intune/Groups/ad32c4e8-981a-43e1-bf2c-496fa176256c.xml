@@ -1,0 +1,8 @@
+    <Group Id="{ad32c4e8-981a-43e1-bf2c-496fa176256c}">
+    <!--WPD Devices-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7bad32c4e8-981a-43e1-bf2c-496fa176256c%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <PrimaryId>WpdDevices</PrimaryId>
+        </DescriptorIdList>
+    </Group>

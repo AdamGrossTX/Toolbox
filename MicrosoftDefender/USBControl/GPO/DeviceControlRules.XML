@@ -1,0 +1,120 @@
+<PolicyRules>
+    <PolicyRule Id="{bddfbc76-7f03-490e-9433-67774831c770}">
+        <!--Block All Removable Devices-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7bbddfbc76-7f03-490e-9433-67774831c770%7d/RuleData -->
+        <Name>Block All Removable Devices</Name>
+        <IncludedIdList>
+            <GroupId>{6f34e099-573d-4fd9-b6ac-eb8650d7d99b}</GroupId><!--All Removable Devices-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId>{2a93d745-7ff4-4667-a384-a57b84344ff0}</GroupId><!--Cameras-->
+            <GroupId>{3551c70b-349b-4e2a-bd3e-a5687d94a22c}</GroupId><!--All Mobile Phone Devices-->
+        </ExcludedIdList>
+        <Entry Id="{406bf3be-4f2d-4ea7-93de-40ad022fa370}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{71872683-cee0-4679-a9b2-92bdb79eb990}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{e13879b9-b67d-4e9e-8110-9365afbfe0d1}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <Entry Id="{efdca219-4592-4b4e-864d-7d29015d421c}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <!--Block Read Write Execute. Only Toast for Write to prevent multiple toasts-->
+        <Entry Id="{33c6e44a-3032-43cd-9281-3bee6e648d99}">
+            <Type>Deny</Type>
+            <Options>0</Options><!--Nothing-->
+            <AccessMask>7</AccessMask><!--Read and Write and Execute-->
+        </Entry>
+        <Entry Id="{d4355522-0d13-4e17-8767-75e2106b4980}">
+            <Type>AuditDenied</Type>
+            <Options>3</Options><!--event and notification-->
+            <AccessMask>2</AccessMask><!--Write-->
+        </Entry>
+        <Entry Id="{4579abd4-001c-4905-9f3e-ebb74835ff58}">
+            <Type>AuditDenied</Type>
+            <Options>2</Options><!--event-->
+            <AccessMask>5</AccessMask><!--Read and Execute-->
+        </Entry>
+    </PolicyRule>
+    <PolicyRule Id="{b395c7ac-5fbf-41e9-a5fd-52e23167b143}">
+    <!--Allow Read Access for Cameras-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7bb395c7ac-5fbf-41e9-a5fd-52e23167b143%7d/RuleData -->
+        <Name>Allow Read Access for Cameras</Name>
+        <IncludedIdList>
+            <GroupId>{2a93d745-7ff4-4667-a384-a57b84344ff0}</GroupId><!--Cameras-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId></GroupId>
+        </ExcludedIdList>
+        <Entry Id="{06bf8eb9-2e8b-48e7-b53d-38f7c9ea7697}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>1</AccessMask>
+        </Entry>
+        <Entry Id="{6c8e5f88-23fe-4677-af40-b27f508f8b4d}">
+            <Type>AuditAllowed</Type>
+            <Options>2</Options>
+            <AccessMask>1</AccessMask>
+        </Entry>
+    </PolicyRule>
+    <PolicyRule Id="{492a1994-8e0d-426e-8800-e717d5badc97}">
+    <!--Silently Block All Mobile Phone Devices-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7b492a1994-8e0d-426e-8800-e717d5badc97%7d/RuleData -->
+        <Name>Silently Block All Mobile Phone Devices</Name>
+        <IncludedIdList>
+            <GroupId>{3551c70b-349b-4e2a-bd3e-a5687d94a22c}</GroupId><!--All Mobile Phone Devices-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId>{2a93d745-7ff4-4667-a384-a57b84344ff0}</GroupId><!--Cameras-->
+        </ExcludedIdList>
+        <Entry Id="{4073f26f-be9b-444b-b12a-1b3193ce80b3}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{c72b4edb-8cde-4317-a513-75345f0c28d1}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Users)-->
+        </Entry>
+        <Entry Id="{cbe3d3a8-7196-47d8-8ef4-211012435386}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-000000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <Entry Id="{b9d53556-57e0-42bf-8f6b-1fb68810e100}">
+            <Type>AuditAllowed</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+            <Sid>S-1-5-21-00000000-0000000000-0000000000-000000</Sid><!--Microsoft Defender Device Control Override (Devices)-->
+        </Entry>
+        <Entry Id="{c94c4114-1f9e-4ce0-9f59-54337fa4d3b4}">
+            <Type>Deny</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+        <Entry Id="{ade5d7ba-f26c-412f-86fb-a39804c5a7ea}">
+            <Type>AuditDenied</Type>
+            <Options>2</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+    </PolicyRule>
+</PolicyRules>

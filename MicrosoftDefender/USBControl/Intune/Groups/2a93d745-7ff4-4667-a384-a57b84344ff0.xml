@@ -1,0 +1,11 @@
+    <Group Id="{2a93d745-7ff4-4667-a384-a57b84344ff0}">
+    <!--Cameras-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7b2a93d745-7ff4-4667-a384-a57b84344ff0%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <VID_PID>04B0_</VID_PID> <!--All Nikon Corp. Devices-->
+            <VID_PID>04A9_</VID_PID> <!--All Canon, Inc. Devices-->
+            <VID_PID>2672_</VID_PID> <!--All GoPro Devices-->
+            <VID_PID>0BDA_</VID_PID> <!--All GoPro Devices-->
+        </DescriptorIdList>
+    </Group>

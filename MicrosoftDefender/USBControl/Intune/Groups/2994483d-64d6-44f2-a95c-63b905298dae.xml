@@ -1,0 +1,8 @@
+    <Group Id="{2994483d-64d6-44f2-a95c-63b905298dae}">
+    <!--CDROM Devices-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7b2994483d-64d6-44f2-a95c-63b905298dae%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <PrimaryId>CdRomDevices</PrimaryId>
+        </DescriptorIdList>
+    </Group>
