@@ -19,10 +19,10 @@ function New-ScopeID {
     )
     try {
         #<ActionImport Name="SMS_Identification.GetSiteID" Action="AdminService.SMS_Identification.GetSiteID"/>
-        $GetSiteID = Invoke-RestMethod -Method Get -Uri "https://$($SiteServer)/AdminService/wmi/SMS_Identification.GetSiteID" -UseDefaultCredentials
-        $SiteID   = $GetSiteID.SiteID
-        $SiteID   = $SiteID.Replace("{","").Replace("}","")
-        $ScopeID  = "ScopeId_$($SiteID)".ToUpper()
+        $GetSiteID = Invoke-RestMethod -Method Get -Uri "https://$SiteServer/AdminService/wmi/SMS_Identification.GetSiteID" -UseDefaultCredentials
+        $SiteID = $GetSiteID.SiteID
+        $SiteID = ($SiteID -Replace "{|}", "").ToUpper()
+        $ScopeID = "ScopeId_$SiteID"
 
         return $ScopeID
     }
@@ -34,7 +34,7 @@ function New-ScopeID {
 function New-ResourceID {
     $guid = New-Guid
     $resnum = $guid.GetHashCode()
-    $ResourceID = "Res_$($resnum)"
+    $ResourceID = "Res_$resnum"
     return $ResourceID
 }
 
@@ -65,7 +65,7 @@ function New-SDMPackageXML {
         $DeploymentTypeID = "APP_$(New-Guid)"
 
         # Create application object
-        $ObjectApplicationID = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.ObjectId($ScopeID,$ApplicationID) 
+        $ObjectApplicationID = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.ObjectId($ScopeID, $ApplicationID) 
         $ObjectApplication = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.Application($ObjectApplicationID) 
         $ObjectApplication.DisplayInfo.DefaultLanguage = $ApplicationLanguage 
         $ObjectApplication.Title = $ApplicationTitle 
@@ -89,8 +89,8 @@ function New-SDMPackageXML {
 
         # DeploymentType configuration
         # Create deployment type objects
-        $ObjectDeploymentTypeID = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.ObjectId($ScopeID,$DeploymentTypeID) 
-        $ObjectDeploymentType = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.DeploymentType($ObjectDeploymentTypeID,"MSI") 
+        $ObjectDeploymentTypeID = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.ObjectId($ScopeID, $DeploymentTypeID) 
+        $ObjectDeploymentType = New-Object Microsoft.ConfigurationManagement.ApplicationManagement.DeploymentType($ObjectDeploymentTypeID, "MSI") 
         $ObjectDeploymentType.Title = $ApplicationTitle 
         $ObjectDeploymentType.Version = $ApplicationVersion 
         $ObjectDeploymentType.Enabled = $true 
@@ -118,15 +118,15 @@ function New-SDMPackageXML {
 
 #Do Work!
 $NewSDMPackageXMLSplat = @{
-    SiteServer = $SiteServer
-    ContentSourcePath = $ContentSourcePath
-    ApplicationTitle = $ApplicationTitle
-    ApplicationVersion = $ApplicationVersion
-    ApplicationSoftwareVersion = $ApplicationSoftwareVersion
-    ApplicationLanguage = $ApplicationLanguage
-    ApplicationDescription = $ApplicationDescription
-    ApplicationPublisher = $ApplicationPublisher
-    DeploymentInstallCommandLine = $DeploymentInstallCommandLine
+    SiteServer                     = $SiteServer
+    ContentSourcePath              = $ContentSourcePath
+    ApplicationTitle               = $ApplicationTitle
+    ApplicationVersion             = $ApplicationVersion
+    ApplicationSoftwareVersion     = $ApplicationSoftwareVersion
+    ApplicationLanguage            = $ApplicationLanguage
+    ApplicationDescription         = $ApplicationDescription
+    ApplicationPublisher           = $ApplicationPublisher
+    DeploymentInstallCommandLine   = $DeploymentInstallCommandLine
     DeploymentUninstallCommandLine = $DeploymentUninstallCommandLine
 }
 
@@ -136,7 +136,14 @@ $SDMPackageXMLJson = @{
 } | ConvertTo-Json
 
 try {
-    $NewApp = Invoke-RestMethod -Method Post -Uri "https://$($SiteServer)/AdminService/wmi/SMS_Application" -body $SDMPackageXMLJson -UseDefaultCredentials -ContentType "application/json"
+    $PostParams = @{
+        Method                = Post
+        Uri                   = "https://$ServerName/AdminService/wmi/SMS_Application"
+        Body                  = $SDMPackageXMLJson
+        UseDefaultCredentials = $true
+        ContentType           = 'Application/Json'
+    }
+    $NewApp = Invoke-RestMethod @PostParams
     $NewApp
 }
 catch {

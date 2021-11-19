@@ -1,7 +1,12 @@
 [cmdletbinding()]
 param (
+    [Parameter(Mandatory=$true)]
     $ServerName,
+
+    [Parameter(Mandatory=$true)]
     $ApplicationTitle,
+    
+    [Parameter(Mandatory=$false)]
     $ApplicationVersion = 1.0
 )
 
@@ -11,10 +16,10 @@ function New-ScopeID {
     )
     try {
         #<ActionImport Name="SMS_Identification.GetSiteID" Action="AdminService.SMS_Identification.GetSiteID"/>
-        $GetSiteID = Invoke-RestMethod -Method Get -Uri "https://$($ServerName)/AdminService/wmi/SMS_Identification.GetSiteID" -UseDefaultCredentials
-        $SiteID   = $GetSiteID.SiteID
-        $SiteID   = $SiteID.Replace("{","").Replace("}","").ToUpper()
-        $ScopeID  = "ScopeId_$($SiteID)"
+        $GetSiteID = Invoke-RestMethod -Method Get -Uri "https://$ServerName/AdminService/wmi/SMS_Identification.GetSiteID" -UseDefaultCredentials
+        $SiteID = $GetSiteID.SiteID
+        $SiteID = ($SiteID -Replace "{|}", "").ToUpper()
+        $ScopeID = "ScopeId_$SiteID"
 
         return $ScopeID
     }
@@ -26,7 +31,7 @@ function New-ScopeID {
 function New-ResourceID {
     $guid = New-Guid
     [int]$resnum = [Math]::Abs($guid.GetHashCode())
-    $ResourceID = "Res_$($resnum)"
+    $ResourceID = "Res_$resnum"
     return $ResourceID
 }
 
@@ -37,7 +42,8 @@ $DigestVersion = 1
 $Language = (Get-Culture).Name
 
 #SDMPackageXML Template
-$SDMPackageXML = '<AppMgmtDigest xmlns="http://schemas.microsoft.com/SystemCenterConfigurationManager/2009/AppMgmtDigest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+$SDMPackageXML = @'
+<AppMgmtDigest xmlns="http://schemas.microsoft.com/SystemCenterConfigurationManager/2009/AppMgmtDigest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Application AuthoringScopeId="{0}" LogicalName="{1}" Version="{2}">
     <DisplayInfo DefaultLanguage="{3}">
       <Info Language="{3}">
@@ -46,14 +52,22 @@ $SDMPackageXML = '<AppMgmtDigest xmlns="http://schemas.microsoft.com/SystemCente
     </DisplayInfo>
     <Title ResourceId="{5}">{4}</Title>
   </Application>
-</AppMgmtDigest>' -f $ScopeID,$ApplicationID,$DigestVersion,$Language,$ApplicationTitle,(New-ResourceID)
+</AppMgmtDigest>
+'@ -f $ScopeID, $ApplicationID, $DigestVersion, $Language, $ApplicationTitle, (New-ResourceID)
 
 $SDMPackageXMLJson = @{
     SDMPackageXML = $SDMPackageXML
 } | ConvertTo-Json
 
 try {
-    $NewApp = Invoke-RestMethod -Method Post -Uri "https://$($ServerName)/AdminService/wmi/SMS_Application" -body $SDMPackageXMLJson -UseDefaultCredentials -ContentType "application/json"
+    $PostParams = @{
+        Method                = Post
+        Uri                   = "https://$ServerName/AdminService/wmi/SMS_Application"
+        Body                  = $SDMPackageXMLJson
+        UseDefaultCredentials = $true
+        ContentType           = 'Application/Json'
+    }
+    $NewApp = Invoke-RestMethod @PostParams
     $NewApp
 }
 catch {
