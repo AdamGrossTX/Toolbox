@@ -254,7 +254,7 @@ try {
 
     #region Cleanup Intune and Azure Certs
     $IntuneCertIssuer = "CN=Microsoft Intune MDM Device CA"
-    $AzureIssuer = "CN=MS-Organization-*Access*"
+    $AzureIssuer = "*CN=MS-Organization-*Access*"
     $IntuneCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object {$_.Issuer -eq $IntuneCertIssuer}
     if($IntuneCert) {
         $IntuneDeviceID = ($IntuneCert.SubjectName.Name.Split(',') | Where-Object {$_ -like 'CN=*'}).trim().Replace('CN=','')
