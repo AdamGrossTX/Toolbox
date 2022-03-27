@@ -7,7 +7,7 @@
 [cmdletbinding()]
 Param (
     [Parameter(HelpMessage="Enter your server name where AdminService is runnning (SMS Provider Role")]
-    [string]$ServerName = "CPRTHQ-CCM01.CPCHEM.NET",
+    [string]$ServerName = "CM01.ASD.NET",
 
     [Parameter(HelpMessage="Enter the ResourceID of the target device")]
     [uint32[]]$TargetResourceIDs = '16860287',

@@ -1,0 +1,22 @@
+Quickly check for KDC Auth Access
+
+NLTEST /DCList:<Domain>
+
+
+KLIST
+Use KLIST to show issues tickets
+
+KLIST Purge to clear them
+
+Should show the DC you hit to get the ticket which is super helpful
+
+
+WireShart
+
+Use Wireshart filtered with - kerberos - 
+Should show the kerberos requests and which DC they are hitting
+
+Add names resolution to the adapters config
+
+will show the auth failures as well
+
