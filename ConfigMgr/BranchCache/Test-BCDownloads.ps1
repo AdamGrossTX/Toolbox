@@ -25,7 +25,7 @@ $script:tick    = " " + [char]0x221a
 $BCEnabledDest  = "$($SourceFilePath)\Enabled"
 $BCDisabledDest = "$($SourceFilePath)\Disabled"
 $fileListSource = "$($SourceFilePath)\FileList"
-$ExportFile     = "$($LocalExportPath)\Results_$(Get-Date -Format yyyyhhMM_HHmmss).CSV"
+$ExportFile     = "$($SourceFilePath)\Results_$(Get-Date -Format yyyyhhMM_HHmmss).CSV"
 
 New-Item -Path $BCEnabledDest -ItemType Directory -Force | Out-Null
 New-Item -Path $BCDisabledDest -ItemType Directory -Force | Out-Null
@@ -127,7 +127,7 @@ if (Test-Path "$($fileListSource)\*.csv") {
         $fileObjs[$Key].TimeDiff = $fileObjs[$Key].DisabledDLTime - $fileObjs[$Key].EnabledDLTime
     }
  
-    $fileObjs.values | Export-Csv -Path $ExportFile
+    $fileObjs.values | Export-Csv -Path $ExportFile -Force
 
     #Re-Enable BranchCache
     Write-Host "-Re-Enabling Branchcache on the client in Distributed Mode." -ForegroundColor Cyan
