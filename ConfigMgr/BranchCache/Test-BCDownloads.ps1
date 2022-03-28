@@ -2,11 +2,13 @@
 .SYNOPSIS
     tests BITS downloads to fins errors with BranchCache Content.
 
-  Version:          1.0
+  Version:          1.3
   Author:           Adam Gross - @AdamGrossTX
   GitHub:           https://www.github.com/AdamGrossTX
   WebSite:          https://www.asquaredozen.com
-  Creation Date:    12/14/2019
+  Creation Date:    03/27/2022
+
+  1.3 - Added Cert Auth by default
     
 # Relies on script stolen from Johan Arwidmark
 # https://github.com/DeploymentResearch/DRFiles/tree/master/Scripts/BranchCache
@@ -17,8 +19,8 @@
 #>
 [cmdletbinding()]
 param(
-    $Creds = (Get-Credential),
-    [string]$SourceFilePath = "C:\BCTest"
+    [string]$SourceFilePath = "C:\BCTest",
+    [switch]$UseCredAuth = $True
 )
 
 $script:tick    = " " + [char]0x221a
@@ -31,6 +33,18 @@ New-Item -Path $BCEnabledDest -ItemType Directory -Force | Out-Null
 New-Item -Path $BCDisabledDest -ItemType Directory -Force | Out-Null
 New-Item -Path $fileListSource -ItemType Directory -Force | Out-Null
 
+#Get Client Auth Cert
+if($UseCredAuth.IsPresent) {
+    $script:creds = Get-Credential
+}
+else {
+    $Certs = Get-ChildItem -Path Cert:\CurrentUser\My
+    $Cert = $Certs | Where-Object {$_.EnhancedKeyUsageList.FriendlyName -eq "Client Authentication" -and $_.Subject -like "*$($env:username)*"} | Select-Object -First 1 *
+    $CertHash = for($i = 0; $i -lt $cert.Thumbprint.Length; $i += 2) {
+        [convert]::ToByte($cert.Thumbprint.SubString($i, 2), 16)
+    }
+}
+
 function DownloadFiles {
     param (
         $fileObj,
@@ -40,11 +54,25 @@ function DownloadFiles {
     try {
         $filePath = Join-Path -Path $Dest -ChildPath $fileObj.FileName
         if ($fileObj.URL -like "HTTPS://*") {
-            $BitsOptions = @{
-                Source         = $fileObj.URL 
-                Destination    = $filePath
-                Credential     = $creds 
-                Authentication = "NTLM"
+            if($CertHash) {
+                $BitsOptions = @{
+                    Source         = $fileObj.URL 
+                    Destination    = $filePath
+                    CertStoreLocation = "CurrentUser"
+                    CertStoreName = "MY"
+                    CertHash = $CertHash
+                }
+            }
+            else {
+                if(-not $script:Creds) {
+                    $script:Creds = (Get-Credential)
+                }
+                $BitsOptions = @{
+                    Source         = $fileObj.URL.Replace("SMS_DP_SMSPKG", "NOCERT_SMS_DP_SMSPKG")
+                    Destination    = $filePath
+                    Credential     = $script:Creds
+                    Authentication = "NTLM"
+                }
             }
         }
         else {
@@ -54,7 +82,7 @@ function DownloadFiles {
             }
         }
 
-        $DLSeconds = Measure-Command { Start-BitsTransfer @BitsOptions } | Select-Object -ExpandProperty TotalSeconds
+        $DLSeconds = Measure-Command { Start-BitsTransfer @BitsOptions -ErrorAction Stop} | Select-Object -ExpandProperty TotalSeconds
 
         if (Test-Path -Path $filePath) {
             $Hash = Get-FileHash -Path $filePath | Select-Object -ExpandProperty Hash
@@ -63,12 +91,14 @@ function DownloadFiles {
         return $DLSeconds, $Hash
     }
     catch {
-        return $_
+        Write-Host X -ForegroundColor Red
+        Write-Error $_
+        return $Null, $Null
     }
 }
 
 if (Test-Path "$($fileListSource)\*.csv") {
-    $fileList = Get-ChildItem -Path $fileListSource | Get-Content | ConvertFrom-CSV | Select-Object -Unique URL
+    $fileList = Get-ChildItem -Path $fileListSource | Get-Content -raw | ConvertFrom-CSV | Select-Object -Unique URL
     Write-Host "Begin Processing $($fileList.Count) Files" -ForegroundColor Cyan
     
     #Enable BC
@@ -81,7 +111,7 @@ if (Test-Path "$($fileListSource)\*.csv") {
 
     foreach ($file in $fileList) {
         if ($file.URL -like "*SMS_DP*") {
-            $URL = $file.URL.Replace("/SCCM?", "").Replace("SMS_DP_SMSPKG", "NOCERT_SMS_DP_SMSPKG")
+            $URL = $file.URL.Replace("/SCCM?", "")
             $fileParts = $URL.Split("/")
             $fileName = $fileParts[$fileParts.count - 1]
         }
