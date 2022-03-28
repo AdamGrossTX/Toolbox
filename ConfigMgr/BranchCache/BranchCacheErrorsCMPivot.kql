@@ -1,0 +1,3 @@
+WinEvent('Microsoft-Windows-BranchCache/Operational',1d)
+| where ID == 13
+| project Device, DateTime, ID, Message
