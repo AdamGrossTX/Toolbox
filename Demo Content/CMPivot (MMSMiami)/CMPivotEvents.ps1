@@ -1,3 +1,11 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
+
 function Get-CMPivotEventMessages {
     #ExcludeMe
     $logFileName = 'Microsoft-Windows-PowerShell/Operational'

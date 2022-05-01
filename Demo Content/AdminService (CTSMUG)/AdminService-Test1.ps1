@@ -1,3 +1,11 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
+
 #https://lazywinadmin.com/2015/09/powershellsccm-find-applications.html
 
 #https://setupconfigmgr.com/how-to-configure-microsoft-sccm-to-use-https-pki

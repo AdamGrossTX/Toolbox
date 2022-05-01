@@ -1,3 +1,10 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 #AdminService Query Samples - ConfigMgr 1906
 Param(
     [Parameter(Mandatory=$false)]

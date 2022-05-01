@@ -1,4 +1,11 @@
-﻿C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -Command "& {
+﻿<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
+C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -Command "& {
 
 $OS = Get-CimInstance Win32_OperatingSystem; 
 $OSCaption = $OS.Caption; 

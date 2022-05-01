@@ -6,16 +6,16 @@
 #>
 [cmdletbinding()]
 Param (
-    [Parameter(Mandatory=$true,HelpMessage="Enter your server name where AdminService is runnning (SMS Provider Role")]
-    [string]$ServerName,
+    [Parameter(HelpMessage="Enter your server name where AdminService is runnning (SMS Provider Role")]
+    [string]$ServerName = "CM01.ASD.NET",
 
-    [Parameter(Mandatory=$true,HelpMessage="Enter the ResourceID of the target device")]
-    [uint32[]]$TargetResourceIDs,
+    [Parameter(HelpMessage="Enter the ResourceID of the target device")]
+    [uint32[]]$TargetResourceIDs = '16860287',
 
-    [Parameter(Mandatory=$false,HelpMessage="Enter a Collection ID that the target device is in")]
+    [Parameter(HelpMessage="Enter a Collection ID that the target device is in")]
     [string]$TargetCollectionID = "SMS00001"
 )
-   
+
 $Types = [Ordered]@{
     "DownloadComputerPolicy" = 8
     "DownloadUserPolicy" = 9
@@ -42,7 +42,7 @@ $Types = [Ordered]@{
 $Types.Keys | ForEach-Object {Write-Host $Types[$_] : $_}
 [uint32]$Type = Read-Host -Prompt "Which client action?"
 
-$BaseUri = "https://$($SiteServer)/AdminService/wmi/"
+$BaseUri = "https://$($ServerName)/AdminService/wmi/"
 Write-Host $BaseUri
 
 $PostURL = "$($BaseUri)$($MethodClass).$($MethodName)"
@@ -55,12 +55,14 @@ $Body = @{
     RandomizationWindow = $RandomizationWindow
     TargetResourceIDs = $TargetResourceIDs
 } | ConvertTo-Json
-    
+
 $Result = Invoke-RestMethod -Method Post -Uri $PostURL -Body $Body -Headers $Headers -UseDefaultCredentials | Select-Object ReturnValue
 
-#Get Results
-start-sleep -Seconds 30
+$Result
 
-$GetURL = "$($BaseUri)$($ResultClass)"
-$Results = Invoke-RestMethod -Method Get -Uri $GetURL -UseDefaultCredentials
-$Results.Value | Format-Table
+#Get Results
+#start-sleep -Seconds 30
+
+#$GetURL = "$($BaseUri)$($ResultClass)"
+#$Results = Invoke-RestMethod -Method Get -Uri $GetURL -UseDefaultCredentials
+#$Results.Value | Format-Table

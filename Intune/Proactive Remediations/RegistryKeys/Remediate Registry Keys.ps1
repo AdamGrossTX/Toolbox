@@ -1,10 +1,17 @@
+<#
+.NOTES
+    Author:           Adam Gross - @AdamGrossTX
+    GitHub:           https://www.github.com/AdamGrossTX
+    WebSite:          https://www.asquaredozen.com
+
+#>
 param (
 
     $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient",
     $Name = "SearchList",
     $Type = "String",
     $Value = "asd.net",
-    [bool]$Remediate = $false
+    [bool]$Remediate = $True
 )
 
 Try {

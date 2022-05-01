@@ -1,0 +1,10 @@
+    <Group Id="{3cb15697-09a3-4f0d-872c-691b6b377e71}">
+    <!--Peripherals-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7b3cb15697-09a3-4f0d-872c-691b6b377e71%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <VID_PID>046d_</VID_PID> <!--All Logitech, Inc. Devices-->
+            <VID_PID>03f0_</VID_PID> <!--All HP, Inc Devices-->
+            <VID_PID>045e_</VID_PID> <!--All Microsoft Corp. Devices-->
+        </DescriptorIdList>
+    </Group>

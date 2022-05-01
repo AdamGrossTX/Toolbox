@@ -1,0 +1,21 @@
+    <PolicyRule Id="{5f1dfdc6-05f8-43b7-828b-39b76b74b347}">
+    <!--Allow All Removable Devices-->
+        <!-- ./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyRules/%7b5f1dfdc6-05f8-43b7-828b-39b76b74b347%7d/RuleData -->
+        <Name>Allow All Removable Devices</Name>
+        <IncludedIdList>
+            <GroupId>{6f34e099-573d-4fd9-b6ac-eb8650d7d99b}</GroupId><!--All Removable Devices-->
+        </IncludedIdList>
+        <ExcludedIdList>
+            <GroupId></GroupId>
+        </ExcludedIdList>
+        <Entry Id="{60728743-1406-4741-a835-2585d87d9346}">
+            <Type>Allow</Type>
+            <Options>0</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+        <Entry Id="{fb8ac918-7df7-4b54-91ac-9dc8c2abc2bc}">
+            <Type>AuditAllowed</Type>
+            <Options>2</Options>
+            <AccessMask>7</AccessMask>
+        </Entry>
+    </PolicyRule>

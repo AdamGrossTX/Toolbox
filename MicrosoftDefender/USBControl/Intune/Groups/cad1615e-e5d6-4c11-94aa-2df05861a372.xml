@@ -1,0 +1,8 @@
+    <Group Id="{cad1615e-e5d6-4c11-94aa-2df05861a372}">
+    <!--Removable Media Devices-->
+        <!--./Vendor/MSFT/Defender/Configuration/DeviceControl/PolicyGroups/%7bcad1615e-e5d6-4c11-94aa-2df05861a372%7d/GroupData-->
+        <MatchType>MatchAny</MatchType>
+        <DescriptorIdList>
+            <PrimaryId>RemovableMediaDevices</PrimaryId>
+        </DescriptorIdList>
+    </Group>
