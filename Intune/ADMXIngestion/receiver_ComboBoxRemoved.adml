@@ -1937,12 +1937,6 @@ Note:
         <checkBox refId="Part_AllowLegacySessionSharing_SessionSharing" defaultChecked="true">AllowLegacySessionSharing</checkBox>
       </presentation>
 	  
-	<presentation id="EnableICAFileSigning">
-        <listBox refId="TrustedCertificates">Trusted Certificates:</listBox>
-        <dropdownList refId="Securitypolicy" defaultItem="0">Security policy:</dropdownList>
-		<checkBox refId="TrustedLaunchers">Disable for Trusted Launchers</checkBox>
-      </presentation>
-	  
 	<presentation id="EnableUSBForceRedirection">
       </presentation>
 	  
