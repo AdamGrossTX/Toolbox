@@ -84,10 +84,10 @@ Function Install-Redist {
     Start-Process -FilePath "$SourcePath\vc_redist.$Bitness.exe" -ArgumentList "/install", "/passive" -Wait
 }
 
-Uninstall-Redist -TargetVersion "14.34.31931.0" -SourcePath "$PSScriptRoot\$TargetVersion" -BitNess "x64"
-Uninstall-Redist -TargetVersion "14.34.31931.0" -SourcePath "$PSScriptRoot\$TargetVersion" -BitNess "x86"
+Uninstall-Redist -TargetVersion "14.34.31931.0" -BitNess "x64"
+Uninstall-Redist -TargetVersion "14.34.31931.0" -BitNess "x86"
 
 & Shutdown -r -t 0
 
-Install-Redist -TargetVersion "14.32.31332.0" -SourcePath "$PSScriptRoot\$TargetVersion" -BitNess "x64"
-Install-Redist -TargetVersion "14.32.31332.0" -SourcePath "$PSScriptRoot\$TargetVersion" -BitNess "x86"
+Install-Redist -TargetVersion "14.32.31332.0" -BitNess "x64"
+Install-Redist -TargetVersion "14.32.31332.0" -BitNess "x86"
