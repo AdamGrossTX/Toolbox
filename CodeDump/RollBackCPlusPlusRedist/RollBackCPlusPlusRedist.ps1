@@ -51,7 +51,7 @@ function Uninstall-Redist {
             "$Path\vcruntime140_1.dll"
         )
 
-        $TargetFiles = Get-Item -Path $FileList -ErrorAction SilentlyContinue | Where-Object { ([Version]$_.VersionInfo.FileVersion).Major -ge $TargetVersion.Major -and ([Version]$_.VersionInfo.FileVersion).Minor -ge $TargetVersion.Minor }
+        $TargetFiles = Get-Item -Path $FileList -ErrorAction SilentlyContinue | Where-Object { ([Version]$_.VersionInfo.ProductVersion).Major -ge $TargetVersion.Major -and ([Version]$_.VersionInfo.ProductVersion).Minor -ge $TargetVersion.Minor }
     
         Write-Output "$TargetFiles.Count left behind."
     
