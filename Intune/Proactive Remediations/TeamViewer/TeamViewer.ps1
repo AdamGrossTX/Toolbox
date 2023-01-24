@@ -37,6 +37,5 @@ try{
 }
 
 Catch {
-    Write-Warning $_
-    Exit 1
+    throw $_
 }
