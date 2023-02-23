@@ -1,6 +1,10 @@
 #AdamGrossTX
 #Inspired by Rudy's blog. Written so that it doesn't need setacls.exe copied to the device to work
 #https://call4cloud.nl/2022/04/dont-be-a-menace-to-autopilot-while-configuring-your-wufb-in-the-hood/
+#Notes: 
+#       This appears to work when you run as an Intune Script during pre-provisioning. 
+#       It also works fine if you run it manually in OOBE before starting Autopilot.
+#       It fails when run during user-driven AutoPilot - don't know why at this point. The better option is to NOT deploy any policies that are known to trigger reboots.
 
 Function Enable-Privilege {
     param(
