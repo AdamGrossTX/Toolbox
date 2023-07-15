@@ -3,7 +3,7 @@
 #Run as logged on user.
 #Detect the selected IM Provider
 #Teams = Microsoft Teams
-#MSTeams = Nee Teams preview appx app
+#MSTeams = New Teams preview appx app
 #Skype = Shame on you. Time to upgrade!
 try {
     $DefaultIMApp = Get-ItemProperty -Path registry::"HKEY_CURRENT_USER\Software\IM Providers" | Select-Object -ExpandProperty DefaultIMApp
