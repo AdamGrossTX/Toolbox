@@ -1,6 +1,6 @@
 #Update the commandline using the docs reference here:
 #https://learn.microsoft.com/en-us/mem/configmgr/core/clients/deploy/deploy-clients-cmg-azure#install-and-register-the-client-using-azure-ad-identity
-
+#Copy ccmsetup.msi, ccmsetup.exe & cmtrace.exe down with the script
 
 Start-Transcript -Path "C:\Windows\Temp\CcmSetup.msi.ps1.log" -Force -ErrorAction SilentlyContinue
 try {
