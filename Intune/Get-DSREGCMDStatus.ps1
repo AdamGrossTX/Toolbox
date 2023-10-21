@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.4
+.VERSION 1.5
 
 .GUID 89d1849e-0dcc-47f1-8adf-9147a2647a29
 
@@ -58,7 +58,7 @@ Retun DSREGCMD /STATUS /DEBUG Output. Only returns debug data if there are error
 PS C:\> Get-DSREGCMDStatus -bDebug
 
 .NOTES
-    Version:          1.1
+    Version:          1.5
     Author:           Adam Gross - @AdamGrossTX
     GitHub:           https://www.github.com/AdamGrossTX
     WebSite:          https://www.asquaredozen.com
@@ -113,7 +113,12 @@ try {
                             $Member = @{
                                 MemberType = "NoteProperty"
                                 Name = $EntryParts[0].Trim().Replace(" ","")
-                                Value = $EntryParts[1].Trim()
+                                Value      = if ($EntryParts.Count -gt 2) {
+                                                ( $EntryParts[1..(($EntryParts.Count) - 1)] -join ":").Split("--").Replace("[ ", "").Replace(" ]", "").Trim()
+                                            }
+                                            else {
+                                                $EntryParts[1].Trim()
+                                            }
                             }
                             $GroupEntries | Add-Member @Member
                             $Member = $null
