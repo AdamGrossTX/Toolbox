@@ -42,65 +42,65 @@ PS C:\> .\Intune-UnHybridJoin.ps1 -Remediate 1 -Rejoin 1
 [cmdletbinding()]
 param (
     [Parameter()]
-    [ValidateSet(0,1)]
+    [ValidateSet(0, 1)]
     [int]$Remediate,
 
     [Parameter()]
-    [ValidateSet(0,1)]
+    [ValidateSet(0, 1)]
     [int]$ReJoin
 )
 function Get-DSREGCMDStatus {
     [cmdletbinding()]
     param(
-        [parameter(HelpMessage="Use to add /DEBUG to DSREGCMD")]
+        [parameter(HelpMessage = "Use to add /DEBUG to DSREGCMD")]
         [switch]$bDebug #Can't use Debug since it's a reserved word
     )
     try {
-        $cmdArgs = if($bDebug) {"/STATUS","/DEBUG"} else {"/STATUS"}
+        $cmdArgs = if ($bDebug) { "/STATUS", "/DEBUG" } else { "/STATUS" }
         $DSREGCMDStatus = & DSREGCMD $cmdArgs
     
         $DSREGCMDEntries = [PSCustomObject]@{}
     
-        if($DSREGCMDStatus) {
-            for($i = 0; $i -le $DSREGCMDStatus.Count ; $i++) {
-                if($DSREGCMDStatus[$i] -like "| *") {
-                    $GroupName = $DSREGCMDStatus[$i].Replace("|","").Trim().Replace(" ","")
+        if ($DSREGCMDStatus) {
+            for ($i = 0; $i -le $DSREGCMDStatus.Count ; $i++) {
+                if ($DSREGCMDStatus[$i] -like "| *") {
+                    $GroupName = $DSREGCMDStatus[$i].Replace("|", "").Trim().Replace(" ", "")
                     $Member = @{
                         MemberType = "NoteProperty"
-                        Name = $GroupName
-                        Value = $null
+                        Name       = $GroupName
+                        Value      = $null
                     }
                     $DSREGCMDEntries | Add-Member @Member
                     $i++ #Increment to skip next line with +----
                     $GroupEntries = [PSCustomObject]@{}
     
                     do {
-                    $i++
-                        if($DSREGCMDStatus[$i] -like "*::*") {
-                            $DiagnosticEntries = $DSREGCMDStatus[$i] -split "(^DsrCmd.+(?=DsrCmd)|DsrCmd.+(?=\n))" | Where-Object {$_ -ne ''}
-                            foreach($Entry in $DiagnosticEntries) {
-                                $EntryParts = $Entry -split "(^.+?::.+?: )" | Where-Object {$_ -ne ''}
-                                $EntryParts[0] = $EntryParts[0].Replace("::","").Replace(": ","")
-                                if($EntryParts) {
+                        $i++
+                        if ($DSREGCMDStatus[$i] -like "*::*") {
+                            $DiagnosticEntries = $DSREGCMDStatus[$i] -split "(^DsrCmd.+(?=DsrCmd)|DsrCmd.+(?=\n))" | Where-Object { $_ -ne '' }
+                            foreach ($Entry in $DiagnosticEntries) {
+                                $EntryParts = $Entry -split "(^.+?::.+?: )" | Where-Object { $_ -ne '' }
+                                $EntryParts[0] = $EntryParts[0].Replace("::", "").Replace(": ", "")
+                                if ($EntryParts) {
                                     $Member = @{
                                         MemberType = "NoteProperty"
-                                        Name = $EntryParts[0].Trim().Replace(" ","")
-                                        Value = $EntryParts[1].Trim()
+                                        Name       = $EntryParts[0].Trim().Replace(" ", "")
+                                        Value      = $EntryParts[1].Trim()
                                     }
-                                    $GroupEntries | Add-Member @Member
+                                    $GroupEntries | Add-Member @Member -Force
                                     $Member = $null
                                 }
                             }
                         }
-                        elseif($DSREGCMDStatus[$i] -like "* : *") {
+                        elseif ($DSREGCMDStatus[$i] -like "* : *") {
                             $EntryParts = $DSREGCMDStatus[$i] -split ':'
-                            if($EntryParts) {
+                            if ($EntryParts) {
                                 $Member = @{
                                     MemberType = "NoteProperty"
-                                    Name = $EntryParts[0].Trim().Replace(" ","")
-                                    Value = $EntryParts[1].Trim()
+                                    Name       = $EntryParts[0].Trim().Replace(" ", "")
+                                    Value      = $EntryParts[1].Trim()
                                 }
-                                $GroupEntries | Add-Member @Member
+                                $GroupEntries | Add-Member @Member -Force
                                 $Member = $null
                             }
                         }
@@ -130,8 +130,8 @@ try {
     $ProviderRegistryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments"
     $ProviderPropertyName = "ProviderID"
     $ProviderPropertyValue = "MS DM Server"
-    $ProviderGUID = (Get-ChildItem -Path Registry::$ProviderRegistryPath -Recurse -ErrorAction SilentlyContinue | ForEach-Object { if((Get-ItemProperty -Name $ProviderPropertyName -Path $_.PSPath -ErrorAction SilentlyContinue | Get-ItemPropertyValue -Name $ProviderPropertyName -ErrorAction SilentlyContinue) -match $ProviderPropertyValue) { $_ } }).PSChildName
-    if($ProviderGUID) {
+    $ProviderGUID = (Get-ChildItem -Path Registry::$ProviderRegistryPath -Recurse -ErrorAction SilentlyContinue | ForEach-Object { if ((Get-ItemProperty -Name $ProviderPropertyName -Path $_.PSPath -ErrorAction SilentlyContinue | Get-ItemPropertyValue -Name $ProviderPropertyName -ErrorAction SilentlyContinue) -match $ProviderPropertyValue) { $_ } }).PSChildName
+    if ($ProviderGUID) {
         $ProviderGUIDs += $ProviderGUID
         Write-Output "Provider GUID Found $($ProviderGUID)"
     }
@@ -142,14 +142,14 @@ try {
 
     #region Check for System and Admin
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
-    if(($Env:USERNAME).Replace("`$","") -eq $Env:COMPUTERNAME) {
+    if (($Env:USERNAME).Replace("`$", "") -eq $Env:COMPUTERNAME) {
         Write-Output "Running As System"
     }
     else {
         Write-Output "Not Running as System"
     }
 
-    if($isAdmin) {
+    if ($isAdmin) {
         Write-Output "Has Admin Rights"
     }
     else {
@@ -163,14 +163,14 @@ try {
     $DSRegCmdStatus = Get-DSREGCMDStatus
     $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
     $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
-    $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
-    if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
-        $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
+    $DeviceId = $DSRegCmdStatus.DeviceDetails.DeviceId
+    if ($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
+        $DSRegCmdStatus.DiagnosticData | Foreach-Object { Write-Output $_ }
     }
     
     Write-Output "Azure Device ID:  $($DeviceId)"
     #If the device is hybird joined and is remediate = 1 then run Disjoin from AAD.
-    if($AzureAdJoined -eq "Yes" -and $DomainJoined -eq "Yes") {
+    if ($AzureAdJoined -eq "Yes" -and $DomainJoined -eq "Yes") {
         Write-Output "Device is Hybrid Joined"
     }
 
@@ -178,39 +178,39 @@ try {
     #Finds all scheduled tasks using the Enrollment GUID and deletes them
     $TaskPath = "\Microsoft\Windows\EnterpriseMgmt\"
     $TaskRegistryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\Microsoft\Windows\EnterpriseMgmt"
-    $EnderpriseMgmtTasks = (Get-ChildItem -Path Registry::$TaskRegistryPath -ErrorAction SilentlyContinue).PSChildName
+    $EnterpriseMgmtTasks = (Get-ChildItem -Path Registry::$TaskRegistryPath -ErrorAction SilentlyContinue).PSChildName | Where-Object { $_ -ne "VirtulizationBasedIsolation" }
 
-    foreach($TaskGUID in $EnderpriseMgmtTasks) {
+    foreach ($TaskGUID in $EnterpriseMgmtTasks) {
         $ProviderGUIDs += $TaskGUID
         $Tasks = Get-ScheduledTask -TaskPath "$(Join-Path -Path $($TaskPath) -ChildPath $($TaskGUID))\*" -ErrorAction SilentlyContinue
-        if($Remediate -eq 1 -and $Tasks) {
+        if ($Remediate -eq 1 -and $Tasks) {
             Write-Output "Deleting Scheduled Tasks"
 
             $scheduleObject = New-Object -ComObject schedule.service
             $scheduleObject.connect()
             $rootFolder = $scheduleObject.GetFolder("\")
 
-            foreach($Task in $Tasks) {
+            foreach ($Task in $Tasks) {
                 $ParentFolder = $Task.TaskPath.TrimEnd("\")
                 $Task | Unregister-ScheduledTask -Confirm:$false -ErrorAction SilentlyContinue
             }
             try {
-                $rootFolder.DeleteFolder($ParentFolder,$null)
+                $rootFolder.DeleteFolder($ParentFolder, $null)
             }
             catch {
                 continue
             }
         }
-        elseif($Tasks) {
+        elseif ($Tasks) {
             Write-Output "Found Tasks"
         }
     }
     #endregion
 
     #region Remove Intune Device Registration Info
-    if($ProviderGUIDs) {
+    if ($ProviderGUIDs) {
         $ProviderGUIDs = $ProviderGUIDs | Get-Unique
-        foreach($GUID in $ProviderGUIDs) {
+        foreach ($GUID in $ProviderGUIDs) {
             [string[]]$KeyList = @(
                 "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments\$($GUID)"
                 "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments\Status\$($GUID)"
@@ -225,16 +225,21 @@ try {
             $DMClientPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments\$($GUID)\DMClient\MS DM Server"
             $EntDMID = Get-ItemPropertyValue -Path Registry::$DMClientPath -Name "EntDMID" -ErrorAction SilentlyContinue
             $EntDeviceName = Get-ItemPropertyValue -Path Registry::$DMClientPath -Name "EntDeviceName" -ErrorAction SilentlyContinue
-            #endregion
+            if ($EntDMID) {
+                $ActiveProviderGUID = $GUID
+                $ActiveIntuneDeviceID = $EntDMID
+                #Write-Output "ActiveProviderGUID:         $($ActiveProviderGUID)"
+                #Write-Output "ActiveIntuneDeviceID:         $($ActiveIntuneDeviceID)"
+            }            #endregion
             Write-Output "TaskGUID:         $($GUID)"
             Write-Output "EntDMID:          $($EntDMID)"
             Write-Output "EntDeviceName:    $($EntDeviceName)"
 
             #region delete Intune Device Registrion registry keys
-            foreach($key in $KeyList) {
+            foreach ($key in $KeyList) {
                 $KeyInstance = Get-Item -Path Registry::$($Key) -ErrorAction SilentlyContinue
-                if($KeyInstance) {
-                    if($Remediate -eq 1) {
+                if ($KeyInstance) {
+                    if ($Remediate -eq 1) {
                         Write-Output "Removing:         $($KeyInstance.Name)"
                         $KeyInstance | Remove-Item -Force -Recurse -ErrorAction Continue
                     }
@@ -246,7 +251,7 @@ try {
         }
     }
 
-    if($Remediate -eq 1) {
+    if ($Remediate -eq 1) {
         Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Provisioning\OMADM" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
     }
 
@@ -255,11 +260,11 @@ try {
     #region Cleanup Intune and Azure Certs
     $IntuneCertIssuer = "CN=Microsoft Intune MDM Device CA"
     $AzureIssuer = "*CN=MS-Organization-*Access*"
-    $IntuneCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object {$_.Issuer -eq $IntuneCertIssuer}
-    if($IntuneCert) {
-        $IntuneDeviceID = ($IntuneCert.SubjectName.Name.Split(',') | Where-Object {$_ -like 'CN=*'}).trim().Replace('CN=','')
+    $IntuneCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object { $_.Issuer -eq $IntuneCertIssuer }
+    if ($IntuneCert) {
+        $IntuneDeviceID = ($IntuneCert.SubjectName.Name.Split(',') | Where-Object { $_ -like 'CN=*' }).trim().Replace('CN=', '')
         Write-Output "IntuneDeviceID:   $($IntuneDeviceID)"
-        if($Remediate -eq 1) {
+        if ($Remediate -eq 1) {
             Write-Output "Removing Intune Cert"
             $IntuneCert | Remove-Item -Force -ErrorAction SilentlyContinue
         }
@@ -268,11 +273,11 @@ try {
         }
     }
 
-    $AzureCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object {$_.Issuer -like $AzureIssuer}
-    if($AzureCert) {
-        $AzureDeviceID = ($AzureCert.SubjectName.Name.Split(',') | Where-Object {$_ -like 'CN=*'}).trim().Replace('CN=','')
+    $AzureCert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object { $_.Issuer -like $AzureIssuer }
+    if ($AzureCert) {
+        $AzureDeviceID = ($AzureCert.SubjectName.Name.Split(',') | Where-Object { $_ -like 'CN=*' } | Select-Object -Unique).trim().Replace('CN=', '')
         Write-Output "AzureDeviceID:    $($AzureDeviceID)"
-        if($Remediate -eq 1) {
+        if ($Remediate -eq 1) {
             Write-Output "Removing Azure Cert"
             $AzureCert | Remove-Item -Force -ErrorAction SilentlyContinue
         }
@@ -282,7 +287,7 @@ try {
     }
     #endregion
 
-    if($Remediate -eq 1) {
+    if ($Remediate -eq 1) {
         Get-Item -Path registry::"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\Diagnostics" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue #Reset the AAD Join Error Status
         $LeaveResult = & DSREGCMD /LEAVE /DEBUG
         Write-Output $LeaveResult
@@ -290,8 +295,8 @@ try {
         $AzureAdJoined = $DSRegCmdStatus.DeviceState.AzureAdJoined
         $DomainJoined = $DSRegCmdStatus.DeviceState.DomainJoined
         $DeviceId = $DSRegCmdStatus.TenantDetails.WorkplaceDeviceId
-        if($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
-            $DSRegCmdStatus.DiagnosticData | Foreach-Object {Write-Output $_}
+        if ($DSRegCmdStatus.DiagnosticData.ClientErrorCode) {
+            $DSRegCmdStatus.DiagnosticData | Foreach-Object { Write-Output $_ }
         }
     }
 
@@ -300,7 +305,7 @@ try {
     
     #region Rejoin
     #If Rejoin = 1 then add registry key to enable Azure AD Join then trigger the Workplace Join scheduled tasks for good measure.
-    if($ReJoin -eq 1) {
+    if ($ReJoin -eq 1) {
         Write-Output "Enabling AutoJoin Task"
         $AADKey = New-Item -Path registry::"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WorkplaceJoin" -Force -ErrorAction SilentlyContinue
         $AADKey | New-ItemProperty -Name "autoWorkplaceJoin" -Value 1 -PropertyType DWORD -Force -ErrorAction SilentlyContinue | Out-Null
@@ -319,6 +324,29 @@ try {
         $Status | Select-Object *
     }
     #endregion
+    
+    $Return = $True
+    if (-not $IntuneCert.Thumbprint) {
+        Write-Output "Missing Intune Cert"
+        $Return = $False
+    }
+
+    if (-not $AzureCert.Thumbprint) {
+        Write-Output "Missing Azure Cert"
+        $Return = $False
+    }
+
+    if ((-not $ActiveIntuneDeviceID) -or (-not $IntuneDeviceID)) {
+        Write-Output "Missing Intune Device ID"
+        $Return = $False
+    }
+
+    if (-not $AzureDeviceID) {
+        Write-Output "Missing Azure AD Device ID"
+        $Return = $False
+    }
+    
+    return $Return
 }
 catch {
     throw $_
